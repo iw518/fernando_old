@@ -1,0 +1,67 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<hr/>
+<hr/>
+<table class="hor-minimalist-a" style="background:white">
+<thead>
+<tr>
+<th colspan="12" style="text-align: center;">
+<p>液化判别计算书</p>
+<p />
+<p style="text-align: left;">工程编号：{{projectNo}}</p>
+</th>
+</tr>
+<tr>
+<td colspan="12" style="text-align: left;">
+<P>计算条件及依据:<P>
+<p>1、计算依据：按照上海市《建筑抗震设计规程》(DGJ08-9-2013)第4.2.2~4.2.3条计算</p>
+<p>2、地震参数：抗震设防烈度取7度，设计基本地震加速度取值0.10g,设计地震第一组取0.80</p>
+<p>3、粘粒含量百分率小于3时，取3</p>
+<p>4、地下水位埋深取值为0.50m，判别深度为20.0m</p>
+<p>5、需进行液化判别的土层：{{siltLayersStr}}</p>
+<p>6、需进行液化判别的钻孔为：{{liqueHolesStr}}</p>
+</td>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td colspan="12" style="text-align: left;">
+<P>备注:<P>
+<P>1、若显示erro，则表示判别代表厚度大于1.5m，不符合规范要求，应予以剔除</P>
+<P>2、总共判别{{caculatedHoleCount}}个钻孔,{{caculatedPointCount}}个标贯点,其中错误标贯点{{erroCount}}个</P>
+<P>工程审核人：&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;工程负责人：<img src="{{url_for('static',filename='images/sign/'+manager+'.jpg',_external=True)}}" height="48px",width="48px"/>&#8195;&#8195;&#8195;&#8195;计算人： Robot of fernando</P>
+</td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<th>孔号</th>
+<th>层号</th>
+<th>深度</th>
+<th>粘量</th>
+<th>N</th>
+<th>Ncr</th>
+<th>液化</th>
+<th>FLei</th>
+<th>Di</th>
+<th>Wi</th>
+<th>Ilei</th>
+<th>备注</th>
+</tr>
+{% for pointX in liqueList %}
+<tr>
+{% for item in pointX %}
+<td>{{item}}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

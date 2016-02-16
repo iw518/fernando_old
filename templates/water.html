@@ -1,0 +1,58 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<hr/>
+<hr/>
+<table  class="ver-minimalist">
+<thead>
+<tr>
+<th colspan="10" style="text-align: center;">
+<p>水位表</p>
+<p />
+<p style="text-align: left;">工程编号：{{projectNo}}</p>
+</th>
+</tr>
+</thead>
+<tbody>
+{% for x in range(rank) %}
+{% set start=x*factor %}
+{% if ((x+1)*factor)<=cnt %}
+{% set end=(x+1)*factor %}
+{% else %}
+{% set end=cnt %}
+{% endif %}
+    <tr>
+        <th>孔号</th>
+        {% for xHole in holelist[start:end] %}
+        <td>{{xHole.holeName}}</td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <th>水位埋深(m)</th>
+        {% for xHole in holelist[start:end] %}
+        <td>{{'%.2f'%(xHole.waterLevel)}}</td>
+        {% endfor %}
+	</tr>
+	<tr style="border-bottom: 1px solid #6678b1;">
+        <th>水位标高(m)</th>
+        {% for xHole in holelist[start:end] %}
+        <td>{{'%+.2f'%(xHole.waterElevation)}}</td>
+        {% endfor %}
+	</tr>
+{% endfor %}
+</tbody>
+<tfoot>
+<tr>
+<td colspan="9" style="text-align: left;">
+<P>工程审核人：&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;工程负责人：<img src="{{url_for('static',filename='images/sign/'+manager+'.jpg',_external=True)}}" height="48px",width="48px"/>&#8195;&#8195;&#8195;&#8195;计算人： Robot of fernando</P>
+</td>
+</tr>
+</tfoot>
+</table>
+{% endblock %}

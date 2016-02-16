@@ -1,0 +1,71 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<hr/>
+<hr/>
+<table class="hor-minimalist-a" style="background:white">
+<thead>
+<tr>
+<th colspan="8" style="text-align: center;">
+<p>天然地基计算书</p>
+<p />
+<p style="text-align: left;">工程编号：{{projectNo}}</p>
+</th>
+</tr>
+<tr>
+<td  colspan="8" style="text-align: left;">
+<P>计算条件及依据:<P>
+<P>1、上表中γ为基础底面以下土的重度,地下水位以下取浮重度。</P>
+<P>2、地下水位埋深取0.5m，基础形式为条基，基础埋深取1.0m，基础宽度取1.5m。</P>
+<P>3、抗剪强度指标计算承载力按照《地基基础设计规范》DGJ08-11-2010 第5.2.3条.<P>
+<P>4、原位测试指标计算承载力按照《岩土工程勘察规范》DGJ08-37-2012 第14.4.4条.<P>
+<P>5、剪切指标标准值取直剪固快峰值强度平均值<P>
+<P>6、粘性土承载力建议值取原位测试承载力和抗剪强度承载力的最小平均值<P>
+<P>7、粉土和砂土承载力建议值取原位测试承载力和抗剪强度承载力的平均值<P>
+</td></tr>
+</thead>
+<tfoot>
+<tr>
+<td colspan="8" style="text-align: left;">
+<P>备注:<P>
+<P>1、fak是按照国家标准《建筑地基基础设计规范》（GB50007-2011）第5.2.3条和上海市工程建设规范《岩土工程勘察规范》（DGJ08-37-2012）第14.4.4条及条文说明综合确定。</P>
+<P>2、fak仅作为评价土层工程特性之用，未考虑软弱下卧层影响，设计时应根据实际基础形状、尺寸、埋深并考虑下卧层强度影响进行计算。</P>
+</td>
+</tr>
+<tr>
+<td colspan="8" style="text-align: left;">
+<P>工程审核人：&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;工程负责人：<img src="{{url_for('static',filename='images/sign/'+manager+'.jpg',_external=True)}}" height="48px",width="48px"/>&#8195;&#8195;&#8195;&#8195;计算人： Robot of fernando</P>
+</td>
+</tr>
+</tfoot>
+<tbody>
+<tr><th>层号</th>
+    <th>层名</th>
+    <th>粘聚力<i>c<i></th>
+    <th>摩擦角<i>&Phi;</i></th>
+    <th>Ps(MPa)</th>
+    <th>原位测试fd(kPa)</th>
+    <th>抗剪强度fd(kPa)</th>
+    <th>综合建议fak(kPa)</th>
+</tr>
+{% for xLayer in layers %}
+    <tr>
+        <td>{{xLayer.layerNo}}</td>
+        <td>{{xLayer.layerName}}</td>
+        <td>{{xLayer.CON_C_toStr}}</td>
+        <td>{{xLayer.CON_F_toStr}}</td>
+        <td>{{xLayer.AVG_Ps}}</td>
+        <td>{{xLayer.Ps_Fak}}</td>
+        <td>{{xLayer.Soil_Fak}}</td>
+        <td>{{xLayer.Fak}}</td>
+    </tr>
+{% endfor %}
+<tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}<!--注意必须放在起始位置，否则顶部不靠顶-->
+{% set projectNo=projectNo %}
+{% set manager=manager %}
+{% block css %}
+{{super()}}
+<link href="{{url_for('static',filename='css/menu.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block nav %}
+        <ul id="nav">
+            <li><a href="#">计算书</a>
+                <ul>
+                    <li><a href="{{url_for('water',projectNo=projectNo,_external=True)}}">水位表</a></li>
+                    <li><a href="{{url_for('liquefaction',projectNo=projectNo,_external=True)}}">液化判别</a></li>
+                    <li><a href="{{url_for('natural_foundation',projectNo=projectNo,_external=True)}}">天然地基</a></li>
+                    <li><a href="{{url_for('pile',projectNo=projectNo,_external=True)}}">桩基</a></li>
+                </ul>
+            </li>
+            <li><a href="#">成果表</a>
+                <ul>
+                    <li><a href="{{url_for('CPT',projectNo=projectNo,_external=True)}}">静力触探曲线图表</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 2-2</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 2-3</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 2-4</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 2-5</a></li>
+                </ul>
+            </li>
+            <li><a href="#">辅助分析</a>
+                <ul>
+                    <li><a href="/{{projectNo}}/#">层位分析</a></li>
+                    <li><a href="/{{projectNo}}/#">指标分析</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 3-3</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 3-4</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 3-5</a></li>
+                </ul>
+            </li>
+            <li><a href="#">统计</a>
+                <ul>
+                    <li><a href="/{{projectNo}}/#">工作量统计</a></li>
+                    <li><a href="/{{projectNo}}/#">图层特性表</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 4-3</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 4-4</a></li>
+                    <li><a href="/{{projectNo}}/#">Submenu 4-5</a></li>
+                </ul>
+            </li>
+            <li><a href="/{{projectNo}}/#">Menu 5</a></li>
+            <li><a href="/{{projectNo}}/#">Menu 6</a></li>
+        </ul>
+{% endblock %}
+{% block main %}
+{% endblock %}
