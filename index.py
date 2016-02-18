@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 #-------------------------------------------------------------------------------
-# Name:        mainapp
+# Name:        indexapp
 # Purpose:     start web
 #
 # Author:      Robot of Fernando
@@ -68,7 +68,7 @@ def pile_calculate():
     dict2list=[]
     for req_dict in req.keys(): #req_dict "{G1:{1:[],2:[],3:[]}}"
         req_dict=eval(req_dict) #eval(req_dict) {G1:{1:[],2:[],3:[]}}
-        for value_dict in req_dict.values(): 
+        for value_dict in req_dict.values():
             dict2list=sorted(value_dict.items(),key=lambda item:int(item[0]))   #https://docs.python.org/3/howto/sorting.html#sortinghowto
             print(dict2list) #value_dict {1:[],2:[],3:[]}
     Rsk=0
