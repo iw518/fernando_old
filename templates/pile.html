@@ -20,38 +20,35 @@
         <option>{{xHole.holeName}}</option>
         {% endfor %}
     </select><br />
-    <input type=button id='calculate' value='计算单桩承载力' disabled="true">
+    <input type=button id='calculate' value='计算单桩承载力' disabled="true"><br />
+    <input type=button id='del_tr' value='删除'>
+    <label>第</label><input type="number" min="2" max="5" name="del_index" required="required"><label>行结算结果</label><br />
 </form>
 
-<table  class="hor-calculate">
+<table  id="result_table" class="hor-calculate">
     <thead>
         <tr>
-            <th>计算孔号</th>
-            <th>桩型</th>
-            <th>方桩边长<br />管桩壁厚<br />(mm)</th>
-            <th>圆桩<br />直径<br />(mm)</th>
-            <th>桩长<br />(m)</th>
-            <th>桩顶<br />埋深<br />(m)</th>
-            <th>桩底<br />埋深<br />(m)</th>
-            <th>桩顶<br />标高<br />(m)</th>
-            <th>桩底<br />标高<br />(m)</th>
-            <th>桩侧总极限<br />摩阻力<br />标准值<br />Rsk(kN)</th>
-            <th>桩端极限<br />摩阻力<br />标准值<br />Rpk(kN)</th>
-            <th>单桩极限<br />承载力<br />标准值<br />Rk(kN)</th>
-            <th>单桩竖向<br />承载力<br />设计值<br />Rd(kN)</th>
-            <th>单桩竖向<br />抗拔承载力<br />设计值<br />Rtd(kN)</th>
+            <th width="7%">计算孔号</th>
+            <th width="10%">桩型</th>
+            <th width="7%">方桩边长<br />管桩壁厚<br />(mm)</th>
+            <th width="5%">圆桩<br />直径<br />(mm)</th>
+            <th width="5%">桩长<br />(m)</th>
+            <th width="5%">桩顶<br />埋深<br />(m)</th>
+            <th width="5%">桩底<br />埋深<br />(m)</th>
+            <th width="6%">桩顶<br />标高<br />(m)</th>
+            <th width="6%">桩底<br />标高<br />(m)</th>
+            <th width="8%">桩侧总极限<br />摩阻力<br />标准值<br />Rsk(kN)</th>
+            <th width="7%">桩端极限<br />摩阻力<br />标准值<br />Rpk(kN)</th>
+            <th width="7%">单桩极限<br />承载力<br />标准值<br />Rk(kN)</th>
+            <th width="7%">单桩竖向<br />承载力<br />设计值<br />Rd(kN)</th>
+            <th width="7%">单桩竖向<br />承载力<br />特征值<br />Ra(kN)</th>
+            <th width="8%">单桩竖向<br />抗拔承载力<br />设计值<br />Rtd(kN)</th>
         </tr>
     </thead>
-        <tr>
+    <tbody>
+        <tr class="result_tr">
             <td class="selected_hole"></td>
-            <td>
-                <select  id="pile_type" size=1 style="margin:-2;">
-                    <option>预制方桩</option>
-                    <option>PHC管桩</option>
-                    <option>钻孔灌注桩</option>
-                    <option>钢管桩</option>
-                </select>
-            </td>
+            <td class="type_select" ondblclick="javascript:gen_tr(this);"></td>
             <td><input name="side_or_thickness"></td>
             <td><input name="diameter"></td>
             <td><input name="pile_length"></td>
@@ -62,21 +59,23 @@
             <td class="Rsk"></td>
             <td class="Rpk"></td>
             <td class="Rk"></td>
+            <td class="Rd"></td>
+            <td class="Ra"></td>
             <td class="Rtd"></td>
-            <td></td>
         </tr>
+    </tbody>
 </table>
 
 <table id='layertable'  class='hor-calculate'>
     <thead>
         <tr>
-            <th rowspan="2">序号</th>
-            <th rowspan="2">土层编号</th>
-            <th rowspan="2">土层名称</th>
-            <th rowspan="2">分层深度(m)</th>
-            <th colspan="2">预制桩桩基参数</th>
-            <th colspan="2">灌注桩桩基参数</th>
-            <th rowspan="2">抗拔系数&lambda;</th>
+            <th  width="5%" rowspan="2">序号</th>
+            <th  width="10%" rowspan="2">土层编号</th>
+            <th  width="20%" rowspan="2">土层名称</th>
+            <th  width="15%" rowspan="2">分层深度(m)</th>
+            <th  width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">预制桩桩基参数</th>
+            <th  width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">灌注桩桩基参数</th>
+            <th  width="10%" rowspan="2">抗拔系数&lambda;</th>
         </tr>
         <tr>
             <th>fs(MPa)</th>
@@ -150,6 +149,44 @@ function showLayer(){
         }
     {% endfor %}
 }
+
+
+function gen_tr(obj){
+    var tr_html="<tr  class='result_tr'>"+
+               "<td class='selected_hole' onkeyup='javascript:del_tr(event);'></td>"+
+               "<td class='type_select' ondblclick='javascript:gen_tr(this);'></td>"+
+               "<td><input name='side_or_thickness'></td>"+
+               "<td><input name='diameter'></td>"+
+               "<td><input name='pile_length'></td>"+
+               "<td><input name='top_depth'></td>"+
+               "<td class='bottom_depth'></td>"+
+               "<td class='top_level'></td>"+
+               "<td class='bottom_level'></td>"+
+               "<td class='Rsk'></td>"+
+               "<td class='Rpk'></td>"+
+               "<td class='Rk'></td>"+
+               "<td class='Rd'></td>"+
+               "<td class='Ra'></td>"+
+               "<td class='Rtd'></td>"+
+            "</tr>"
+     var select_html="<select  class='pile_type' size=1 style='margin:-2;'>"+
+                "<option>预制方桩</option>"+
+                "<option>PHC管桩</option>"+
+                "<option>钻孔灌注桩</option>"+
+                "<option>闭口钢管桩</option>"+
+                "<option>抗拔预制方桩</option>"+
+                "<option>抗拔钻孔灌注桩</option>"+
+            "</select>"
+
+    if ($(obj).find(".pile_type").length==0)
+    {
+        $("#result_table").find(".type_select:last").append(select_html);
+        $("#result_table").append(tr_html);
+        $(obj).unbind("dblclick");
+    }
+}
+
+
 </script>
 
 <script>
@@ -196,16 +233,41 @@ $(function() {
         return new Array(rsk,rpk);
     }
 
-    $('#calculate').bind('click', function() {
+    var calcu_pile2=function(top_depth,pile_length,data,offset){
+        var rt=0;
+        var rs_top=0;
+        var rs_bottom=0;
+        for (i in data){
+            if (i==1){rs_top=data[i][0]*data[i][offset+1]*data[i][5];}
+            else if (data[i][0]<top_depth){rs_top=rs_top+(data[i][0]-data[i-1][0])*data[i][offset+1]*data[i][5];}
+            else {
+                rs_top=rs_top+(top_depth-data[i-1][0])*data[i][offset+1]*data[i][5];
+                break;}
+        }
+
+        for (i in data){
+            if (i==1){rs_bottom=data[i][0]*data[i][offset+1]*data[i][5];}
+            else if (data[i][0]<(top_depth+pile_length)){rs_bottom=rs_bottom+(data[i][0]-data[i-1][0])*data[i][offset+1]*data[i][5];}
+            else {
+                rs_bottom=rs_bottom+((top_depth+pile_length)-data[i-1][0])*data[i][offset+1]*data[i][5];
+                rt=rs_bottom-rs_top;
+                break;}
+        }
+        return rt;
+    }
+
+
+
+    var show_result_tr=function(obj){
         //console.log(buildData());
         //var myselect=document.getElementById("holes");
         //var selectHole=myselect.options[myselect.selectedIndex].text;
         var selected_hole=$("#holes").find("option:selected").text();
-        var pile_type=$("#pile_type").find("option:selected").text();
-        var side_or_thickness=Number($("input[name='side_or_thickness']:first").val());
-        var diameter=Number($("input[name='diameter']:first").val());
-        var pile_length=Number($("input[name='pile_length']:first").val());
-        var top_depth=Number($("input[name='top_depth']:first").val());
+        var pile_type=$(obj).find(".pile_type:first").find("option:selected").text();
+        var side_or_thickness=Number($(obj).find("input[name='side_or_thickness']:first").val());
+        var diameter=Number($(obj).find("input[name='diameter']:first").val());
+        var pile_length=Number($(obj).find("input[name='pile_length']:first").val());
+        var top_depth=Number($(obj).find("input[name='top_depth']:first").val());
         var bottom_depth=top_depth+pile_length;
 
         var hole_level=0;
@@ -223,7 +285,11 @@ $(function() {
         var Rsk=0;
         var Rpk=0;
         var Rk=0;
+        var Rd=0;
+        var Ra=0;
+        var Rtd=0;
         var offset=0;
+        var Gp=0;
 
         switch (pile_type){
             case "预制方桩":
@@ -241,8 +307,18 @@ $(function() {
                 perimeter=diameter*Math.PI*0.001;
                 area=diameter*diameter*Math.PI*0.25*0.001*0.001;
                 break;
-            case "钢管桩":
+            case "闭口钢管桩":
                 offset=0;
+                perimeter=diameter*Math.PI*0.001;
+                area=diameter*diameter*Math.PI*0.25*0.001*0.001;
+                break;
+            case "抗拔预制方桩":
+                offset=0;
+                perimeter=side_or_thickness*4*0.001;
+                area=side_or_thickness*side_or_thickness*0.001*0.001;
+                break;
+            case "抗拔钻孔灌注桩":
+                offset=2;
                 perimeter=diameter*Math.PI*0.001;
                 area=diameter*diameter*Math.PI*0.25*0.001*0.001;
                 break;
@@ -250,13 +326,60 @@ $(function() {
         Rsk=calcu_pile(top_depth,pile_length,data,offset)[0]*perimeter;
         Rpk=calcu_pile(top_depth,pile_length,data,offset)[1]*area;
         Rk=Rsk+Rpk;
-        $("td.selected_hole:first").text(selected_hole);
-        $("td.bottom_depth:first").text(bottom_depth);
-        $("td.top_level:first").text(top_level);
-        $("td.bottom_level:first").text(bottom_level);
-        $(".Rsk:first").text(Rsk.toFixed(1));
-        $(".Rpk:first").text(Rpk.toFixed(1));
-        $(".Rk:first").text(Rk.toFixed(1));
+        var Pp=Rpk/Rk;
+        var rs=2;
+        var rp=2;
+        var rs_arr=[2.09,2.16,2.18,2.13,2.03,1.88,1.73];
+        var rp_arr=[1.08,1.20,1.37,1.61,1.93,2.34,2.83];
+        var n=Math.floor(Pp/0.05)-1;
+        if (n<=0){
+            n=0;
+            rs=rs_arr[n];
+            rp=rp_arr[n];
+        }
+        else if (n>=6){
+            n=6;
+            rs=rs_arr[n];
+            rp=rp_arr[n];
+        }
+        else{
+            rs=(Pp-(n+1)*0.05)/0.05*(rs_arr[n+1]-rs_arr[n])+rs_arr[n];
+            rp=(Pp-(n+1)*0.05)/0.05*(rp_arr[n+1]-rp_arr[n])+rp_arr[n];
+        }
+        Rd=Rsk/rs+Rpk/rp;
+        Ra=Rk/2.0;
+        Gp=area*pile_length*(25-10);
+        Rtd=calcu_pile2(top_depth,pile_length,data,offset)*perimeter/2.0+Gp;
+        $(obj).find("td.selected_hole:first").text(selected_hole);
+        $(obj).find("td.bottom_depth:first").text(bottom_depth);
+        $(obj).find("td.top_level:first").text(top_level);
+        $(obj).find("td.bottom_level:first").text(bottom_level);
+        if (pile_type.match("抗拔")){
+            $(obj).find(".Rtd:first").text(Rtd.toFixed(1));
+        }
+        else{
+            $(obj).find(".Rsk:first").text(Rsk.toFixed(1));
+            $(obj).find(".Rpk:first").text(Rpk.toFixed(1));
+            $(obj).find(".Rk:first").text(Rk.toFixed(1));
+            $(obj).find(".Rd:first").text(Rd.toFixed(1));
+            $(obj).find(".Ra:first").text(Ra.toFixed(1));
+        }
+    }
+
+
+    //删除某一行计算结果，注意remove和empty的区别,empty仅删除，但不会将其从dom中移除
+    $('#del_tr').bind('click', function() {
+        var index=Number($("input[name='del_index']:first").val());
+        $("#result_table tbody>tr").eq(index-1).remove();
+    });
+
+
+    $('#calculate').bind('click', function() {
+        $("#result_table tbody>tr").each(function(index,item){
+            if($(item).find(".pile_type:last").length>0){
+                show_result_tr($("#result_table tbody>tr").eq(index));
+            }
+        });
     return false;
     });
 });

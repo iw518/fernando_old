@@ -158,6 +158,49 @@ def ResLiquefaction(projectNo):
                              xPoint.inf))
     return liqueList,caculatedHoleCount,caculatedPointCount,erroCount
 
+def HoleAndLayer2(projectNo,holeType):
+    sql_str=("SELECT pholeatt.holeno, zp93.dep, zp93.norder, pholeatt.height \
+            FROM (zp93 INNER JOIN base ON zp93.project_count = base.project_count) \
+                    INNER JOIN pholeatt ON zp93.hnumber = pholeatt.hnumber \
+            WHERE base.project_name ='%s' and pholeatt.attribute='%d'\
+            ORDER BY LEN(pholeatt.holeno), \
+                        pholeatt.holeno, \
+                        zp93.norder"%(projectNo,holeType))
+    #必须按照norder排序,不能按照zp93.anumber排序
+    ms = MSSQL(DATABASE)
+    sqlList = ms.ExecQuery(sql_str)
+    layers=FindLayers(projectNo)
+    holeList=FindHoleAndDep(projectNo)
+    L1=len(sqlList)
+    for j in range(len(holeList)):
+        xHole=holeList[j]
+        for i in range(0,L1):
+            if sqlList[i][0].encode('latin-1').decode('gbk')==xHole.holeName:
+                layerOrder=sqlList[i][2]
+                xLayer=copy.deepcopy(layers[layerOrder-1])
+                xLayer.endDep=sqlList[i][1]
+                if layerOrder==1:
+                    xLayer.startDep=0.0
+                    xLayer.endDep=sqlList[i][1]
+                elif xLayer.endDep==0.0:
+                    xLayer.startDep=xHole.layers[-1].endDep
+                    xLayer.endDep=xHole.layers[-1].endDep
+                else:
+                    xLayer.startDep=xHole.layers[-1].endDep
+                    xLayer.endDep=sqlList[i][1]
+                xHole.layers.append(xLayer)
+        else:
+            xLayer=copy.deepcopy(layers[len(xHole.layers)])
+            xLayer.startDep=xHole.layers[-1].endDep
+            xLayer.endDep=xHole.Dep
+            xHole.layers.append(xLayer)
+    if YesorNo==True:
+    	for xHole in holeList:
+    		print(xHole.holeName)
+    		for xLayer in xHole.layers:
+    			print('%s\t%s\t%.2f\t%.2f'%(xLayer.layerNo,xLayer.layerName,xLayer.startDep,xLayer.endDep))
+    return holeList
+
 ###查找每个项目所含钻孔，返回list[xhole,....],hole主要组成为findholeanddep的属性及layers属性,其中layer成分由findlayers明确
 def HoleAndLayer(projectNo,YesorNo=0):
     sql_str=("SELECT soilhole.soil_holeNo, zp93.dep, zp93.norder, zp93.hnumber \
@@ -178,7 +221,7 @@ def HoleAndLayer(projectNo,YesorNo=0):
         for i in range(0,L1):
             if sqlList[i][0].encode('latin-1').decode('gbk')==xHole.holeName:
                 layerOrder=sqlList[i][2]
-                xLayer=copy.deepcopy(layers[layerOrder-1])                
+                xLayer=copy.deepcopy(layers[layerOrder-1])
                 xLayer.endDep=sqlList[i][1]
                 if layerOrder==1:
                     xLayer.startDep=0.0
