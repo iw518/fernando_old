@@ -8,25 +8,35 @@
 {% endblock %}
 {% block main %}
 <hr/>
-<p />
-<p>桩基计算书</p>
-<p />
 <hr/>
-<p>工程编号：{{projectNo}}</p>
-<form name='calculate_form' style="border:1px solid #c3c3c3;" action="">
+<div style="border:1px solid #c3c3c3;">
+<span style="display:inline-block; width:200px;">
 计算孔号：
     <select id="holes" size=1 style="margin:-2;" onChange="showLayer()">
         {% for xHole in holelist %}
         <option>{{xHole.holeName}}</option>
         {% endfor %}
-    </select><br />
-    <input type=button id='calculate' value='计算单桩承载力' disabled="true"><br />
+    </select>
+</span>
+<span>
+    <input type=button id='calculate' value='计算单桩承载力' disabled="true">
+</span>
+</div>
+<div>
     <input type=button id='del_tr' value='删除'>
     <label>第</label><input type="number" min="2" max="5" name="del_index" required="required"><label>行结算结果</label><br />
-</form>
-
+    <input type=button id='print' value='打印计算结果'>
+</div>
+<div id="printArea">
 <table  id="result_table" class="hor-calculate">
     <thead>
+    <tr>
+        <th colspan="15" style="text-align: center;">
+            <p>桩基计算书</p>
+            <p />
+            <p style="text-align: left; border-bottom: 1px solid #6678b1;">工程编号：{{projectNo}}</p>
+        </th>
+    </tr>
         <tr>
             <th width="7%">计算孔号</th>
             <th width="10%">桩型</th>
@@ -99,12 +109,13 @@
         </script>
     </tbody>
 </table>
-
+</div>
 {% endblock %}
 
 {% block script%}
     {{super()}}
 <script type=text/javascript src="{{url_for('static', filename='js/jquery-1.11.3.js')}}"></script>
+<script type=text/javascript src="{{url_for('static', filename='js/jquery.PrintArea.js')}}"></script>
 <script>
 //javascript中可以直接使用jinjia2中的变量{{Variant}}
 function showLayer(){
@@ -273,7 +284,7 @@ $(function() {
         var hole_level=0;
         {% for xHole in holelist %}
             if ("{{xHole.holeName}}"==selected_hole){
-                hole_level=0;}
+                hole_level={{xHole.elevation}};}
         {% endfor %}
 
         var top_level=hole_level-top_depth;
@@ -352,8 +363,8 @@ $(function() {
         Rtd=calcu_pile2(top_depth,pile_length,data,offset)*perimeter/2.0+Gp;
         $(obj).find("td.selected_hole:first").text(selected_hole);
         $(obj).find("td.bottom_depth:first").text(bottom_depth);
-        $(obj).find("td.top_level:first").text(top_level);
-        $(obj).find("td.bottom_level:first").text(bottom_level);
+        $(obj).find("td.top_level:first").text(top_level.toFixed(1));
+        $(obj).find("td.bottom_level:first").text(bottom_level.toFixed(1));
         if (pile_type.match("抗拔")){
             $(obj).find(".Rtd:first").text(Rtd.toFixed(1));
         }
@@ -365,6 +376,11 @@ $(function() {
             $(obj).find(".Ra:first").text(Ra.toFixed(1));
         }
     }
+
+    //打印计算结果
+    $('#print').bind('click', function() {
+        $("#printArea").printArea({mode:"iframe"});
+    });
 
 
     //删除某一行计算结果，注意remove和empty的区别,empty仅删除，但不会将其从dom中移除

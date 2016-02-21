@@ -28,7 +28,7 @@ pdfmetrics.registerFont(TTFont('SIMHEI','SIMHEI.ttf'))
 def PrintPdf(probeInf,holelist,index=None):
     import os
     projectNo=holelist[0].projectNo
-    cptPath='C:/pythonweb/env/static/download/'+projectNo+'/'
+    cptPath='C:/PythonWeb/env/project_code/fernando/static/download/'+projectNo+'/'
     if not os.path.exists(cptPath):
         os.makedirs(cptPath)
     doc = SimpleDocTemplate(cptPath, pagesize=A4, rightMargin=10,leftMargin=20, topMargin=30,bottomMargin=20)

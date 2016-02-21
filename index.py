@@ -56,7 +56,8 @@ def natural_foundation(projectNo):
                             )
 @app.route('/<projectNo>/pile')
 def pile(projectNo):
-    holelist=HoleAndLayer(projectNo,0)
+    holelist=ReceiveHoleLayer(projectNo,1)
+    holelist.extend(ReceiveHoleLayer(projectNo,2))
     return render_template('pile.html',
                             projectNo=projectNo,
                             holelist=holelist,
@@ -147,4 +148,4 @@ def download(probeInf,holelist,index=None):
 ##            return redirect(url_for('static',filename=pdfUrl))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80)
+    app.run(host='0.0.0.0',port=80,debug=True)

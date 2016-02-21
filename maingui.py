@@ -158,19 +158,29 @@ def ResLiquefaction(projectNo):
                              xPoint.inf))
     return liqueList,caculatedHoleCount,caculatedPointCount,erroCount
 
-def HoleAndLayer2(projectNo,holeType):
-    sql_str=("SELECT pholeatt.holeno, zp93.dep, zp93.norder, pholeatt.height \
-            FROM (zp93 INNER JOIN base ON zp93.project_count = base.project_count) \
-                    INNER JOIN pholeatt ON zp93.hnumber = pholeatt.hnumber \
-            WHERE base.project_name ='%s' and pholeatt.attribute='%d'\
-            ORDER BY LEN(pholeatt.holeno), \
-                        pholeatt.holeno, \
-                        zp93.norder"%(projectNo,holeType))
+def ReceiveHoleLayer(projectNo,holeType=-1):
+    if holeType==-1:
+        sql_str=("SELECT pholeatt.holeno, zp93.dep, zp93.norder \
+                FROM (zp93 INNER JOIN base ON zp93.project_count = base.project_count) \
+                        INNER JOIN pholeatt ON zp93.hnumber = pholeatt.hnumber \
+                WHERE base.project_name ='%s'\
+                ORDER BY pholeatt.attribute, \
+                            zp93.norder, \
+                            LEN(pholeatt.holeno), \
+                            pholeatt.holeno"%(projectNo))
+    else:
+        sql_str=("SELECT pholeatt.holeno, zp93.dep, zp93.norder \
+                FROM (zp93 INNER JOIN base ON zp93.project_count = base.project_count) \
+                        INNER JOIN pholeatt ON zp93.hnumber = pholeatt.hnumber \
+                WHERE base.project_name ='%s' and pholeatt.attribute='%d'\
+                ORDER BY zp93.norder,\
+                            LEN(pholeatt.holeno), \
+                            pholeatt.holeno"%(projectNo,holeType))
     #必须按照norder排序,不能按照zp93.anumber排序
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
     layers=FindLayers(projectNo)
-    holeList=FindHoleAndDep(projectNo)
+    holeList=ReceiveHoleBasicInf(projectNo,holeType)
     L1=len(sqlList)
     for j in range(len(holeList)):
         xHole=holeList[j]
@@ -194,15 +204,43 @@ def HoleAndLayer2(projectNo,holeType):
             xLayer.startDep=xHole.layers[-1].endDep
             xLayer.endDep=xHole.Dep
             xHole.layers.append(xLayer)
-    if YesorNo==True:
-    	for xHole in holeList:
-    		print(xHole.holeName)
-    		for xLayer in xHole.layers:
-    			print('%s\t%s\t%.2f\t%.2f'%(xLayer.layerNo,xLayer.layerName,xLayer.startDep,xLayer.endDep))
+##    if True:
+##    	for xHole in holeList:
+##    		print(xHole.holeName)
+##    		for xLayer in xHole.layers:
+##    			print('%s\t%s\t%.2f\t%.2f'%(xLayer.layerNo,xLayer.layerName,xLayer.startDep,xLayer.endDep))
     return holeList
 
+###查找每个项目所含钻孔及其孔深，返回list[xhole,....],hole主要组成为hole.holeName,hole.Dep
+def ReceiveHoleBasicInf(projectNo,holeType=-1):
+    if holeType==-1:
+        sql_str=("SELECT pholeatt.holeno,pholeatt.height,pholeatt.depth,pholeatt.waterlevel,pholeatt.attribute \
+        FROM pholeatt INNER JOIN base ON pholeatt.project_count = base.project_count \
+        WHERE (base.project_name='%s') \
+        ORDER BY pholeatt.attribute, pholeatt.hole_order, len(pholeatt.holeno), pholeatt.holeno"%(projectNo))
+    else:
+        sql_str=("SELECT pholeatt.holeno,pholeatt.height,pholeatt.depth,pholeatt.waterlevel,pholeatt.attribute \
+        FROM pholeatt INNER JOIN base ON pholeatt.project_count = base.project_count \
+        WHERE (base.project_name='%s') AND (pholeatt.attribute='%d')\
+        ORDER BY pholeatt.hole_order, len(pholeatt.holeno), pholeatt.holeno"%(projectNo,holeType))
+    ms = MSSQL(DATABASE)
+    sqlList = ms.ExecQuery(sql_str)
+    holeList=[]
+    for(holeNo,elevation,holeDepth,waterLevel,holeType) in sqlList:
+        xHole=Hole()
+        xHole.holeName=holeNo.encode('latin-1').decode('gbk')
+        xHole.projectNo=projectNo
+        xHole.elevation=elevation
+        xHole.Dep=holeDepth
+        xHole.waterLevel=waterLevel
+        xHole.holeType=holeType
+        holeList.append(xHole)
+        ##if True:print('%s\t%.2f'%(xHole.holeName,xHole.Dep))
+    return holeList
+
+
 ###查找每个项目所含钻孔，返回list[xhole,....],hole主要组成为findholeanddep的属性及layers属性,其中layer成分由findlayers明确
-def HoleAndLayer(projectNo,YesorNo=0):
+def HoleAndLayer(projectNo):
     sql_str=("SELECT soilhole.soil_holeNo, zp93.dep, zp93.norder, zp93.hnumber \
             FROM (zp93 INNER JOIN base ON zp93.project_count = base.project_count) \
                     INNER JOIN soilhole ON zp93.hnumber = soilhole.hnumber \
@@ -238,12 +276,8 @@ def HoleAndLayer(projectNo,YesorNo=0):
             xLayer.startDep=xHole.layers[-1].endDep
             xLayer.endDep=xHole.Dep
             xHole.layers.append(xLayer)
-    if YesorNo==True:
-    	for xHole in holeList:
-    		print(xHole.holeName)
-    		for xLayer in xHole.layers:
-    			print('%s\t%s\t%.2f\t%.2f'%(xLayer.layerNo,xLayer.layerName,xLayer.startDep,xLayer.endDep))
     return holeList
+
 def FindLiqueHole(projectNo):
     holeList=CollectBgPoints2Hole(projectNo)
     for xHole in holeList:
@@ -265,7 +299,7 @@ def FindLiqueHole(projectNo):
     return LiqueHoleList
 
 ###查找每个项目所含钻孔及其孔深，返回list[xhole,....],hole主要组成为hole.holeName,hole.Dep
-def FindHoleAndDep(projectNo,YesOrNo=0):
+def FindHoleAndDep(projectNo):
     sql_str=("SELECT soilhole.soil_holeNo, Max(main.enddep) \
     FROM (soilhole INNER JOIN main ON soilhole.soil_hnumber = main.soil_hnumber)\
     INNER JOIN base ON soilhole.project_count = base.project_count\
@@ -281,7 +315,6 @@ def FindHoleAndDep(projectNo,YesOrNo=0):
         xHole.projectNo=projectNo
         xHole.Dep=holeDepth
         holeList.append(xHole)
-        if YesOrNo==True:print('%s\t%.2f'%(xHole.holeName,xHole.Dep))
     return holeList
 
 def FindLayerOfPoint(xPoint,xHole):
