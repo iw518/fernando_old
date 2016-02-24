@@ -121,33 +121,23 @@
 function showLayer(){
     document.getElementById("calculate").disabled=false;
     var selected_hole=$("#holes").find("option:selected").text();
+    var dividing_line=6.00;
     {% for xHole in holelist %}
         if ("{{xHole.holeName}}"==selected_hole){
-            var layertable=document.getElementById("layertable").getElementsByTagName("tbody")[0];
+            var dividing_td="";
             var myHtml="";
             var i=1;
             {% for xLayer in xHole.layers %}
-                if("{{xLayer.startDep}}"<6 && "{{xLayer.endDep}}">6){
-                    myHtml=myHtml+
-                            "<tr>"+
-                            "<td class='No'>"+i+"</td>"+
-                            "<td class='layerNo'>{{xLayer.layerNo}}</td>"+
-                            "<td class='layerName'>{{xLayer.layerName}}</td>"+
-                            "<td class='endDep'><strong>6.00</strong></td>"+
-                            "<td class='fs'><input></td>"+
-                            "<td class='fp'><input></td>"+
-                            "<td class='fs'><input></td>"+
-                            "<td class='fp'><input></td>"+
-                            "<td class='mylambda'><input></td>"+
-                            "</tr>";
-                    i=i+1;
-                };
+                if("{{xLayer.startDep}}"<dividing_line && "{{xLayer.endDep}}">dividing_line){
+                    dividing_td="<td class='endDep'><strong>"+dividing_line+"</strong></td>";
+                    }
+                else{dividing_td="<td class='endDep'>{{'%.2f'%(xLayer.endDep)}}</td>";}
                 myHtml=myHtml+
                         "<tr>"+
                         "<td class='No'>"+i+"</td>"+
                         "<td class='layerNo'>{{xLayer.layerNo}}</td>"+
                         "<td class='layerName'>{{xLayer.layerName}}</td>"+
-                        "<td class='endDep'>{{'%.2f'%(xLayer.endDep)}}</td>"+
+                        dividing_td+
                         "<td class='fs'><input></td>"+
                         "<td class='fp'><input></td>"+
                         "<td class='fs'><input></td>"+
@@ -156,7 +146,8 @@ function showLayer(){
                         "</tr>";
                 i=i+1;
             {% endfor %}
-            layertable.innerHTML=myHtml
+            //var layertable=document.getElementById("layertable").getElementsByTagName("tbody")[0];
+            $("table#layertable tbody")[0].innerHTML=myHtml;
         }
     {% endfor %}
 }
@@ -204,15 +195,15 @@ function gen_tr(obj){
 $(function() {
     var buildData=function(){
         var ret={};
-        $("#layertable tr").each(function(index,item){
+        $("#layertable tr>td").each(function(index,item){
             if(index>0){
-                var id=$(item).find("td").eq(0).text();
-                var myArray=new Array($(item).find("td").eq(3).text(),
-                                      $(item).find("td").eq(4).find("input").val(),
-                                      $(item).find("td").eq(5).find("input").val(),
-                                      $(item).find("td").eq(6).find("input").val(),
-                                      $(item).find("td").eq(7).find("input").val(),
-                                      $(item).find("td").eq(8).find("input").val()
+                var id=$(item).eq(0).text();
+                var myArray=new Array($(item).eq(3).text(),
+                                      $(item).eq(4).find("input").val(),
+                                      $(item).eq(5).find("input").val(),
+                                      $(item).eq(6).find("input").val(),
+                                      $(item).eq(7).find("input").val(),
+                                      $(item).eq(8).find("input").val()
                                       );
                 ret[id]=myArray;
             };
