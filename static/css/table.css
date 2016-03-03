@@ -72,6 +72,7 @@ box-shadow: 3px 3px 10px #111111;
 	color: #039;
 	padding: 0px;
     border-left: 1px solid #6678b1;
+    text-align: center;
 }
 .hor-calculate tbody
 {
@@ -85,7 +86,7 @@ box-shadow: 3px 3px 10px #111111;
     padding: 2px 0px 2px 0px;
     border-left: 1px solid #6678b1;
     border-top: 1px solid #6678b1;
-
+    text-align: center;
 }
 .hor-calculate input
 {

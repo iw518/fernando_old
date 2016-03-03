@@ -110,17 +110,17 @@ class Layer_Stats(Layer):
 
     @property
     def Ps_Fak(self):
-        if self.AVG_Ps=='-':
-            return '-'
-        else:
+        if round(self.CalcPsBearingCapacity(),2)>0:
             return round(self.CalcPsBearingCapacity(),2)
+        else:
+            return '-'
+
     @property
     def Soil_Fak(self):
-        if self.DENSITY=='-':
-            return '-'
-        else:
+        if self.DENSITY>0 and round(self.CalcSoilBearingCapacity(),2)>0:
             return round(self.CalcSoilBearingCapacity(),2)
-
+        else:
+            return '-'
 
     def Avg2Std(AVG,cv,n):
         rs=1-(1.704/math.sqrt(n)+4.678/n/n)*cv
@@ -163,15 +163,17 @@ class Layer_Stats(Layer):
         Nq=(GFunction.Matchlist(CON_Fd,FD_FACTOR))[1]
         Nc=(GFunction.Matchlist(CON_Fd,FD_FACTOR))[2]
         fd=0.5*f*Nr*Tr*r*b+f*Nc*Tc*CON_Cd+Nq*Tq*r0*d
+        if CON_Fk<=0:
+            fd=-1
         return fd
 
     @property
     def Fak(self):
-        if self.AVG_Ps=='-' and self.DENSITY<=0:
+        if self.Ps_Fak=='-' or self.DENSITY<=0:
             return '-'
-        elif self.AVG_Ps=='-' and self.DENSITY>0:
+        elif self.Ps_Fak=='-' and self.DENSITY>0:
             return (self.Soil_Fak/5)*5
-        elif self.AVG_Ps!='-' and self.DENSITY<=0:
+        elif self.Ps_Fak!='-' and self.DENSITY<=0:
             return (self.Ps_Fak/5)*5
         else:
             if ('粉土' in self.layerName.split('夹')[0]) or ('砂' in self.layerName.split('夹')[0]):

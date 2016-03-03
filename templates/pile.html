@@ -1,32 +1,92 @@
 {% extends "project_home.html" %}
 {% block css %}
 {{super()}}
-<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
 {% endblock %}
 {% block nav %}
 {{super()}}
 {% endblock %}
 {% block main %}
-<hr/>
-<hr/>
-<div style="border:1px solid #c3c3c3;">
-<span style="display:inline-block; width:200px;">
-计算孔号：
-    <select id="holes" size=1 style="margin:-2;" onChange="showLayer()">
-        {% for xHole in holelist %}
-        <option>{{xHole.holeName}}</option>
-        {% endfor %}
-    </select>
-</span>
-<span>
-    <input type=button id='calculate' value='计算单桩承载力' disabled="true">
-</span>
+<div class="btn-toolbar" role="toolbar">
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary" id='calculate' disabled="disabled"><span class="fa fa-calculator"></span>&nbsp;&nbsp;计算</button>
+        <!--<input type=button id='calculate' value='计算单桩承载力' disabled="true">-->
+        <button type="button" class="btn btn-primary" id='print'><span class="glyphicon glyphicon-print"></span>&nbsp;&nbsp;打印</button>
+        <button type="button" class="btn btn-primary" id='del_tr'><span class="fa fa-trash-o fa-lg"></span>&nbsp;&nbsp;删除</button>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary" id='setting_btn'><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;设置</button>
+    </div>
 </div>
-<div>
-    <input type=button id='del_tr' value='删除'>
-    <label>第</label><input type="number" min="2" max="5" name="del_index" required="required"><label>行结算结果</label><br />
-    <input type=button id='print' value='打印计算结果'>
+    <!--<div class="input-group margin-bottom-sm">
+        <span class="input-group-addon"><i class="fa fa-trash-o fa-lg"></i></span>
+        <input class="form-control" type="text" name="del_index" placeholder="删除某一行计算结果">
+    </div>-->
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+        <label class="col-sm-1 control-label">计算孔号</label>
+        <div class="col-sm-1">
+            <select class="form-control" id="holes" onChange="showLayer()">
+                {% for xHole in holelist %}
+                <option>{{xHole.holeName}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</form>
+
+<div style="position:relative;">
+    <div id="setting_div" class="bg-primary" style="position:absolute;">
+        <div class="radio">
+            <label>
+                <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                6m以上fs取值15kPa
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                4m以上fs取值15kPa
+            </label>
+        </div>
+
+        <table class='hor-calculate'>
+            <thead>
+                <tr>
+                    <th width="5%" rowspan="2">序号</th>
+                    <th width="10%" rowspan="2">土层编号</th>
+                    <th width="25%" rowspan="2">土层名称</th>
+                    <th width="10%" rowspan="2">比贯入阻力Ps(MPa)</th>
+                    <th width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">预制桩桩基参数</th>
+                    <th width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">灌注桩桩基参数</th>
+                    <th width="10%" rowspan="2">抗拔系数&lambda;</th>
+                </tr>
+                <tr>
+                    <th>fs(MPa)</th>
+                    <th>fp(MPa)</th>
+                    <th>fs(MPa)</th>
+                    <th>fp(MPa)</th>
+                </tr>
+            </thead>
+            <tbody>
+            {%for xLayer in layerlist %}
+                <tr  class="layer_tr">
+                    <td>{{loop.index}}</td>
+                    <td>{{xLayer.layerNo}}</td>
+                    <td>{{xLayer.layerName}}</td>
+                    <td>{{xLayer.AVG_Ps}}</td>
+                    <td class="fs"><input></td>
+                    <td class="fp"><input></td>
+                    <td class="fs"><input></td>
+                    <td class="fp"><input></td>
+                    <td class="mylambda"><input></td>
+                </tr>
+            {%endfor%}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+
 <div id="printArea">
 <table  id="result_table" class="hor-calculate">
     <thead>
@@ -58,7 +118,9 @@
     <tbody>
         <tr class="result_tr">
             <td class="selected_hole"></td>
-            <td class="type_select" ondblclick="javascript:gen_tr(this);"></td>
+            <td>
+                <select  class='piletype_select' size=1 style='margin:-2;' ondblclick='gen_tr(this)'></select>
+            </td>
             <td><input name="side_or_thickness"></td>
             <td><input name="diameter"></td>
             <td><input name="pile_length"></td>
@@ -95,18 +157,17 @@
         </tr>
     </thead>
     <tbody>
-        <script type=text/javascript>
-            var layertable=document.getElementById("layertable").getElementsByTagName("tbody")[0];
-            var myHtml=
-                "<tr>"+
-                    "<td></td><td></td><td></td><td></td>"+
-                    "<td><input></td><td><input></td><td><input></td><td><input></td><td><input></td>"+
-                "</tr>"
-            for(i=1;i<4;i++){
-                myHtml=myHtml+myHtml;
-            }
-            layertable.innerHTML=myHtml;
-        </script>
+        <tr class="layer_tr">
+            <td class='No'></td>
+            <td class='layerNo'></td>
+            <td class='layerName'></td>
+            <td class='endDep'></td>
+            <td class='fs'><input></td>
+            <td class='fp'><input></td>
+            <td class='fs'><input></td>
+            <td class='fp'><input></td>
+            <td class='mylambda'><input></td>
+        </tr>
     </tbody>
 </table>
 </div>
@@ -114,100 +175,85 @@
 
 {% block script%}
     {{super()}}
-<script type=text/javascript src="{{url_for('static', filename='js/jquery-1.11.3.js')}}"></script>
-<script type=text/javascript src="{{url_for('static', filename='js/jquery.PrintArea.js')}}"></script>
+
+
 <script>
-//javascript中可以直接使用jinjia2中的变量{{Variant}}
+//设置全局桩基参数
+$(function(){
+    $('#setting_div').css('left','100%');
+    var expanded = true;
+    $('#setting_btn').click(function(){
+    	if (expanded) {
+    		$('#setting_div').animate({left:'0'},1000);
+    	}else {
+    		$('#setting_div').animate({left:'-100%'},1000);
+    	}
+    	expanded = !expanded;
+    });
+});
+</script>
+
+<script>
 function showLayer(){
-    document.getElementById("calculate").disabled=false;
+    $("#layertable tr[class='layer_tr']:gt(0)").remove();
     var selected_hole=$("#holes").find("option:selected").text();
     var dividing_line=6.00;
     {% for xHole in holelist %}
         if ("{{xHole.holeName}}"==selected_hole){
-            var dividing_td="";
-            var myHtml="";
             var i=1;
             {% for xLayer in xHole.layers %}
-                if("{{xLayer.startDep}}"<dividing_line && "{{xLayer.endDep}}">dividing_line){
-                    dividing_td="<td class='endDep'><strong>"+dividing_line+"</strong></td>";
-                    }
-                else{dividing_td="<td class='endDep'>{{'%.2f'%(xLayer.endDep)}}</td>";}
-                myHtml=myHtml+
-                        "<tr>"+
-                        "<td class='No'>"+i+"</td>"+
-                        "<td class='layerNo'>{{xLayer.layerNo}}</td>"+
-                        "<td class='layerName'>{{xLayer.layerName}}</td>"+
-                        dividing_td+
-                        "<td class='fs'><input></td>"+
-                        "<td class='fp'><input></td>"+
-                        "<td class='fs'><input></td>"+
-                        "<td class='fp'><input></td>"+
-                        "<td class='mylambda'><input></td>"+
-                        "</tr>";
+                if((dividing_line-"{{xLayer.startDep}}")*(dividing_line-"{{xLayer.endDep}}")<0){
+                    $("#layertable tr[class='layer_tr']:last").find("td[class='No']").text(i);
+                    $("#layertable tr[class='layer_tr']:last").find("td[class='layerNo']").text("{{xLayer.layerNo}}");
+                    $("#layertable tr[class='layer_tr']:last").find("td[class='layerName']").text("{{xLayer.layerName}}");
+                    $("#layertable tr[class='layer_tr']:last").find("td[class='endDep']").text(dividing_line.toFixed(2));
+                    $("#layertable").append($("#layertable tr[class='layer_tr']:last").clone());
+                    i=i+1;
+                }
+                $("#layertable tr[class='layer_tr']:last").find("td[class='No']").text(i);
+                $("#layertable tr[class='layer_tr']:last").find("td[class='layerNo']").text("{{xLayer.layerNo}}");
+                $("#layertable tr[class='layer_tr']:last").find("td[class='layerName']").text("{{xLayer.layerName}}");
+                $("#layertable tr[class='layer_tr']:last").find("td[class='endDep']").text("{{'%.2f'%(xLayer.endDep)}}");
+                $("#layertable").append($("#layertable tr[class='layer_tr']:last").clone());
                 i=i+1;
             {% endfor %}
-            //var layertable=document.getElementById("layertable").getElementsByTagName("tbody")[0];
-            $("table#layertable tbody")[0].innerHTML=myHtml;
+            $("#layertable tr[class='layer_tr']:last").remove();
         }
     {% endfor %}
+    //var layertable=document.getElementById("layertable").getElementsByTagName("tbody")[0];
+    //document.getElementById("calculate").disabled=false;
+    $('#calculate').attr("disabled",false);
 }
-
 
 function gen_tr(obj){
-    var tr_html="<tr  class='result_tr'>"+
-               "<td class='selected_hole' onkeyup='javascript:del_tr(event);'></td>"+
-               "<td class='type_select' ondblclick='javascript:gen_tr(this);'></td>"+
-               "<td><input name='side_or_thickness'></td>"+
-               "<td><input name='diameter'></td>"+
-               "<td><input name='pile_length'></td>"+
-               "<td><input name='top_depth'></td>"+
-               "<td class='bottom_depth'></td>"+
-               "<td class='top_level'></td>"+
-               "<td class='bottom_level'></td>"+
-               "<td class='Rsk'></td>"+
-               "<td class='Rpk'></td>"+
-               "<td class='Rk'></td>"+
-               "<td class='Rd'></td>"+
-               "<td class='Ra'></td>"+
-               "<td class='Rtd'></td>"+
-            "</tr>"
-     var select_html="<select  class='pile_type' size=1 style='margin:-2;'>"+
-                "<option>预制方桩</option>"+
-                "<option>PHC管桩</option>"+
-                "<option>钻孔灌注桩</option>"+
-                "<option>闭口钢管桩</option>"+
-                "<option>抗拔预制方桩</option>"+
-                "<option>抗拔钻孔灌注桩</option>"+
-            "</select>"
+    var piletype_list=["预制方桩","PHC管桩","钻孔灌注桩","闭口钢管桩","抗拔预制方桩","抗拔钻孔灌注桩"];
 
-    if ($(obj).find(".pile_type").length==0)
-    {
-        $("#result_table").find(".type_select:last").append(select_html);
-        $("#result_table").append(tr_html);
-        $(obj).unbind("dblclick");
+    if (obj.options.length==0){
+        $("#result_table").append($("#result_table tr[class='result_tr']:last").clone(true));
+        for (var i=0;i<piletype_list.length;i++){
+            var pile_option=new Option(piletype_list[i],i);
+            obj.options.add(pile_option);
+        }
     }
 }
-
-
 </script>
 
 <script>
 $(function() {
     var buildData=function(){
         var ret={};
-        $("#layertable tr>td").each(function(index,item){
-            if(index>0){
-                var id=$(item).eq(0).text();
-                var myArray=new Array($(item).eq(3).text(),
-                                      $(item).eq(4).find("input").val(),
-                                      $(item).eq(5).find("input").val(),
-                                      $(item).eq(6).find("input").val(),
-                                      $(item).eq(7).find("input").val(),
-                                      $(item).eq(8).find("input").val()
-                                      );
-                ret[id]=myArray;
-            };
+        $("#layertable tbody:first>tr").each(function(index,item){
+            var id=$(item).find("td").eq(0).text();
+            var myArray=new Array($(item).find("td").eq(3).text(),
+                                  $(item).find("td").eq(4).find("input").val(),
+                                  $(item).find("td").eq(5).find("input").val(),
+                                  $(item).find("td").eq(6).find("input").val(),
+                                  $(item).find("td").eq(7).find("input").val(),
+                                  $(item).find("td").eq(8).find("input").val()
+                                  );
+            ret[id]=myArray;
         });
+        console.log(ret);
         return ret;
     }
     var calcu_pile=function(top_depth,pile_length,data,offset){
@@ -265,7 +311,7 @@ $(function() {
         //var myselect=document.getElementById("holes");
         //var selectHole=myselect.options[myselect.selectedIndex].text;
         var selected_hole=$("#holes").find("option:selected").text();
-        var pile_type=$(obj).find(".pile_type:first").find("option:selected").text();
+        var pile_type=$(obj).find(".piletype_select:first").find("option:selected").text();
         var side_or_thickness=Number($(obj).find("input[name='side_or_thickness']:first").val());
         var diameter=Number($(obj).find("input[name='diameter']:first").val());
         var pile_length=Number($(obj).find("input[name='pile_length']:first").val());
@@ -368,11 +414,6 @@ $(function() {
         }
     }
 
-    //打印计算结果
-    $('#print').bind('click', function() {
-        $("#printArea").printArea({mode:"iframe"});
-    });
-
 
     //删除某一行计算结果，注意remove和empty的区别,empty仅删除，但不会将其从dom中移除
     $('#del_tr').bind('click', function() {
@@ -383,7 +424,7 @@ $(function() {
 
     $('#calculate').bind('click', function() {
         $("#result_table tbody>tr").each(function(index,item){
-            if($(item).find(".pile_type:last").length>0){
+            if($(item).find(".piletype_select:first>option").length>0){
                 show_result_tr($("#result_table tbody>tr").eq(index));
             }
         });

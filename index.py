@@ -23,13 +23,15 @@ def index():
         #return redirect(url_for('index',projectNo=request.form['projectNo']))
         return projecthome(request.form['projectNo'])
     return render_template('index.html')
-
+##当执行127.0.0.1/时其可以执行'/'，也可执行'/<projectNo>'，故需加一个判断
+##此处还可进一步优化，写成127.0.0.1/?No=K059-2015形式
 @app.route('/<projectNo>')
 def projecthome(projectNo):
-    return render_template('project_home.html',
-                            projectNo=projectNo,
-                            manager=FindManager(projectNo)
-                            )
+    if request.method=='POST':
+        return render_template('project_home.html',
+                                projectNo=projectNo,
+                                manager=FindManager(projectNo)
+                                )
 
 @app.route('/<projectNo>/water')
 def water(projectNo):
@@ -58,10 +60,12 @@ def natural_foundation(projectNo):
 def pile(projectNo):
     holelist=ReceiveHoleLayer(projectNo,1)
     holelist.extend(ReceiveHoleLayer(projectNo,2))
+    layerlist=ExportLayers_Stat(projectNo)
     return render_template('pile.html',
                             projectNo=projectNo,
                             holelist=holelist,
-                            manager=FindManager(projectNo)
+                            manager=FindManager(projectNo),
+                            layerlist=layerlist
                             )
 @app.route('/pile_calculate')
 def pile_calculate():
@@ -107,6 +111,7 @@ def liquefaction(projectNo):
 @app.route('/<projectNo>/CPT',methods=['POST','GET'])
 def CPT(projectNo):
     holelist=FindCPT(projectNo)
+    index=None
     if request.method=='POST':
         probeNo=request.form['probeNo']
         probeArea=request.form['probeArea']
@@ -115,12 +120,12 @@ def CPT(projectNo):
         holeName=request.form['holeName']
         probeInf={'probeNo':probeNo,'probeArea':probeArea,'fixedRatio':fixedRatio,'testDate':testDate}
 
-        if request.form['action']=='打印所有静力触探':
+        if request.form['print_btn']=='打印所有静力触探':
             MaxNofHole=4 #一天最多施工4只勘探孔
             MaxTotalDep=160 #一天总进尺最多160m
             autoDate(testDate,MaxNofHole,MaxTotalDep,holelist)
             index=None
-        elif request.form['action']=='打印单个静力触探':
+        elif request.form['print_btn']=='打印单个静力触探':
             for xHole in holelist:
                 if xHole.holeName==holeName:
                     index=holelist.index(xHole)

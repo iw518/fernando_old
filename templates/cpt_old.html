@@ -1,0 +1,145 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<p>静力触探曲线</p>
+<p />
+<hr/>
+<p>工程编号：{{projectNo}}</p>
+<form class="form-horizontal" name='myform' role="form" method="POST" align="left">
+<legend>探头编号信息</legend>
+    <div class="form-group">
+        <label for="holeName" class="col-md-4 control-label">测试孔号：</label>
+        <div class="col-md-4">
+            <select name='holeName' id="cptSelection" class="form-control" onChange="showCurve()">
+                    {% for xHole in holelist %}
+                    <option>{{xHole.holeName}}</option>
+                    {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probeNo" class="col-md-4 control-label">探头编号：</label>
+        <div class="col-md-4">
+            <input type="text" name="probeNo" id="probeNo" class="form-control" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probeArea" class="col-md-4 control-label">锥头面积：</label>
+        <div class="col-md-4">
+            <input type="number" name="probeArea"  class="form-control" placeholder="15" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="fixedRatio" class="col-md-4 control-label">标定系数：</label>
+        <div class="col-md-4">
+            <input type=text name="fixedRatio" class="form-control" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="testDate" class="col-md-4 control-label">测试日期：</label>
+        <div class="col-md-4">
+            <input type="date" name="testDate" class="form-control" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <button type=submit name=action class="btn btn-default">打印所有静力触探</button>
+        <button type=submit name=action class="btn btn-default">打印单个静力触探</button>
+    </div>
+</form>
+<div><canvas id="cptCurve" style="border:1px solid #c3c3c3;"></canvas></div>
+<div>
+    <object data="{{url_for('static',filename='download/K081-2015/C1.PDF')}}" type="application/pdf" width="100%" height="100%">
+  <p>It appears you don't have a PDF plugin for this browser.
+  download the PDF file.</a></p>
+  No biggie... you can <a href="{{url_for('static',filename='download/K081-2015/C1.PDF')}}">click here to
+</object>
+</object>
+</div>
+<!--{% for xHole in holelist %}-->
+<!--{%set cptstring=xHole.projectNo+'?holeName='+xHole.holeName %}-->
+<!-- <div><a href="{{url_for('download',cptstring=cptstring)}}">{{xHole.holeName}}</a><div>-->
+<!--{% endfor%}-->
+{% endblock %}
+{% block script%}
+    {{super()}}
+<script>
+//javascript中可以直接使用jinjia2中的变量{{Variant}}
+//myform.testDate.value=((new Date()).toLocaleDateString()).replace('年','-').replace('月','-').replace('日','');
+function showCurve(){
+    //给form一个名字之后才能获取
+    //alert(myform.testDate.value);
+    var myselect=document.getElementById("cptSelection");
+    //obj.opions[obj.selectedIndex].text获取某个选项的纯文本值
+    //obj.opions[obj.selectedIndex].value获取被送往服务器的值
+    //obj.selectedIndex获取options的索引值
+    var selectHole=myselect.options[myselect.selectedIndex].text;
+    //var selectIndex=myselect.selectedIndex;
+    //alert(typeof(selectIndex))
+    //alert("{{holelist[selectIndex]}}")holelist索引无法用变量，只能用数字或key
+    var data=new Array();
+    {% for xHole in holelist %}
+        if ("{{xHole.holeName}}"==selectHole){
+                {% for xPoint in xHole.testPoints %}
+                    data.push("{{xPoint.testValue}}");
+                {% endfor %}
+            }
+    {% endfor %}
+    var canvas = document.getElementById("cptCurve");
+    renderCanvas(data,canvas);
+}
+
+function renderCanvas(data,canvas){
+    var DPI=96;//the default value of windows DPIis 96
+    //1in=2.54cm,the default value of windows DPIis 96
+    var scale=200;//default print vertical scale is 1:200(but 1m contain 10 data considered),and horizontal scale is 1:2.
+    var scaleX=100/2.54*DPI/scale;
+    var scaleY=10/2.54*DPI/scale;
+
+    var maxDep=400;//unit cm
+    var maxPs=32;//unit MPa
+    canvas.width=scaleX*maxPs;
+    if (data.length<maxDep){
+        canvas.height=scaleY*data.length;
+    }
+    else
+    {canvas.height=scaleY*maxDep;}
+
+    var context = canvas.getContext("2d");
+    context.clearRect(0,0,600,950);
+
+    ////绘制曲线
+    context.strokeStyle = "rgb(250,0,0)";
+    context.lineWidth=0.25;
+    //context.fillStyle = "rgb(250,0,0)";
+    context.beginPath();
+    context.moveTo(0,0);
+    for(var i=0;i<data.length;i++){
+        var pX=scaleX*data[i];
+        var pY=scaleY*i;
+        context.lineTo(pX,pY);
+        context.stroke();
+    }
+
+    //绘制网格
+    context.lineWidth=0.1;
+    context.strokeStyle = "rgb(0,0,0)";
+    for (var i=50;i<data.length;i=i+50){
+        context.moveTo(0,scaleY*i);
+        context.lineTo(canvas.width,scaleY*i);
+        context.stroke();
+    }
+    context.lineWidth=0.1;
+    context.strokeStyle = "rgb(0,0,0)";
+    for (var i=4;i<30;i=i+4){
+        context.moveTo(scaleX*i,0);
+        context.lineTo(scaleX*i,canvas.height);
+        context.stroke();
+    }
+}
+</script>
+{%endblock%}
