@@ -1,6 +1,5 @@
 {% extends "base.html" %}<!--注意必须放在起始位置，否则顶部不靠顶-->
 {% set projectNo=projectNo %}
-{% set manager=manager %}
 {% block css %}
 {{super()}}
 <link href="{{url_for('static',filename='css/menu.css',_external=True)}} "  rel="stylesheet" type="text/css" />

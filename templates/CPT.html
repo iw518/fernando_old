@@ -6,75 +6,79 @@
 {{super()}}
 {% endblock %}
 {% block main %}
-<h2 class="text-center">静力触探曲线</h2>
-<p>工程编号：{{projectNo}}</p>
-<hr/>
-<div class="container-fluid">
-<div class="row">
-    <form class="form-horizontal col-md-5" name='myform' role="form" method="POST">
-        <fieldset style="margin:2px 2px;border:1px solid black;width:100%;">
-            <legend style="padding:.20em;border:0;width:auto;">探头编号信息</legend>
-            <div class="form-group">
-                <label for="holeName" class="col-md-3 control-label">测试孔号：</label>
-                <div class="col-md-8">
-                    <select name='holeName' id="cptSelection" class="form-control" onClick="showCurve(this)">
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="probeNo" class="col-md-3 control-label">探头编号：</label>
-                <div class="col-md-8">
-                    <input type="text" name="probeNo" id="probeNo" class="form-control" required="required">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="probeArea" class="col-md-3 control-label">锥头面积：</label>
-                <div class="col-md-8">
-                    <input type="number" name="probeArea"  class="form-control" placeholder="15" required="required">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="fixedRatio" class="col-md-3 control-label">标定系数：</label>
-                <div class="col-md-8">
-                    <input type=text name="fixedRatio" class="form-control" required="required">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="testDate" class="col-md-3 control-label">测试日期：</label>
-                <div class="col-md-8">
-                    <input type="date" name="testDate" class="form-control" required="required">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-5 btn-group">
-                    <button type=submit name="print_btn" class="btn btn-default" value="打印所有静力触探">打印所有静力触探</button>
-                </div>
-                <div class="col-md-5 btn-group">
-                    <button type=submit name="print_btn" class="btn btn-default" value="打印单个静力触探">打印单个静力触探</button>
-                </div>
-            </div>
-        </fieldset>
-    </form>
-    <div class="col-md-5 col-md-offset-2" style="position:relative;" id="ps_curve">
-        <svg width="100%" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" onmousemove="showPs_label(event)" onmouseout="removePs_label(event)">
-            <polyline id="cptCurve" style="fill:none;stroke:#000000;stroke-width:1"></polyline>
-            <g transform="translate(0.5 0.5)">
-                <line id="myline" style="stroke:red;"></line>
-            </g>
-        </svg>
+<div class="col-sm-10 col-sm-offset-1">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" id='print'><span class="glyphicon glyphicon-print"></span>&nbsp;&nbsp;打印</button>
+            <!-- 按钮触发模态框 -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="modal_btn"><span class="fa fa-trash-o fa-lg"></span>&nbsp;&nbsp;删除</button>
+            <!-- 模态框（Modal） -->
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" id='setting_btn'><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;设置</button>
+            <button type="button" class="btn btn-primary" id='loadfsfp_btn' disabled="disabled"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;加载数据</button>
+        </div>
     </div>
 </div>
+<div id="printArea" class="col-sm-10 col-sm-offset-1">
+    <div>
+        <h4 style="text-align: center;"><strong>静力触探</strong></h4>
+        <p>工程编号：{{projectNo}}</p>
+        <hr/>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <form class="form-horizontal" name='myform' role="form" method="POST">
+                    <div class="form-group">
+                        <label for="holeName" class="control-label col-sm-4">测试孔号：</label>
+                        <div class="col-sm-5">
+                            <select name='holeName' id="cptSelection" class="form-control col-sm-2" onClick="showCurve(this)">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="probeNo" class="control-label col-sm-4">探头编号：</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="probeNo" id="probeNo" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="probeArea" class="control-label col-sm-4">锥头面积：</label>
+                        <div class="col-sm-5">
+                            <input type="number" name="probeArea"  class="form-control" placeholder="15" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fixedRatio" class="control-label col-sm-4">标定系数：</label>
+                        <div class="col-sm-5">
+                            <input type=text name="fixedRatio" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="testDate" class="control-label col-sm-4">测试日期：</label>
+                        <div class="col-sm-5">
+                            <input type="date" name="testDate" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <input class="btn btn-primary" type=submit name="print_btn" value="打印所有静力触探"/></div>
+                        <div class="col-sm-5">
+                            <input class="btn btn-primary" type=submit name="print_btn" value="打印单个静力触探"/>
+                        </div>
+                    </div>
+            </form>
+        </div>
+        <div class="col-sm-5 col-sm-offset-1" style="position:relative;" id="ps_curve">
+            <svg width="100%" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" onmousemove="showPs_label(event)" onmouseout="removePs_label(event)">
+                <polyline id="cptCurve" style="fill:none;stroke:#000000;stroke-width:1"></polyline>
+                <g transform="translate(0.5 0.5)">
+                    <line id="myline" style="stroke:red;"></line>
+                </g>
+            </svg>
+        </div>
+    </div>
 </div>
-<div>
-    <object data="{{url_for('static',filename='download/K081-2015/C1.PDF')}}" type="application/pdf" width="100%" height="100%">
-        <p>It appears you don't have a PDF plugin for this browser.download the PDF file.</a></p>
-        No biggie... you can <a href="{{url_for('static',filename='download/K081-2015/C1.PDF')}}">click here to
-    </object>
-</div>
-<!--{% for xHole in holelist %}-->
-<!--{%set cptstring=xHole.projectNo+'?holeName='+xHole.holeName %}-->
-<!-- <div><a href="{{url_for('download',cptstring=cptstring)}}">{{xHole.holeName}}</a><div>-->
-<!--{% endfor%}-->
 {% endblock %}
 {% block script%}
     {{super()}}
@@ -85,7 +89,7 @@ function showCurve(obj){
     var myselect=document.getElementById("cptSelection");
     if (obj.options.length==0){
         {% for xHole in holelist %}
-            var hole_option=new Option("{{xHole.holeName}}",{{loop.index}});
+            var hole_option=new Option("{{xHole.holeName}}",{{loop.indexo}});//new Option("text","value")
             obj.options.add(hole_option);
         {% endfor %}
     }

@@ -11,6 +11,13 @@
 #-------------------------------------------------------------------------------
 import struct
 from dataset import *
+class Manager():
+    def __init__(self,id,name):
+        self.id=id
+        self.name=name
+    def find():
+        return None
+
 def FindUser(user,pwd):
     sql_str="SELECT PassWord FROM userPass Where userName='%s'"%(user)
     ms = MSSQL()
@@ -37,11 +44,14 @@ def Login():
     return FindUser(user,pwd)
 
 def FindManager(projectNo):
-    sql_str="SELECT userprj.userName FROM userprj INNER JOIN base ON userprj.project_count = base.project_count Where base.project_name='%s'"%(projectNo)
+    sql_str="SELECT userPass.userName,userPass.userXinMing \
+                FROM (userprj INNER JOIN base ON userprj.project_count = base.project_count) \
+                INNER JOIN userPass ON userPass.userName=userprj.userName \
+                Where base.project_name='%s' AND userprj.project_burden=0"%(projectNo)
     ms=MSSQL()
     sqlList=ms.ExecQuery(sql_str)
-    print(sqlList[0][0].encode('latin-1').decode('gbk'))
-    return sqlList[0][0].encode('latin-1').decode('gbk')
+    manager=Manager(sqlList[0][0].encode('latin-1').decode('gbk'),sqlList[0][1].encode('latin-1').decode('gbk'))
+    return manager
 
 def FindProject(user):
     sql_str="SELECT userprj.project_Name, base.project_nameing FROM userprj INNER JOIN base ON userprj.project_count = base.project_count Where userName='%s'"%(user)

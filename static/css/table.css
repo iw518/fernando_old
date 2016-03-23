@@ -2,15 +2,13 @@
 font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 font-size: 12px;
 background: #fff;
-width: 810px;
 border-collapse: collapse;
 text-align: right;
 margin: 10px;
-box-shadow: 3px 3px 10px #111111;
 }
 .hor-minimalist-a th
 {
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: normal;
 	color: #039;
 	padding: 10px 8px;
@@ -31,16 +29,13 @@ box-shadow: 3px 3px 10px #111111;
 font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 font-size: 12px;
 background: #fff;
-width: 720px;
 border-collapse: collapse;
 text-align: right;
 margin: 10px;
-box-shadow: 3px 3px 10px #111111;
 }
 .ver-minimalist th
 {
-	width: 96px;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: normal;
 	color: #039;
 	padding: 10px 8px;
@@ -57,17 +52,16 @@ box-shadow: 3px 3px 10px #111111;
 font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 font-size: 12px;
 background: #fff;
-width: 1000px;
+
 border-collapse: collapse;
 text-align: center;
 margin: 10px;
 border:2px solid #000000;
-box-shadow: 3px 3px 10px #111111;
 }
 
 .hor-calculate th
 {
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: normal;
 	color: #039;
 	padding: 0px;

@@ -345,7 +345,7 @@ def FindLayers(projectNo):
     #print("本工程地基土可划分为%d个工程地质层。"%(count))
     return layers
 
-def ExportLayers_Stat(projectNo):
+def ExportLayers_Stat(projectNo,d=1.0,wd=0.5):
     '此处采用right join，为了防止部分地层地质时代为空'
     sql_str=("SELECT pmlayer.layerno, pmlayer.layername, \
             '粘聚力'=Sum(Case titemdata.itemCode when 'CON_C' THEN titemdata.iavg ELSE 0 END), \
@@ -361,7 +361,7 @@ def ExportLayers_Stat(projectNo):
     sqlList = ms.ExecQuery(sql_str)
     layers=[]
     for (layerNo,layerName,CON_C,CON_F,Ps1,DENSITY) in sqlList:
-        xLayer=Layer_Stats()
+        xLayer=Layer_Stats(d,wd)
         xLayer.layerNo=layerNo.encode('latin-1').decode('gbk')
         xLayer.layerName=layerName.encode('latin-1').decode('gbk')
         xLayer.CON_C=CON_C

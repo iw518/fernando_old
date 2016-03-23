@@ -10,11 +10,12 @@
 # Licence:     The MIT License
 #-------------------------------------------------------------------------------
 
-from flask import Flask, render_template, request, url_for, redirect, jsonify
+from flask import Flask, render_template, request, url_for, redirect, jsonify,make_response
 from maingui import *
 from genpdf import *
 from auth import *
 import json
+from json import dumps
 app = Flask(__name__)
 
 @app.route('/',methods=['POST','GET'])
@@ -48,14 +49,31 @@ def water(projectNo):
                             manager=FindManager(projectNo)
                             )
 
-@app.route('/<projectNo>/natural_foundation')
+@app.route('/<projectNo>/natural_foundation',methods=['POST','GET'])
 def natural_foundation(projectNo):
-    layers=ExportLayers_Stat(projectNo)
-    return render_template('naturalfoundation.html',
-                            projectNo=projectNo,
-                            layers=layers,
-                            manager=FindManager(projectNo)
-                            )
+    if request.method=="GET":
+        layers=ExportLayers_Stat(projectNo)
+        return render_template('naturalfoundation.html',
+                                projectNo=projectNo,
+                                layers=layers,
+                                manager=FindManager(projectNo)
+                                )
+    else:
+        depth=float(request.form['depth'])
+        water_depth=float(request.form['water_depth'])
+        layers=ExportLayers_Stat(projectNo,depth,water_depth)
+        xlist=[]
+        for xLayer in layers:
+            xlist.append((xLayer.Ps_Fak,xLayer.Soil_Fak,xLayer.Fak))
+        return jsonify(result=xlist)
+
+        #print(convert_to_dicts(layers))
+        #return jsonify(data=convert_to_dicts(layers))
+        #return make_response(dumps(xlist))与jsonify(data=xlist)等效，
+        #前者在前端中可直接用data访问，但是后者在前端中需用字典访问，即data.data形式
+        #erro jsonify(data=layers)由于layers中的元素为layer对象，
+        #flask由于ES5的安全原因，不允许序列化,需转换为字符串、或与字符串相关的数组，元组，字典等
+
 @app.route('/<projectNo>/pile')
 def pile(projectNo):
     holelist=ReceiveHoleLayer(projectNo,1)
@@ -117,7 +135,6 @@ def CPT(projectNo):
         probeArea=request.form['probeArea']
         fixedRatio=request.form['fixedRatio']
         testDate=request.form['testDate']
-        holeName=request.form['holeName']
         probeInf={'probeNo':probeNo,'probeArea':probeArea,'fixedRatio':fixedRatio,'testDate':testDate}
 
         if request.form['print_btn']=='打印所有静力触探':
@@ -126,31 +143,31 @@ def CPT(projectNo):
             autoDate(testDate,MaxNofHole,MaxTotalDep,holelist)
             index=None
         elif request.form['print_btn']=='打印单个静力触探':
-            for xHole in holelist:
-                if xHole.holeName==holeName:
-                    index=holelist.index(xHole)
-                    xHole.testDate=testDate
-                    break
+            index=int(request.form['holeName'])
+            holelist[index].testDate=testDate
+        print(index)
         pdfUrl=PrintPdf(probeInf,holelist,index)
-        return redirect(url_for('static',filename=pdfUrl))
+        return render_template('pdf.html',
+                                url=url_for('static',filename=pdfUrl),
+                                )
     return render_template('CPT.html',projectNo=projectNo,holelist=holelist,manager=FindManager(projectNo))
 
-#生成cptpdf
-@app.route('/download')
-def download(probeInf,holelist,index=None):
-    pdfUrl=PrintPdf(probeInf,holelist,index)
-    return redirect(url_for('static',filename=pdfUrl))
-##@app.route('/download/projectno=<cptstring>')
-##def download(cptstring):
-##    #通过string组合来传入多个值
-##    holeName=cptstring.split('=')[1]
-##    projectNo=cptstring.split('?')[0]
-##    holelist=FindCPT(projectNo)
-##    for xHole in holelist:
-##        if xHole.holeName==holeName:
-##            ExportPDFofCPT(xHole,probeInf)
-##            pdfUrl='download/'+projectNo+'/'+holeName+'.pdf'
-##            return redirect(url_for('static',filename=pdfUrl))
+def convert_to_dicts(objs):
+    '''把对象列表转换为字典列表'''
+    obj_arr = []
+
+    for o in objs:
+        #把Object对象转换成Dict对象
+        dict = {}
+        #for item in dir(o):
+            #dict[item]=o.item错误o没有‘item’
+        #dict.update(o.__dict__)
+        for item in dir(o):
+            dict[item]=getattr(o,item,0)
+        #print(dir(o))
+        print(dict)
+        obj_arr.append(dict)
+    return obj_arr
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80,debug=True)

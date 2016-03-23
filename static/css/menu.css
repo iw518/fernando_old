@@ -46,7 +46,7 @@
     left: -9999px;
     position: absolute;
     top: -9999px;
-    z-index: 2;
+    z-index: 999;
 }
 #nav ul li {
     background: none repeat scroll 0 0 #838383;

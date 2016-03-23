@@ -63,7 +63,7 @@ class Layer:
         self.SoilPoints.append(xPoint)
 
 class Layer_Stats(Layer):
-    def __init__(self):
+    def __init__(self,d,wd):
         Layer.__init__(self)
         self.CON_C=0.0
         #self.CON_Ck=0.0
@@ -71,12 +71,20 @@ class Layer_Stats(Layer):
         #self.CON_Fk=0.0
         self.__AVG_Ps=0.0
         self.DENSITY=0.0
+        self._d=d
+        self._wd=wd
+        self._CON_C_toStr=""
+        self._CON_F_toStr=""
+        self._Ps_Fak=""
+        self._Soil_Fak=""
+        self._Fak=""
     @property
     def AVG_Ps(self):
         if self.__AVG_Ps<=0:
-            return '-'
+            self.__AVG_Ps='-'
         else:
-            return round(self.__AVG_Ps,2)
+            self.__AVG_Ps=round(self.__AVG_Ps,2)
+        return self.__AVG_Ps
     @AVG_Ps.setter
     def AVG_Ps(self,value):
         self.__AVG_Ps=value
@@ -118,6 +126,7 @@ class Layer_Stats(Layer):
     @property
     def Soil_Fak(self):
         if self.DENSITY>0 and round(self.CalcSoilBearingCapacity(),2)>0:
+
             return round(self.CalcSoilBearingCapacity(),2)
         else:
             return '-'
@@ -128,26 +137,50 @@ class Layer_Stats(Layer):
 
     def CalcPsBearingCapacity(self):
         fd=0
-        D=1.0
-        B=3.0
+        b=3.0
+        d=self._d
+        wd=self._wd#水位埋深
+        r=0# r--基底以下土的重度，地下水位以下，取浮重度
+        r0=0#r0--基底以上土的重度加权平均值，地下水位以下取浮重度
+
+        # 勘察软件水的重度取10,此处未修正为9.8，仍取10
+        if d>=wd:
+            r=self.DENSITY*9.8-10
+        else:
+            r=self.DENSITY*9.8
+
+        if d>=wd:
+            r0=r+(wd/d)*10
+        else:
+            r0=r
+
         for (k,v) in DICT_FK_PS.items():
             if k in self.layerName.split('夹')[0]:
                 fk=v[0]+v[1]*min(self.AVG_Ps,v[2])*1000
-                fd=0.5*fk+v[3]*13*(D-0.5)+v[4]*8*(B-3)
+                fd=0.5*fk+v[3]*r0*(d-0.5)+v[4]*r*(b-3)
                 break
         return fd
 
     def CalcSoilBearingCapacity(self):
-
-        d=1.0
-        b=1.5
+        d=self._d#基础埋深
+        b=1.5#基础宽度
         Tr=1.0
         Tc=1.0
         Tq=1.0
+        wd=self._wd#水位埋深
+        r=0# r--基底以下土的重度，地下水位以下，取浮重度
+        r0=0#r0--基底以上土的重度加权平均值，地下水位以下取浮重度
 
-        # 勘察软件水的重度取10,此处为取9.8
-        r=(self.DENSITY-1)*9.8
-        r0=self.DENSITY*0.5*9.8+r*0.5
+        # 勘察软件水的重度取10,此处未修正为9.8，仍取10
+        if d>=wd:
+            r=self.DENSITY*9.8-10
+        else:
+            r=self.DENSITY*9.8
+
+        if d>=wd:
+            r0=r+(wd/d)*10
+        else:
+            r0=r
 
         LAMD=0.8
         rc=2.7

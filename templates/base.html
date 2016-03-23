@@ -20,7 +20,13 @@
         </header>
         {% block nav %}
         {% endblock %}
-        {% block main %}
+        {% block content %}
+            <div class="container">
+                <div class="row">
+                {% block main %}
+                {% endblock %}
+                </div>
+            </div>
         {% endblock %}
     </body>
 </html>
