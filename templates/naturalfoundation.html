@@ -54,9 +54,9 @@
             <thead>
                 <tr><th>层号</th>
                     <th>层名</th>
+                    <th>Ps(MPa)</th>
                     <th>粘聚力<i>c</i></th>
                     <th>摩擦角<i>&Phi;</i></th>
-                    <th>Ps(MPa)</th>
                     <th>静力触探fd(kPa)</th>
                     <th>抗剪强度fd(kPa)</th>
                     <th>综合建议fak(kPa)</th>
@@ -69,9 +69,9 @@
                 <tr>
                     <td>{{xLayer.layerNo}}</td>
                     <td>{{xLayer.layerName}}</td>
+                    <td>{{"%.2f"%(xLayer.AVG_Ps)}}</td>
                     <td>{{xLayer.CON_C_toStr}}</td>
                     <td>{{xLayer.CON_F_toStr}}</td>
-                    <td>{{xLayer.AVG_Ps}}</td>
                     <td></td>
                     <td></td>
                     <td></td>

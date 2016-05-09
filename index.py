@@ -129,6 +129,37 @@ def liquefaction(projectNo):
 @app.route('/<projectNo>/CPT',methods=['POST','GET'])
 def CPT(projectNo):
     holelist=FindCPT(projectNo)
+    holelist2=ReceiveHoleLayer(projectNo,2)
+    str0="%s\t"%('')
+    SumHoleName=""
+    for xHole in holelist:
+        str0=str0+"%s\t"%(xHole.holeName)
+    str0=str0+"\n"
+    for i in range(0,len(FindLayers(projectNo))):
+        str0=str0+FindLayers(projectNo)[i].layerNo+"\t"
+        for xHole in holelist2:
+            for yHole in holelist:
+                SumPs=0
+                if xHole.holeName==yHole.holeName:
+                    print("%s\t"%(xHole.holeName))
+                    if i>=len(xHole.layers):
+                        str0=str0+"%s\t"%('')
+                    else:
+                        xLayer=xHole.layers[i]
+                        for testPoint in yHole.testPoints:
+                            if testPoint.testDep>round(xLayer.startDep,2) and testPoint.testDep<=round(xLayer.endDep,2):#注意小数位数不等也可能导致不相等，情况允许时，应该调整layer函数的位数
+                                SumPs=SumPs+testPoint.testValue
+                                print(testPoint.testDep)
+                        print(SumPs)
+                        if xLayer.endDep-xLayer.startDep==0:
+                            str0=str0+"%s\t"%('')
+                        else:
+                            str0=str0+"%.2f\t"%(SumPs/(xLayer.endDep-xLayer.startDep)/10)
+        str0=str0+"\n"
+    f=open("D:\\1.TXT",'w')
+    print(str0,file=f)
+    f.close()
+
     index=None
     if request.method=='POST':
         probeNo=request.form['probeNo']
@@ -150,7 +181,34 @@ def CPT(projectNo):
         return render_template('pdf.html',
                                 url=url_for('static',filename=pdfUrl),
                                 )
-    return render_template('CPT.html',projectNo=projectNo,holelist=holelist,manager=FindManager(projectNo))
+    return render_template('CPT.html',projectNo=projectNo,holelist=holelist,manager=FindManager(projectNo),holelist2=holelist2)
+
+
+@app.route('/<projectNo>/index_analysis')
+def index_analysis(projectNo):
+    holelist=FindCPT(projectNo)
+    holelist2=ReceiveHoleLayer(projectNo,2)    
+    layer_hole_ps_list=[]
+    for i in range(0,len(FindLayers(projectNo))):
+        hole_ps_list=[]
+        for xHole in holelist2:
+            for yHole in holelist:
+                SumPs=0
+                if xHole.holeName==yHole.holeName:
+                    if i>=len(xHole.layers):
+                        hole_ps_list.append((xHole.holeName,0))
+                    else:
+                        xLayer=xHole.layers[i]
+                        for testPoint in yHole.testPoints:
+                            if testPoint.testDep>round(xLayer.startDep,2) and testPoint.testDep<=round(xLayer.endDep,2):#注意小数位数不等也可能导致不相等，情况允许时，应该调整layer函数的位数
+                                SumPs=SumPs+testPoint.testValue
+                        if xLayer.endDep-xLayer.startDep==0:
+                            hole_ps_list.append((xHole.holeName,0))
+                        else:
+                            hole_ps_list.append((xHole.holeName,round(SumPs/(xLayer.endDep-xLayer.startDep)/10,2)))
+        layer_hole_ps_list.append((FindLayers(projectNo)[i].layerNo,hole_ps_list))
+    return render_template('index_analysis.html',projectNo=projectNo,layer_hole_ps_list=layer_hole_ps_list)
+
 
 def convert_to_dicts(objs):
     '''把对象列表转换为字典列表'''

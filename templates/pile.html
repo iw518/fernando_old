@@ -32,7 +32,7 @@
             </select>
         </div>
     </div>
-</form>
+    </form>
 </div>
     <!--<div class="input-group margin-bottom-sm">
         <span class="input-group-addon"><i class="fa fa-trash-o fa-lg"></i></span>
@@ -66,60 +66,61 @@
     </div><!-- /.modal -->
 </div>
 
-
-
-<div style="position:relative;">
-    <div id="setting_div" class="bg-primary col-sm-10" style="position:absolute">
-        <div class="radio-group">
-            <div class="radio">
-                <label>
-                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="6.0" checked>
-                    其他区域浅层fs按照6m分界
-                </label>
+<div class="col-sm-10">
+    <div style="position:relative;">
+        <div id="setting_div" class="bg-primary col-sm-10" style="position:absolute;">
+            <div class="radio-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="6.0" checked>
+                        其他区域浅层fs按照6m分界
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios2" value="4.0">
+                        湖沼平原Ⅰ-1区浅层按照4m分界
+                    </label>
+                </div>
             </div>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="4.0">
-                    湖沼平原Ⅰ-1区浅层按照4m分界
-                </label>
-            </div>
+            <table id="setting_table" class='hor-calculate'>
+                <thead>
+                    <tr>
+                        <th width="5%" rowspan="2">序号</th>
+                        <th width="10%" rowspan="2">土层编号</th>
+                        <th width="25%" rowspan="2">土层名称</th>
+                        <th width="10%" rowspan="2">比贯入阻力Ps(MPa)</th>
+                        <th width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">预制桩桩基参数</th>
+                        <th width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">灌注桩桩基参数</th>
+                        <th width="10%" rowspan="2">抗拔系数&lambda;</th>
+                    </tr>
+                    <tr>
+                        <th>fs(MPa)</th>
+                        <th>fp(MPa)</th>
+                        <th>fs(MPa)</th>
+                        <th>fp(MPa)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {%for xLayer in layerlist %}
+                    <tr  class="layer_tr">
+                        <td>{{loop.index}}</td>
+                        <td class="layerNo">{{xLayer.layerNo}}</td>
+                        <td>{{xLayer.layerName}}</td>
+                        <td>{{xLayer.AVG_Ps}}</td>
+                        <td class="fs"><input type="text"></td>
+                        <td class="fp"><input type="text"></td>
+                        <td class="fs"><input type="text"></td>
+                        <td class="fp"><input type="text"></td>
+                        <td class="mylambda"><input type="text"></td>
+                    </tr>
+                {%endfor%}
+                </tbody>
+            </table>
         </div>
-        <table id="setting_table" class='hor-calculate'>
-            <thead>
-                <tr>
-                    <th width="5%" rowspan="2">序号</th>
-                    <th width="10%" rowspan="2">土层编号</th>
-                    <th width="25%" rowspan="2">土层名称</th>
-                    <th width="10%" rowspan="2">比贯入阻力Ps(MPa)</th>
-                    <th width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">预制桩桩基参数</th>
-                    <th width="20%" style="border-bottom: 1px solid #6678b1;" colspan="2">灌注桩桩基参数</th>
-                    <th width="10%" rowspan="2">抗拔系数&lambda;</th>
-                </tr>
-                <tr>
-                    <th>fs(MPa)</th>
-                    <th>fp(MPa)</th>
-                    <th>fs(MPa)</th>
-                    <th>fp(MPa)</th>
-                </tr>
-            </thead>
-            <tbody>
-            {%for xLayer in layerlist %}
-                <tr  class="layer_tr">
-                    <td>{{loop.index}}</td>
-                    <td class="layerNo">{{xLayer.layerNo}}</td>
-                    <td>{{xLayer.layerName}}</td>
-                    <td>{{xLayer.AVG_Ps}}</td>
-                    <td class="fs"><input type="text"></td>
-                    <td class="fp"><input type="text"></td>
-                    <td class="fs"><input type="text"></td>
-                    <td class="fp"><input type="text"></td>
-                    <td class="mylambda"><input type="text"></td>
-                </tr>
-            {%endfor%}
-            </tbody>
-        </table>
     </div>
 </div>
+
 
 <div id="printArea" class="col-sm-10 col-sm-offset-1">
     <div>
@@ -238,6 +239,19 @@ $(function(){
 
 <script>
 function showLayer(){
+    //清空计算结果
+    $("#result_table tbody:first>tr").each(function(index,item){
+        $(item).find("td").eq(0).text("");
+        $(item).find("td").eq(1).find("select").eq(0).find("option").remove();
+        $(item).find("td").eq(2).find("input").val("");
+        $(item).find("td").eq(3).find("input").val("");
+        $(item).find("td").eq(4).find("input").val("");
+        $(item).find("td").eq(5).find("input").val("");
+        $(item).find("td").eq(6).text("");
+        $(item).find("td").eq(7).find("input").val("");
+        $(item).find("td:gt(7)").text("");
+
+    });
     $("#layertable tr[class='layer_tr']:gt(0)").remove();
     var selected_hole=$("#holes").find("option:selected").text();
     var dividing_line=Number($("#setting_div div.radio-group:first").find("input:radio[name='optionsRadios']:checked").val());

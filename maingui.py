@@ -422,7 +422,7 @@ def FindCPT(projectNo):
         for x in range(0,buff_len,2):
             ps=(struct.unpack('H',buff[x:x+2])[0])/100
             xPoint=PSPOINT()
-            xPoint.testDep=x/2*0.1+0.1
+            xPoint.testDep=round(x/2*0.1+0.1,2)
             xPoint.testValue=round(ps,2)
             xHole.AddPoint(xPoint)
         holeList.append(xHole)

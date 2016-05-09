@@ -142,12 +142,15 @@ class Layer_Stats(Layer):
         wd=self._wd#水位埋深
         r=0# r--基底以下土的重度，地下水位以下，取浮重度
         r0=0#r0--基底以上土的重度加权平均值，地下水位以下取浮重度
+        density=self.DENSITY
+        if density<=0:
+            density=1.8#防止未作密度试验仍然可估算
 
         # 勘察软件水的重度取10,此处未修正为9.8，仍取10
         if d>=wd:
-            r=self.DENSITY*9.8-10
+            r=density*9.8-10
         else:
-            r=self.DENSITY*9.8
+            r=density*9.8
 
         if d>=wd:
             r0=r+(wd/d)*10
@@ -157,7 +160,9 @@ class Layer_Stats(Layer):
         for (k,v) in DICT_FK_PS.items():
             if k in self.layerName.split('夹')[0]:
                 fk=v[0]+v[1]*min(self.AVG_Ps,v[2])*1000
+                print(fk)
                 fd=0.5*fk+v[3]*r0*(d-0.5)+v[4]*r*(b-3)
+                print(r0)
                 break
         return fd
 
