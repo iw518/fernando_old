@@ -1,9 +1,9 @@
 {% extends "project_home.html" %}
 {% block css %}
-{{super()}}
+    {{super()}}
 {% endblock %}
 {% block nav %}
-{{super()}}
+    {{super()}}
 {% endblock %}
 {% block main %}
 <div class="col-sm-10 col-sm-offset-1">
@@ -35,24 +35,28 @@
         <hr/>
     </div>
     <div  class="col-sm-6">
-            <svg width="480" height="360" version="1.1" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 800 600">
-                <g id="axis_line" transform="translate(30,510) scale(1,-1)" style="stroke:black;">
-                    <!--X轴-->
-                    <line x1="-10" y1="0" x2="500" y2="0"></line>
-                    <polyline points="490 3,500 0,490 -3"></polyline>
-                    <!--Y轴-->
-                    <line x1="0" y1="-10" x2="0" y2="500"></line>
-                    <polyline points="-3 490,0 500,3 490"></polyline>
-                    {% for i in range(1,11) %}
-                    <text x="-25" y={{i*50+7}} transform="translate(0,{{i*50*2}}) scale(1,-1)">{{i*50/100}}</text>
-                    <line x1="0" y1={{i*50}} x2="10" y2={{i*50}}></line>
-                    {% endfor %}
-                    <text style="stroke:none;fill:blue;"></text>                   
-                </g>
+            <svg width="480" height="720" version="1.1" xmlns="http://www.w3.org/2000/svg" viewbox="-60 -1100 800 1200">
+                <g id="ps_diagram" transform="scale(1,-1)" style="stroke:black;">
+                    <g id="axis_line">
+                        <!--X轴-->
+                        <line x1="-10" y1="0" x2="700" y2="0" style="stroke-width:2;shape-rendering:crispEdges;"></line>
+                        <polyline points="690 3,700 0,690 -3"></polyline>
+                        <!--Y轴-->
+                        <line x1="0" y1="-10" x2="0" y2="1000" style="stroke-width:2;shape-rendering:crispEdges;"></line>
+                        <polyline points="-3 990,0 1000,3 990"></polyline>                    
+                        {% for i in range(1,20) %}
+                        <text x="-30" y="{{i*50+7}}" transform="translate(0,{{i*50*2}}) scale(1,-1)">{{i*50/100}}</text>
+                        <line x1="0" y1="{{i*50}}" x2="10" y2="{{i*50}}"></line>
+                        {% endfor %}
+                        <text x="-40" y="300" transform="rotate(-90,-40,300) scale(-1,1)">Ps值(MPa)</text>
+                    </g>
+                    <g id="ps_circle">
+                    <text style="stroke:none;fill:blue;"></text> 
+                    </g>
+                </g>            
             </svg>
-
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6" id="notation">
 
     </div>
 </div>
@@ -61,7 +65,7 @@
     {{super()}}
 <script type="text/javascript">
 function showCurve(){
-    var ps_circle=document.getElementById("axis_line");
+    var ps_circle=document.getElementById("ps_circle");
     var svgDoc=ps_circle.ownerDocument;
     var rings=ps_circle.getElementsByTagName("circle");    
     var circle;
@@ -74,175 +78,72 @@ function showCurve(){
     {
         var n=0;
         {% for childitem in item[1]%}
-        if({{childitem[1]}}>0){n=n+1;}
+        if({{childitem[1]}}>0){
+            n=n+1;}
         {% endfor %}
+        var nn={{item[1]|length}}-n;
+        var s1="<div>层号"+"{{item[0]}}"+"实有数据点"+n+"个,不包含"+nn+"个为0的数据点</div>";
+        s1=s1+"<div>最大值为</div><div>最小值为</div><div>变异系数为</div>";
+        $("div #notation").empty();
+        $("div #notation").append(s1);
         {% for childitem in item[1] %}
             circle=svgDoc.createElementNS("http://www.w3.org/2000/svg","circle")
             //var svgDoc=ps_circle.ownerDocument;svgDoc是xml方法，可直接用js中的document
             if ({{childitem[1]}}*100>0){
             circle.setAttribute("name","{{childitem[0]}}");
+            circle.setAttribute("id","{{childitem[0]}}");
             circle.setAttribute("cx",{{loop.index}}*500/{{item[1]|length}});
             //http://docs.jinkan.org/docs/jinja2/templates.html#expressions 有关length用法
             circle.setAttribute("cy",{{childitem[1]}}*100);
             circle.setAttribute("r",4);           
             circle.style.setProperty("fill-opacity",0.5);
-            circle.addEventListener("mouseover",grow);
+            circle.addEventListener("dblclick",grow);
             circle.addEventListener("mouseout",shrink);
-            ps_circle.appendChild(circle);
-        }
+            var animate=svgDoc.createElementNS("http://www.w3.org/2000/svg","animate");
+            animate.setAttribute("begin","{{childitem[0]}}.dblclick");
+            animate.setAttribute("dur","1s");
+            animate.setAttribute("fill","freeze");
+            circle.appendChild(animate);}        
+            ps_circle.appendChild(circle);        
         {% endfor %}
     }
-    {% endfor %}  
-
-
+    {% endfor %}
 }
 
 function grow(evt){
     var obj=evt.target;
-    obj.setAttribute("r",8);
-    var ps_circle=document.getElementById("axis_line");
+    var ps_circle=document.getElementById("ps_circle");
     var svgDoc=ps_circle.ownerDocument;
-    var txt=ps_circle.getElementsByTagName("text")[10];
+    var txt=ps_circle.getElementsByTagName("text")[0];
     console.log(txt.firstChild);
     txt.setAttribute("x",obj.getAttribute("cx"));
     txt.setAttribute("y",obj.getAttribute("cy"));
     txt.setAttribute("transform","translate(0,"+obj.getAttribute("cy")*2+") scale(1,-1)");
     //txt.appendChild(document.createTextNode(obj.getAttribute("cy")/100));
     if(txt.childNodes.length==0){
-        txt.appendChild(document.createTextNode(obj.getAttribute("name")+"对应"+obj.getAttribute("cy")/100+"MPa"));        
+        txt.appendChild(document.createTextNode(obj.getAttribute("name")+"对应"+obj.getAttribute("cy")/100+"MPa"));                
     }
     else{
         txt.firstChild.data=obj.getAttribute("name")+"对应"+obj.getAttribute("cy")/100+"MPa";
     }
+    var animate=obj.childNodes[0];
+    obj.style.setProperty("fill","red");
+    animate.setAttribute("attributeName","r");
+    animate.setAttribute("from","obj.getAttribute('r')");
+    animate.setAttribute("to","20");
 }
 function shrink(evt){
     var obj=evt.target;
-    obj.setAttribute("r",4);
-    var ps_circle=document.getElementById("axis_line");
-    var txt=ps_circle.getElementsByTagName("text")[10];
+    var ps_circle=document.getElementById("ps_circle");
+    var animate=obj.childNodes[0];
+    obj.style.setProperty("fill","black");
+    animate.setAttribute("attributeName","r");
+    animate.setAttribute("from","obj.getAttribute('r')");
+    animate.setAttribute("to","4");
+    var txt=ps_circle.getElementsByTagName("text")[0];
         if(txt.childNodes.length>0){
         txt.firstChild.data="";        
     }
 }
 </script>
-<!--<script>
-function showCurve(obj){
-    if (obj.options.length==0){
-        var hole_option;
-        {% for xHole in holelist %}
-            //alert("{{holelist[Index]}}")holelist索引无法用外部变量，只能用数字或key
-            //注意loop.index从1开始计数，loop.index0从0开始计数，除了上述坑外，还需注意是loop.index0，而不是loop.indexo
-            hole_option=new Option("{{xHole.holeName}}","{{loop.index0}}");//new Option("text","value")
-            obj.options.add(hole_option);
-        {% endfor %}
-    }
-    cptCurve = document.getElementById("cptCurve");
-    var data=genData();
-    cptCurve.setAttribute("points",ps2pxy(data));
-
-    var holeName=$("#cptSelection").find("option:selected").text();
-
-    $("#ps_curve>table:first>tbody:first>tr:gt(0)").remove();
-
-    {% for xHole in holelist2 %}
-        if ("{{xHole.holeName}}"==holeName){
-                {% for xlayer in xHole.layers %}
-                    var layerThickness=parseFloat("{{xlayer.endDep}}")-parseFloat("{{xlayer.startDep}}");
-                    var layerLevel=parseFloat("{{xHole.elevation}}")-parseFloat("{{xlayer.endDep}}");
-                    if(layerThickness>0){
-                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(0)").text("{{xlayer.layerNo}}");
-                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(1)").text("{{xlayer.layerName}}");
-                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(2)").text(parseFloat("{{xlayer.endDep}}").toFixed(2));
-                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(3)").text(layerLevel.toFixed(2));
-                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(4)").text(layerThickness.toFixed(2));
-                        $("#ps_curve>table:first>tbody:first>tr:last").attr("height",depth2px(layerThickness));
-                        $("#ps_curve>table:first>tbody:first").append("<tr><td></td><td></td><td></td><td></td><td></td></tr>");
-                    }
-                {% endfor %}
-                $("#ps_curve>table:first>tbody:first>tr:last").remove();
-                $("#ps_curve>table:first>tbody:first>tr:first>td:last").attr("rowspan",$("#ps_curve>table:first>tbody:first>tr").length);
-                $("#ps_curve>table:first>tbody:first>tr:first>td:last>svg:first").attr("height",depth2px({{xHole.Dep}}));
-
-
-            }
-    {% endfor %}
-}
-function genData(){
-    //obj.opions[obj.selectedIndex].text获取某个选项的纯文本值
-    //obj.opions[obj.selectedIndex].value获取被送往服务器的值
-    //obj.selectedIndex获取options的索引值
-    //var myval=Number($("#cptSelection").val());获取被送往服务器的值
-    //var mytxt=$("#cptSelection").find("option:selected").text();获取某个选项的纯文本值
-    //var myindex=$("#cptSelection").get(0).selectedIndex
-    var index=Number($("#cptSelection").val());
-    var data=new Array();
-    {% for xHole in holelist %}
-        if ({{loop.index0}}==index){
-                {% for xPoint in xHole.testPoints %}
-                    data.push("{{xPoint.testValue}}");
-                {% endfor %}
-            }
-    {% endfor %}
-    return data;
-}
-function depth2px(depth){
-    var DPI=96;//the default value of windows DPIis 96
-    //1in=2.54cm,the default value of windows DPIis 96
-    var scale=200;//default print vertical scale is 1:200(but 1m contain 10 data considered),and horizontal scale is 1:2.
-    var scaleX=100/2.54*DPI/scale;
-    var scaleY=10/2.54*DPI/scale;
-    var pY=scaleY*depth*10;
-    console.log(pY)
-    return parseInt(pY);
-}
-
-function ps2pxy(data){
-    var DPI=96;//the default value of windows DPIis 96
-    //1in=2.54cm,the default value of windows DPIis 96
-    var scale=200;//default print vertical scale is 1:200(but 1m contain 10 data considered),and horizontal scale is 1:2.
-    var scaleX=100/2.54*DPI/scale;
-    var scaleY=10/2.54*DPI/scale;
-    var maxDep=400;//unit cm
-    var maxPs=32;//unit MPa
-    ////绘制曲线
-    points="";
-    for(var i=0;i<data.length;i++){
-        var pX=scaleX*data[i];
-        var pY=scaleY*i;
-        points=points+" "+pX+","+pY;
-    }
-    return points;
-}
-
-function showPs_label(event){
-    if(!($("#cptSelection").get(0).selectedIndex>=0)){
-        return;
-    }
-    var data=genData();
-    var DPI=96;
-    var scale=200;
-    var scaleY=10/2.54*DPI/scale;
-    var i=parseInt((event.offsetY)/scaleY);
-
-    if ($("#Ps_label").length==0){
-        var labelXY=document.createElement("DIV");
-        $("#ps_curve").append(labelXY);
-        $(labelXY).attr("id","Ps_label");
-    }
-    $("#Ps_label").css("position","absolute");
-    $("#Ps_label").css("left",event.offsetX);
-    $("#Ps_label").css("top",event.offsetY+20);
-    $("#Ps_label").attr("class","tip-bubble tip-bubble-top");
-    $("#Ps_label").text("Ps值"+data[i]+"MPa"+"深度"+i/10+"m");
-
-    myline = document.getElementById("myline");
-    myline.setAttribute("x1",0);
-    myline.setAttribute("y1",event.offsetY);
-    myline.setAttribute("x2",400);
-    myline.setAttribute("y2",event.offsetY);
-}
-function removePs_label(event){
-    $("#Ps_label").remove();
-}
-</script>-->
 {%endblock%}
