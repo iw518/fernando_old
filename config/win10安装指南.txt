@@ -34,3 +34,6 @@ python3.3之后自带虚拟环境，故可不安装virtualenv，
 
 在命令行程序下直接输入python或pip会出错，因为未在环境变量下配置
 python=c:\ptyhon34\；c:\ptyhon34\scripts
+
+7、git图文教程
+https://github.com/JiapengLi/GitTutorial
