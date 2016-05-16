@@ -141,7 +141,7 @@ def CPT(projectNo):
             for yHole in holelist:
                 SumPs=0
                 if xHole.holeName==yHole.holeName:
-                    print("%s\t"%(xHole.holeName))
+                    #print("%s\t"%(xHole.holeName))
                     if i>=len(xHole.layers):
                         str0=str0+"%s\t"%('')
                     else:
@@ -149,8 +149,8 @@ def CPT(projectNo):
                         for testPoint in yHole.testPoints:
                             if testPoint.testDep>round(xLayer.startDep,2) and testPoint.testDep<=round(xLayer.endDep,2):#注意小数位数不等也可能导致不相等，情况允许时，应该调整layer函数的位数
                                 SumPs=SumPs+testPoint.testValue
-                                print(testPoint.testDep)
-                        print(SumPs)
+                                #print(testPoint.testDep)
+                        #print(SumPs)
                         if xLayer.endDep-xLayer.startDep==0:
                             str0=str0+"%s\t"%('')
                         else:
