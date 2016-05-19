@@ -187,7 +187,10 @@ def CPT(projectNo):
                                 )
     return render_template('CPT.html',projectNo=projectNo,holelist=holelist,manager=FindManager(projectNo),holelist2=holelist2)
 
-
+@app.route('/<projectNo>/ZZT',methods=['POST','GET'])
+def ZZT(projectNo):
+    holelist=ReceiveHoleLayer(projectNo,1)  
+    return render_template('ZZT.html',projectNo=projectNo,holelist=holelist,manager=FindManager(projectNo))
 @app.route('/<projectNo>/index_analysis')
 def index_analysis(projectNo):
     holelist=FindCPT(projectNo)
