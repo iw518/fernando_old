@@ -21,9 +21,11 @@ app = Flask(__name__)
 @app.route('/',methods=['POST','GET'])
 def index():
     if request.method=='POST':
+        project=request.form['projectNo']
         #return redirect(url_for('index',projectNo=request.form['projectNo']))
-        return projecthome(request.form['projectNo'])
-    return render_template('index.html')
+        return  render_template('project_home.html', projectNo=request.form['projectNo'])
+    else:
+        return render_template('index.html')
 ##当执行127.0.0.1/时其可以执行'/'，也可执行'/<projectNo>'，故需加一个判断
 ##此处还可进一步优化，写成127.0.0.1/?No=K059-2015形式
 @app.route('/<projectNo>')
@@ -33,6 +35,8 @@ def projecthome(projectNo):
                                 projectNo=projectNo,
                                 manager=FindManager(projectNo)
                                 )
+    else:
+        return  render_template('index.html')
 
 @app.route('/<projectNo>/water')
 def water(projectNo):
