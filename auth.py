@@ -50,6 +50,8 @@ def FindManager(projectNo):
                 Where base.project_name='%s' AND userprj.project_burden=0"%(projectNo)
     ms=MSSQL()
     sqlList=ms.ExecQuery(sql_str)
+    if len(sqlList)==0:
+        sqlList=[(" "," "," ")]
     manager=Manager(sqlList[0][0].encode('latin-1').decode('gbk'),sqlList[0][1].encode('latin-1').decode('gbk'))
     return manager
 
