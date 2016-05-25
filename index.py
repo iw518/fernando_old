@@ -14,6 +14,7 @@ from flask import Flask, render_template, request, url_for, redirect, jsonify,ma
 from maingui import *
 from genpdf import *
 from auth import *
+from GHole import DICT_HoleType
 import json
 from json import dumps
 app = Flask(__name__)
@@ -216,6 +217,21 @@ def index_analysis(projectNo):
         layer_hole_ps_list.append((FindLayers(projectNo)[i].layerNo,hole_ps_list))
     return render_template('index_analysis.html',projectNo=projectNo,layer_hole_ps_list=layer_hole_ps_list)
 
+@app.route('/<projectNo>/workloads')
+def workloads(projectNo):
+    holelist=ReceiveHoleBasicInf(projectNo)
+    dict_workloads={}
+    dict_soilloads=workloads_soiltest(projectNo)
+    for key in DICT_HoleType.keys():
+        sumN=0
+        sumDep=0
+        for xHole in holelist:
+            if xHole.holeType==DICT_HoleType[key][0]:
+                sumDep=sumDep+xHole.Dep
+                sumN=sumN+1
+        dict_workloads[key]=(DICT_HoleType[key][1],sumN,sumDep)
+    return render_template('workloads.html',projectNo=projectNo,dict_workloads=dict_workloads,dict_soilloads=dict_soilloads,manager=FindManager(projectNo))
+
 
 def convert_to_dicts(objs):
     '''把对象列表转换为字典列表'''
@@ -235,4 +251,4 @@ def convert_to_dicts(objs):
     return obj_arr
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=5000,debug=True)
+    app.run(host='0.0.0.0',port=80,debug=True)

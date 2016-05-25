@@ -14,35 +14,27 @@
                     <li><a href="{{url_for('pile',projectNo=projectNo,_external=True)}}">桩基</a></li>
                 </ul>
             </li>
-            <li><a href="#">成果表</a>
+            <li><a href="#">成果图表</a>
                 <ul>
                     <li><a href="{{url_for('CPT',projectNo=projectNo,_external=True)}}">静力触探曲线图表</a></li>
                     <li><a href="{{url_for('ZZT',projectNo=projectNo,_external=True)}}">钻孔柱状图</a></li>
                     <li><a href="/{{projectNo}}/#">Submenu 2-3</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 2-4</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 2-5</a></li>
                 </ul>
             </li>
-            <li><a href="#">辅助分析</a>
+            <li><a href="#">指标分析</a>
                 <ul>
                     <li><a href="/{{projectNo}}/#">层位分析</a></li>
                     <li><a href="/{{projectNo}}/index_analysis">指标分析</a></li>
                     <li><a href="/{{projectNo}}/#">Submenu 3-3</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 3-4</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 3-5</a></li>
                 </ul>
             </li>
-            <li><a href="#">统计</a>
+            <li><a href="#">统计汇总</a>
                 <ul>
-                    <li><a href="/{{projectNo}}/#">工作量统计</a></li>
-                    <li><a href="/{{projectNo}}/#">图层特性表</a></li>
+                    <li><a href="{{url_for('workloads',projectNo=projectNo,_external=True)}}">工作量统计</a></li>
+                    <li><a href="/{{projectNo}}/#">土层特性表</a></li>
                     <li><a href="/{{projectNo}}/#">Submenu 4-3</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 4-4</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 4-5</a></li>
                 </ul>
             </li>
-            <li><a href="/{{projectNo}}/#">Menu 5</a></li>
-            <li><a href="/{{projectNo}}/#">Menu 6</a></li>
         </ul>
 {% endblock %}
 {% block main %}

@@ -82,7 +82,7 @@ function showCurve(){
             n=n+1;}
         {% endfor %}
         var nn={{item[1]|length}}-n;
-        var s1="<div>层号"+"{{item[0]}}"+"实有数据点"+n+"个,不包含"+nn+"个为0的数据点</div>";
+        var s1="<div>层号"+"{{item[0]}}"+"包含勘探孔"+n+"个,不包含"+nn+"个为0的数据点</div>";
         s1=s1+"<div>最大值为</div><div>最小值为</div><div>变异系数为</div>";
         $("div #notation").empty();
         $("div #notation").append(s1);
@@ -116,6 +116,7 @@ function grow(evt){
     var svgDoc=ps_circle.ownerDocument;
     var txt=ps_circle.getElementsByTagName("text")[0];
     console.log(txt.firstChild);
+    txt.style.setProperty("font-size","20px");
     txt.setAttribute("x",obj.getAttribute("cx"));
     txt.setAttribute("y",obj.getAttribute("cy"));
     txt.setAttribute("transform","translate(0,"+obj.getAttribute("cy")*2+") scale(1,-1)");

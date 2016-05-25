@@ -93,3 +93,49 @@ border:2px solid #000000;
 	border: 0px;
     width:100%; /*自适应td的宽度*/
 }
+
+.graph-table {
+font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+font-size: 12px;
+background: #fff;
+
+border-collapse: collapse;
+text-align: center;
+margin: 5px;
+border:2px solid #000000;
+}
+
+.graph-table th
+{
+	font-size: 13px;
+	font-weight: normal;
+	color: #039;
+	padding: 0px;
+    border-left: 1px solid #6678b1;
+    text-align: center;
+}
+.graph-table tbody
+{
+	border-top: 1px solid #6678b1;
+	border-bottom: 1px solid #6678b1;
+    padding:0px;
+}
+.graph-table td
+{
+	color: #669;
+    padding: 0px 0px 0px 0px;
+    border-left: 1px solid #6678b1;
+    border-top: 1px solid #6678b1;
+    text-align: center;
+}
+.graph-table input
+{
+	border: 0px;
+    width:100%; /*自适应td的宽度*/
+    text-align: center;
+}
+.graph-table select
+{
+	border: 0px;
+    width:100%; /*自适应td的宽度*/
+}
