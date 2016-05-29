@@ -235,7 +235,6 @@ def ReceiveHoleBasicInf(projectNo,holeType=-1):
         xHole.waterLevel=waterLevel
         xHole.holeType=holeType
         holeList.append(xHole)
-        ##if True:print('%s\t%.2f'%(xHole.holeName,xHole.Dep))
     return holeList
 
 
@@ -345,31 +344,84 @@ def FindLayers(projectNo):
     #print("本工程地基土可划分为%d个工程地质层。"%(count))
     return layers
 
-def ExportLayers_Stat(projectNo,d=1.0,wd=0.5):
-    '此处采用right join，为了防止部分地层地质时代为空'
-    sql_str=("SELECT pmlayer.layerno, pmlayer.layername, \
-            '粘聚力'=Sum(Case titemdata.itemCode when 'CON_C' THEN titemdata.iavg ELSE 0 END), \
-            '摩擦角'=Sum(Case titemdata.itemCode when 'CON_F' THEN titemdata.iavg ELSE 0 END), \
-            'PS值'=Sum(Case titemdata.itemCode when 'PS1' THEN titemdata.iavg ELSE 0 END), \
-            '重度'=Sum(Case titemdata.itemCode when 'DENSITY' THEN titemdata.iavg ELSE 0 END) \
-            FROM (titemdata INNER JOIN pmlayer ON \
-            titemdata.anumber = pmlayer.anumber) INNER JOIN base ON \
-            titemdata.project_count = base.project_count \
-            WHERE (base.project_name)='%s' \
-            GROUP BY pmlayer.layerorder, pmlayer.layerno, pmlayer.layername"%(projectNo))
+def ExportLayers_Stat(projectNo,mode=1):
+    keytuple=(
+            ["PS1","比贯入阻力","Ps","MPa",1,2],
+            ["DENSITY","重度","&gamma;","kN/m<sup>3</sup>",1,1],
+            ["CON_C","固结快剪","C","kPa",2,0],
+            ["CON_F","固结快剪","&phi;","&deg;",0,1],
+            ["QUICK_C","快剪","C<sub>q</sub>","kPa",2,0],
+            ["QUICK_F","快剪","&phi;<sub>q</sub>","&deg;",0,1],
+            ["SLOW_C","慢剪","C","kPa",2,0],
+            ["SLOW_F","慢剪","&phi;","&deg;",0,1],
+            ["CCU","CU","C<sub>cu</sub>","kPa",2,0],
+            ["FCU","CU","&phi;<sub>cu</sub>","&deg;",0,1],
+            ["CUU","UU","C<sub>uu</sub>","kPa",2,0],
+            ["FUU","UU","&phi;<sub>uu</sub>","&deg;",0,1],
+            ["KH","渗透系数","K<sub>H</sub>","cm/s10<sup>-6</sup>",2,1],
+            ["KV","渗透系数","K<sub>V</sub>","cm/s<sup>-6</sup>",0,1],
+            ["K0","静止侧压力","K0","-",1,2]
+           );
+    sql_str="SELECT pmlayer.layerno, pmlayer.layername"
+    for item in keytuple:
+        sql_str=sql_str+", '"+item[0]+"'=Sum(Case titemdata.itemCode when '"+item[0]+"' THEN titemdata.iavg ELSE 0 END)"
+    sql_str=sql_str+" FROM (titemdata INNER JOIN pmlayer ON \
+                    titemdata.anumber = pmlayer.anumber) INNER JOIN base \
+                    ON titemdata.project_count = base.project_count \
+                    WHERE (base.project_name)='%s' \
+                    GROUP BY pmlayer.layerorder, pmlayer.layerno, pmlayer.layername"%(projectNo)
+    #print(sql_str)
+
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
-    layers=[]
-    for (layerNo,layerName,CON_C,CON_F,Ps1,DENSITY) in sqlList:
-        xLayer=Layer_Stats(d,wd)
-        xLayer.layerNo=layerNo.encode('latin-1').decode('gbk')
-        xLayer.layerName=layerName.encode('latin-1').decode('gbk')
-        xLayer.CON_C=CON_C
-        xLayer.CON_F=CON_F
-        xLayer.AVG_Ps=round(Ps1,2)
-        xLayer.DENSITY=DENSITY
+    layers=[]    
+    for item in sqlList:
+        xLayer=Layer_Stats()
+        xLayer.layerNo=item[0].encode('latin-1').decode('gbk')
+        xLayer.layerName=item[1].encode('latin-1').decode('gbk') 
+        myrange=[]       
+        if mode==1:
+            myrange=range(0,4)
+        elif mode==2:
+            myrange=range(1,len(keytuple))
+        for i in myrange:
+            key=keytuple[i][0]
+            value=0
+            if key=="DENSITY":
+                value=round(item[2+i]*9.8,keytuple[i][5])
+            elif key=="KH" or key=="KV":
+                value=round(item[2+i]*1000000,keytuple[i][5]) 
+            else:
+                value=round(item[2+i],keytuple[i][5])
+            setattr(xLayer,key,value) 
         layers.append(xLayer)
     return layers
+
+    # '此处采用right join，为了防止部分地层地质时代为空'
+    # sql_str="SELECT pmlayer.layerno, pmlayer.layername, \
+    #         '密度'=Sum(Case titemdata.itemCode when 'DENSITY' THEN titemdata.iavg ELSE 0 END), \
+    #         '粘聚力'=Sum(Case titemdata.itemCode when 'CON_C' THEN titemdata.iavg ELSE 0 END), \
+    #         '摩擦角'=Sum(Case titemdata.itemCode when 'CON_F' THEN titemdata.iavg ELSE 0 END), \
+    #         '快剪粘聚力'=Sum(Case titemdata.itemCode when 'QUICK_C' THEN titemdata.iavg ELSE 0 END), \
+    #         '快剪摩擦角'=Sum(Case titemdata.itemCode when 'QUICK_F' THEN titemdata.iavg ELSE 0 END), \
+    #         '慢剪粘聚力'=Sum(Case titemdata.itemCode when 'SLOW_C' THEN titemdata.iavg ELSE 0 END), \
+    #         '慢剪摩擦角'=Sum(Case titemdata.itemCode when 'SLOW_F' THEN titemdata.iavg ELSE 0 END), \
+    #         'CU粘聚力'=Sum(Case titemdata.itemCode when 'CCU' THEN titemdata.iavg ELSE 0 END), \
+    #         'CU摩擦角'=Sum(Case titemdata.itemCode when 'FCU' THEN titemdata.iavg ELSE 0 END), \
+    #         'UU粘聚力'=Sum(Case titemdata.itemCode when 'CUU' THEN titemdata.iavg ELSE 0 END), \
+    #         'UU摩擦角'=Sum(Case titemdata.itemCode when 'FUU' THEN titemdata.iavg ELSE 0 END), \
+    #         '竖向渗透系数'=Sum(Case titemdata.itemCode when 'KH' THEN titemdata.iavg ELSE 0 END), \
+    #         '水平渗透系数'=Sum(Case titemdata.itemCode when 'KV' THEN titemdata.iavg ELSE 0 END), \
+    #         'K0'=Sum(Case titemdata.itemCode when 'K0' THEN titemdata.iavg ELSE 0 END) \
+    #         FROM (titemdata INNER JOIN pmlayer ON \
+    #         titemdata.anumber = pmlayer.anumber) INNER JOIN base ON \
+    #         titemdata.project_count = base.project_count \
+    #         WHERE (base.project_name)='%s' \
+    #         GROUP BY pmlayer.layerorder, pmlayer.layerno, pmlayer.layername"%(projectNo)
+
+
+
+
 
 def FindSiltLayers(layers):
     siltLayers=[]
@@ -496,47 +548,6 @@ def workloads_soiltest(projectNo):
     sqlList = ms.ExecQuery(sql_str)    
     mydict["标贯试验"]=(801,sqlList[0][0])
     return mydict
-
-def ResWater(projectNo):
-    sql_str=("SELECT pholeatt.holeno as 孔号, \
-    pholeatt.height as 标高, pholeatt.waterlevel as 水位 \
-    FROM pholeatt INNER JOIN base ON pholeatt.project_count = base.project_count \
-    WHERE (base.project_name='%s') AND (pholeatt.attribute=1) ORDER BY pholeatt.hole_order"%(projectNo))
-
-    ms = MSSQL(DATABASE)
-    sqlList = ms.ExecQuery(sql_str)
-    holeList=[]
-    for (holeNo,height,waterLevel) in sqlList:
-        xHole=BoreHole()
-        xHole.holeName=holeNo.encode('latin-1').decode('gbk')
-        xHole.projectNo=projectNo
-        xHole.elevation=height
-        xHole.waterLevel=waterLevel
-        if (type(height) is float) and (type(waterLevel) is float):holeList.append(xHole)
-##    str1=''##
-##    '计算书说明'
-##    str1+='<hr />'
-##    str1+='<P />'
-##    str1+='<P>'+'&nbsp;'*35+'地下水位计算书'+'&nbsp;'*35+'</P>'
-##    str1+='<P />'
-##    str1+='<hr />'
-##    str1+='<P>'+'工程编号:'+'%s'%(projectNo)+'</P>'
-##    cnt=len(holeList)
-##    factor=GroupTotal(cnt)[0]
-##    rank=GroupTotal(cnt)[1]
-##    for x in range(rank):
-##        start=x*factor
-##        if ((x+1)*factor)<=cnt:
-##            end=(x+1)*factor
-##        else:
-##            end=cnt
-##        '设置字符宽度为5,此处sep用四个空格来代替\t，估计是一旦字符宽度大于4，则\t会小于4'
-##        str1+='<P>'+' '.join('%5s'%(xHole.holeName) for xHole in holeList[start:end])+'</P>'
-##        str1+='<P>'+' '.join('%5.2f'%(xHole.waterLevel) for xHole in holeList[start:end])+'</P>'
-##        str1+='<P>'+' '.join('%+5.2f'%(xHole.waterElevation) for xHole in holeList[start:end])+'</P>'
-##    str1+='<P>'+'工程审核人：'+'\t'*3+'工程负责人：'+'\t'*3+'计算人： Robot of fernando'+'</P>'
-##    return str1
-    return holeList
 
 ## 转置分列
 '默认每张水位表最大可容纳8列'

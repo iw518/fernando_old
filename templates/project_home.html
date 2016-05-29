@@ -1,5 +1,4 @@
 {% extends "base.html" %}<!--注意必须放在起始位置，否则顶部不靠顶-->
-{% set projectNo=projectNo %}
 {% block css %}
 {{super()}}
 <link href="{{url_for('static',filename='css/menu.css',_external=True)}} "  rel="stylesheet" type="text/css" />
@@ -24,15 +23,15 @@
             <li><a href="#">指标分析</a>
                 <ul>
                     <li><a href="/{{projectNo}}/#">层位分析</a></li>
-                    <li><a href="/{{projectNo}}/index_analysis">指标分析</a></li>
+                    <li><a href="{{url_for('index_analysis',projectNo=projectNo,_external=True)}}">指标分析</a></li>
                     <li><a href="/{{projectNo}}/#">Submenu 3-3</a></li>
                 </ul>
             </li>
             <li><a href="#">统计汇总</a>
                 <ul>
-                    <li><a href="{{url_for('workloads',projectNo=projectNo,_external=True)}}">工作量统计</a></li>
+                    <li><a href="{{url_for('statistics.workloads',projectNo=projectNo,_external=True)}}">工作量统计</a></li>
                     <li><a href="/{{projectNo}}/#">土层特性表</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 4-3</a></li>
+                    <li><a href="{{url_for('statistics.excavation',projectNo=projectNo,_external=True)}}">基坑参数统计</a></li>
                 </ul>
             </li>
         </ul>

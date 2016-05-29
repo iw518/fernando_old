@@ -69,7 +69,13 @@
                 <tr>
                     <td>{{xLayer.layerNo}}</td>
                     <td>{{xLayer.layerName}}</td>
-                    <td>{{"%.2f"%(xLayer.AVG_Ps)}}</td>
+                    <td>
+                        {% if xLayer.AVG_Ps>0 %}
+                            {{xLayer.AVG_Ps}}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                     <td>{{xLayer.CON_C_toStr}}</td>
                     <td>{{xLayer.CON_F_toStr}}</td>
                     <td></td>

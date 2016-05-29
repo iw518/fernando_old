@@ -28,24 +28,30 @@ pdfmetrics.registerFont(TTFont('SIMHEI','SIMHEI.ttf'))
 def PrintPdf(probeInf,holelist,index=None):
     import os
     projectNo=holelist[0].projectNo
-    cptPath='e:/Pythonweb/py344/project_code/fernando/static/download/'+projectNo+'/'
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    #cptPath='e:/Pythonweb/py344/project_code/fernando/static/download/'+projectNo+'/'
+    cptPath=os.path.join(basedir,'static','download')
+
     if not os.path.exists(cptPath):
         os.makedirs(cptPath)
     doc = SimpleDocTemplate(cptPath, pagesize=A4, rightMargin=10,leftMargin=20, topMargin=30,bottomMargin=20)
     doc.pagesize = portrait(A4)
+    filename=''
     elements = []
     for i in range(len(holelist)):
         if index!=None:
             i=index
-            path=holelist[i].holeName+'.pdf'
+            filename=projectNo+'__'+holelist[i].holeName+'.pdf'
             elements.extend(Cpt2Pdf(holelist[i],probeInf)) #Attenion:where elments.extend must be used,but not elements.append
             break;
         else:
-            path='all'+'.pdf'
+            filename=projectNo+'__'+'all.pdf'
             elements.extend(Cpt2Pdf(holelist[i],probeInf)) #Attenion:where elments.extend must be used,but not elements.append
-    doc.filename=cptPath+path
+    doc.filename=os.path.join(basedir,'static','download',filename)
     doc.build(elements)
-    return (doc.filename.split('static/'))[1]
+    #url='/'.join(['download',projectNo,filename]) 
+    # os.path.join('download',projectNo,filename)将返回download\projectNo\filename，浏览器无法识别
+    return doc.filename
 
 def Cpt2Pdf(xHole,probeInf):
     pointsList=xHole.testPoints

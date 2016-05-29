@@ -61,7 +61,8 @@ class Hole:
         self.__Dep=value
     @property
     def waterElevation(self):
-        return self.elevation-self.waterLevel
+        if float(self.elevation) and float(self.waterLevel):
+            return round(self.elevation-self.waterLevel,2)
     def AddPoint(self,xPoint):
         '判断子类对象是否属于父类用isinstance,'
         if isinstance(xPoint,TESTPOINT):
