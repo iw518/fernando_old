@@ -1,5 +1,5 @@
-#-*-coding:utf-8-*-
-#-------------------------------------------------------------------------------
+# -*-coding:utf-8-*-
+# -------------------------------------------------------------------------------
 # Name:        GLayer
 # Purpose:
 #
@@ -8,8 +8,9 @@
 # Created:     17-06-2015
 # Copyright:   (c) Administrator 2015
 # Licence:     <GPLV3>
-#-------------------------------------------------------------------------------
-import math,GFunction
+# -------------------------------------------------------------------------------
+import math
+from GFunction import *
 DICT_FK_PS={'粘土':(68,0.135,1.5,1.1,0),
             '淤泥质':(58,0.125,0.8,1.0,0),
             '粉土':(72,0.090,2.5,1.3,0.3),
@@ -65,126 +66,147 @@ class Layer:
 class Layer_Stats(Layer):
     def __init__(self):
         Layer.__init__(self)
-        self.CON_C=0.0
-        #self.CON_Ck=0.0
-        self.CON_F=0.0
-        #self.CON_Fk=0.0
-        self.PS1=0.0
-        self.DENSITY=0.0
+        self.CON_C = 0.0
+        self.CON_F = 0.0
+        # self.CON_Ck=0.0
+        # self.CON_Fk=0.0
+        # 注意PS1以及DENSITY为初始参数，
+        # 后期函数运算时不应直接修改实例变量，而应另外声明变量
+        # 例如不应self.DENSITY=18,而应写成gravity=18'
+        self.PS1 = 0.0
+        self.DENSITY = 0.0
 
     @property
     def AVG_Ps(self):
-        return round(self.PS1,2)
+        if FilterZero(self.PS1) == '-':
+            return '-'
+        else:
+            return '%.2f' % (self.PS1)
+
     # @AVG_Ps.setter
     # def AVG_Ps(self,value):
     #     self.__AVG_Ps=value
 
     @property
     def CON_F_toStr(self):
-        if self.CON_F<=0:
+        x = FilterZero(self.CON_F)
+        try:
+            print(float(x))
+        except:
             return '-'
         else:
-            F100=int(self.CON_F*100)%10 #百分位
-            F10=int(self.CON_F*10)%10  #十分位
-            F=int(self.CON_F)
-            if (self.CON_F-F)<0.25:
-                return '%.1f'%(F)
-            elif (self.CON_F-F)>=0.25 and (self.CON_F-F)<0.75:
-                return '%.1f'%(F+0.5)
+            # 百分位 F = int(self.CON_F * 100) % 10
+            # 十分位 F = int(self.CON_F * 10) % 10
+            if x - int(x) < 0.25:
+                return '%.1f' % int(x)
+            elif x - int(x) >= 0.25 and x - int(x) < 0.75:
+                return '%.1f' % (int(x) + 0.5)
             else:
-                return '%.1f'%(F+1)
+                return '%.1f' % (int(x) + 1)
+
     @property
     def CON_C_toStr(self):
-        if self.CON_C<=0:
+        x = FilterZero(self.CON_C)
+        try:
+            print(float(x))
+        except:
             return '-'
         else:
-            C10=int(self.CON_C*10)%10
-            C0=int(self.CON_C)%10
-            C=int(self.CON_C)
-            if (self.CON_C-C)<0.5:
-                return '%.0f'%(C)
+            if x - int(x) < 0.5:
+                return '%.0f' % int(x)
             else:
-                return '%.0f'%(C+1)
+                return '%.0f' % (int(x) + 1)
 
-    def Avg2Std(AVG,cv,n):
-        rs=1-(1.704/math.sqrt(n)+4.678/n/n)*cv
-        return AVG*rs
+    def Avg2Std(AVG, cv, n):
+        rs = 1 - (1.704 / math.sqrt(n) + 4.678 / n / n) * cv
+        return AVG * rs
 
-
-    def Ps_Fak(self,d=1.0,wd=0.5):
-        fd=0.0
-        if self.AVG_Ps>0:            
-            b=3.0
-            d=d
-            wd=wd                       #水位埋深
-            r=0                         #r--基底以下土的重度，地下水位以下，取浮重度
-            r0=0                        #r0--基底以上土的重度加权平均值，地下水位以下取浮重度
-            density=self.DENSITY
-            if density<=0:
-                density=1.8             #防止未作密度试验仍然可估算
-            
-            if d>=wd:
-                r=density*9.8-10        # 勘察软件水的重度取10,此处未修正为9.8，仍取10
+    def Ps_Fak(self, d=1.0, wd=0.5):
+        if self.AVG_Ps == '-':
+            return '-'
+        else:
+            fd = 0.0
+            b = 3.0
+            d = d
+            wd = wd                             # 水位埋深
+            r = 0                               # r--基底以下土的重度，地下水位以下，取浮重度
+            r0 = 0                              # r0--基底以上土的重度加权平均值，地下水位以下取浮重度
+            # 表中DENSITY已经乘以9.8了
+            if self.DENSITY <= 0:
+                r = 18                          # 防止未作密度试验仍然可估算
+            if d >= wd:
+                r = self.DENSITY - 10           # 勘察软件水的重度取10,此处未修正为9.8，仍取10
             else:
-                r=density*9.8
+                r = self.DENSITY
 
-            if d>=wd:
-                r0=r+(wd/d)*10
+            if d >= wd:
+                r0 = r + (wd / d) * 10
             else:
-                r0=r
-
-            for (k,v) in DICT_FK_PS.items():
+                r0 = r
+            for (k, v) in DICT_FK_PS.items():
                 if k in self.layerName.split('夹')[0]:
-                    fk=v[0]+v[1]*min(self.AVG_Ps,v[2])*1000
-                    fd=0.5*fk+v[3]*r0*(d-0.5)+v[4]*r*(b-3)
+                    fk = v[0] + v[1] * min(float(self.AVG_Ps), v[2]) * 1000
+                    fd = 0.5 * fk + v[3] * r0 * (d - 0.5) + v[4] * r * (b - 3)
+                    fd = '%.2f' % fd
                     break
-        return fd
+                else:
+                    fd = '-'
+            return fd
 
-    def Soil_Fak(self,d=1.0,wd=0.5):
-        fd=0
-        if self.DENSITY*self.CON_C*self.CON_F>0:
-            d=d                         #基础埋深
-            b=1.5                       #基础宽度
-            Tr=1.0
-            Tc=1.0
-            Tq=1.0
-            wd=wd                       #水位埋深
-            r=0                         #r--基底以下土的重度，地下水位以下，取浮重度
-            r0=0                        #r0--基底以上土的重度加权平均值，地下水位以下取浮重度
-
-            
-            if d>=wd:
-                r=self.DENSITY*9.8-10   # 勘察软件水的重度取10,此处未修正为9.8，仍取10
+    def Soil_Fak(self, d=1.0, wd=0.5):
+        if FilterZero(self.CON_C * self.CON_F) == '-' and FilterZero(self.DENSITY) == '-':
+            return '-'
+        else:
+            fd = 0
+            d = d                           # 基础埋深
+            b = 1.5                         # 基础宽度
+            Tr = 1.0
+            Tc = 1.0
+            Tq = 1.0
+            wd = wd                         # 水位埋深
+            r = 0                           # r--基底以下土的重度，地下水位以下，取浮重度
+            r0 = 0                          # r0--基底以上土的重度加权平均值，地下水位以下取浮重度
+            if d >= wd:
+                r = self.DENSITY - 10       # 勘察软件水的重度取10,此处未修正为9.8，仍取10
             else:
-                r=self.DENSITY*9.8
+                r = self.DENSITY
 
-            if d>=wd:
-                r0=r+(wd/d)*10
+            if d >= wd:
+                r0 = r + (wd / d) * 10
             else:
-                r0=r
+                r0 = r
 
-            LAMD=0.8
-            rc=2.7
-            rf=1.2
-            #地基基础设计规范5.2.3条，剪切指标标准值取固快峰值强度平均值
-            CON_Ck=self.CON_C
-            CON_Fk=self.CON_F
+            LAMD = 0.8
+            rc = 2.7
+            rf = 1.2
+            # 地基基础设计规范5.2.3条，剪切指标标准值取固快峰值强度平均值
+            CON_Ck = self.CON_C
+            CON_Fk = self.CON_F
 
-            CON_Cd=LAMD*CON_Ck/rc
-            CON_Fd=LAMD*CON_Fk/rf
-            f=GFunction.Matchlist(CON_Fd,F_FACTOR)[0]
-            Nr=(GFunction.Matchlist(CON_Fd,FD_FACTOR))[0]
-            Nq=(GFunction.Matchlist(CON_Fd,FD_FACTOR))[1]
-            Nc=(GFunction.Matchlist(CON_Fd,FD_FACTOR))[2]
+            CON_Cd = LAMD * CON_Ck / rc
+            CON_Fd = LAMD * CON_Fk / rf
+            f = Matchlist(CON_Fd, F_FACTOR)[0]
+            Nr = (Matchlist(CON_Fd, FD_FACTOR))[0]
+            Nq = (Matchlist(CON_Fd, FD_FACTOR))[1]
+            Nc = (Matchlist(CON_Fd, FD_FACTOR))[2]
             fd=0.5*f*Nr*Tr*r*b+f*Nc*Tc*CON_Cd+Nq*Tq*r0*d
-        return fd
+        return '%.2f' % fd
 
-    def Fak(self,d=1.0,wd=0.5):
-        fak=0
-        if self.Ps_Fak(d,wd)*self.Soil_Fak(d,wd)>0:
+    def Fak(self, d=1.0, wd=0.5):
+        fak = 0
+        a = FilterZero(self.Ps_Fak(d, wd))
+        b = FilterZero(self.Soil_Fak(d, wd))
+        if a != '-' and b != '-':
             if ('粉土' in self.layerName.split('夹')[0]) or ('砂' in self.layerName.split('夹')[0]):
-                fak=(int((self.Ps_Fak(d,wd)+self.Soil_Fak(d,wd))/2/5))*5
+                a = float(a)
+                b = float(b)
+                avg = (a + b) / 2
+                fak = 5 * int(avg / 5)
             else:
-                fak=(int((min(self.Ps_Fak(d,wd),self.Soil_Fak(d,wd))*0.75+max(self.Ps_Fak(d,wd),self.Soil_Fak(d,wd))*0.25)/5))*5
-        
-        return fak
+                a = float(a)
+                b = float(b)
+                avg = 0.75 * min(a, b) + 0.25 * max(a, b)
+                fak = 5 * int(avg / 5)
+            return '%d' % fak
+        else:
+            return '-'

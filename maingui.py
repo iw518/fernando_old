@@ -1,5 +1,5 @@
-#-*-coding:utf-8-*-
-#-------------------------------------------------------------------------------
+# -*-coding:utf-8-*-
+# -------------------------------------------------------------------------------
 # Name:        main
 # Purpose:     gen result txt
 #
@@ -8,11 +8,10 @@
 # Created:     17-06-2015
 # Copyright:   (c) Robot of Fernando 2015
 # Licence:     The MIT License
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 import os
 import struct
 import math
-import string
 import copy
 from dataset import *
 from GHole import *
@@ -20,43 +19,49 @@ from GLayer import *
 from GPoint import *
 from GFunction import *
 
-BASEDIR  =[ "d:/勘探数据/单孔数据/",
-            "d:/勘探数据/静力触探数据/",
-            "d:/勘探数据/水位表/",
-            "d:/勘探数据/统计/",
-            "d:/勘探数据/计算书/",
-            "d:/勘探数据/其他/",
-            "d:/勘探数据/project/"]
-DATABASE ='shmged'
-#SILTYS=['砂质粉土','粉砂','细砂','粉细砂','中砂','粗砂','中粗砂','砾砂']
+BASEDIR = ["d:/勘探数据/单孔数据/",
+           "d:/勘探数据/静力触探数据/",
+           "d:/勘探数据/水位表/",
+           "d:/勘探数据/统计/",
+           "d:/勘探数据/计算书/",
+           "d:/勘探数据/其他/",
+           "d:/勘探数据/project/"
+           ]
+DATABASE = 'shmged'
+# SILTYS=['砂质粉土','粉砂','细砂','粉细砂','中砂','粗砂','中粗砂','砾砂']
 
 #  若用os.path.dirname(x)来查找上级目录，并创建父目录，有时候查找不到，具体原因不明
 #  os.mkdir(x)用来创建一层目录，os.makedirs(x)用来创建多层目录
 for x in BASEDIR:
     if not os.path.exists(x):
         os.makedirs(x)
-#仔细思考这个函数的写法,非常有用
-def autoDate(testDate,MaxNofHole,MaxTotalDep,holelist):
-    N0=0
-    TotalDep=0
+
+
+def autoDate(testDate, MaxNofHole, MaxTotalDep, holelist):
+    """仔细思考这个函数的写法,非常有用"""
+    N0 = 0
+    TotalDep = 0
     for i in range(len(holelist)):
-        TotalDep=TotalDep+holelist[i].Dep
-        if i-N0<MaxNofHole and TotalDep<=MaxTotalDep:
-            holelist[i].testDate=AddDate(testDate,0)
+        TotalDep = TotalDep + holelist[i].Dep
+        if (i - N0) < MaxNofHole and TotalDep <= MaxTotalDep:
+            holelist[i].testDate = AddDate(testDate, 0)
         else:
-            N0=i
-            TotalDep=holelist[N0].Dep
-            testDate=AddDate(testDate,1)
-            holelist[i].testDate=AddDate(testDate,0)
+            N0 = i
+            TotalDep = holelist[N0].Dep
+            testDate = AddDate(testDate, 1)
+            holelist[i].testDate = AddDate(testDate, 0)
+
 
 def CollectBgPoints2Hole(projectNo):
-    sql_str=("SELECT soilhole.soil_holeNo, pmbg.bgpoint,(pmbg.startpos+pmbg.endpos)/2, pmbg.n635, grain.k_0005, \
-                    'soilType'=(CASE \
-                                    WHEN grain.k025_0074>50 THEN '粉砂' \
-                                    WHEN grain.k_0005<10 THEN '砂质粉土' \
-                                    WHEN grain.k_0005<15 THEN '粘质粉土' \
-                                    ELSE '粉质粘土' \
-                                END) \
+    sql_str = ("SELECT soilhole.soil_holeNo, \
+                pmbg.bgpoint,(pmbg.startpos+pmbg.endpos)/2, \
+                pmbg.n635, grain.k_0005, \
+                'soilType'=(CASE \
+                            WHEN grain.k025_0074>50 THEN '粉砂' \
+                            WHEN grain.k_0005<10 THEN '砂质粉土' \
+                            WHEN grain.k_0005<15 THEN '粘质粉土' \
+                            ELSE '粉质粘土' \
+                            END) \
                 FROM ((pmbg INNER JOIN base ON pmbg.project_count = base.project_count) \
                     INNER JOIN soilhole \
                             ON (pmbg.hnumber = soilhole.hnumber) AND (base.project_count = soilhole.project_count)) \
@@ -211,9 +216,12 @@ def ReceiveHoleLayer(projectNo,holeType=-1):
 ##    			print('%s\t%s\t%.2f\t%.2f'%(xLayer.layerNo,xLayer.layerName,xLayer.startDep,xLayer.endDep))
     return holeList
 
-###查找每个项目所含钻孔及其孔深，返回list[xhole,....],hole主要组成为hole.holeName,hole.Dep
+
 def ReceiveHoleBasicInf(projectNo,holeType=-1):
-    if holeType==-1:
+    """查找每个项目所含钻孔及其孔深，返回list[xhole,....],
+    hole主要组成为hole.holeName,hole.Dep"""
+
+    if holeType == -1:
         sql_str=("SELECT pholeatt.holeno,pholeatt.height,pholeatt.depth,pholeatt.waterlevel,pholeatt.attribute \
         FROM pholeatt INNER JOIN base ON pholeatt.project_count = base.project_count \
         WHERE (base.project_name='%s') \
@@ -226,7 +234,7 @@ def ReceiveHoleBasicInf(projectNo,holeType=-1):
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
     holeList=[]
-    for(holeNo,elevation,holeDepth,waterLevel,holeType) in sqlList:
+    for(holeNo, elevation, holeDepth, waterLevel, holeType) in sqlList:
         xHole=Hole()
         xHole.holeName=holeNo.encode('latin-1').decode('gbk')
         xHole.projectNo=projectNo
@@ -238,16 +246,19 @@ def ReceiveHoleBasicInf(projectNo,holeType=-1):
     return holeList
 
 
-###查找每个项目所含钻孔，返回list[xhole,....],hole主要组成为findholeanddep的属性及layers属性,其中layer成分由findlayers明确
 def HoleAndLayer(projectNo):
+    """###查找每个项目所含钻孔，返回list[xhole,....],
+    hole主要组成为findholeanddep的属性及layers属性,
+    layer成分由findlayers明确"""
+
     sql_str=("SELECT soilhole.soil_holeNo, zp93.dep, zp93.norder, zp93.hnumber \
             FROM (zp93 INNER JOIN base ON zp93.project_count = base.project_count) \
                     INNER JOIN soilhole ON zp93.hnumber = soilhole.hnumber \
             WHERE base.project_name ='%s' \
             ORDER BY LEN(soilhole.soil_holeNo), \
                         soilhole.soil_holeNo, \
-                        zp93.norder"%(projectNo))
-    #必须按照norder排序,不能按照zp93.anumber排序
+                        zp93.norder" % (projectNo))
+    # 必须按照norder排序,不能按照zp93.anumber排序
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
     layers=FindLayers(projectNo)
@@ -277,6 +288,7 @@ def HoleAndLayer(projectNo):
             xHole.layers.append(xLayer)
     return holeList
 
+
 def FindLiqueHole(projectNo):
     holeList=CollectBgPoints2Hole(projectNo)
     for xHole in holeList:
@@ -297,18 +309,27 @@ def FindLiqueHole(projectNo):
                 break
     return LiqueHoleList
 
-###查找每个项目所含钻孔及其孔深，返回list[xhole,....],hole主要组成为hole.holeName,hole.Dep
+
 def FindHoleAndDep(projectNo):
-    sql_str=("SELECT soilhole.soil_holeNo, Max(main.enddep) \
-    FROM (soilhole INNER JOIN main ON soilhole.soil_hnumber = main.soil_hnumber)\
-    INNER JOIN base ON soilhole.project_count = base.project_count\
-    GROUP BY soilhole.hole_order, soilhole.soil_holeNo, base.project_name\
-    HAVING base.project_name='%s'\
-    ORDER BY len(soilhole.soil_holeNo), soilhole.soil_holeNo, soilhole.hole_order"%(projectNo))
+    """查找每个项目所含钻孔及其孔深,
+    hole主要组成为hole.holeName,hole.Dep,
+    返回list[xhole,....]"""
+
+    sql_str = ("SELECT soilhole.soil_holeNo, Max(main.enddep) \
+                FROM (soilhole INNER JOIN main ON \
+                soilhole.soil_hnumber = main.soil_hnumber)\
+                INNER JOIN base ON soilhole.project_count = base.project_count\
+                GROUP BY \
+                soilhole.hole_order, soilhole.soil_holeNo, base.project_name\
+                HAVING base.project_name='%s'\
+                ORDER BY \
+                len(soilhole.soil_holeNo), \
+                soilhole.soil_holeNo, \
+                soilhole.hole_order" % (projectNo))
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
-    holeList=[]
-    for(holeNo,holeDepth) in sqlList:
+    holeList = []
+    for(holeNo, holeDepth) in sqlList:
         xHole=BGHOLE()
         xHole.holeName=holeNo.encode('latin-1').decode('gbk')
         xHole.projectNo=projectNo
@@ -316,24 +337,29 @@ def FindHoleAndDep(projectNo):
         holeList.append(xHole)
     return holeList
 
-def FindLayerOfPoint(xPoint,xHole):
-	for xLayer in xHole.layers:
-		if (xLayer.endDep-xLayer.startDep)>0:
-			if (xPoint.testDep>xLayer.startDep) and (xPoint.testDep<xLayer.endDep):
-				return xLayer
+
+def FindLayerOfPoint(xPoint, xHole):
+    for xLayer in xHole.layers:
+        if (xLayer.endDep - xLayer.startDep) > 0:
+            if (xPoint.testDep > xLayer.startDep) and (xPoint.testDep < xLayer.endDep):
+                return xLayer
+
+
 def FindLayers(projectNo):
-    '此处采用right join，为了防止部分地层地质时代为空'
-    sql_str=("SELECT pmlayer.layerno, pmlayer.layername, geologic_age.geologic_age \
-            FROM geologic_age \
-            RIGHT JOIN (pmlayer INNER JOIN base ON pmlayer.project_count = base.project_count) \
-            ON geologic_age.anumber = pmlayer.anumber \
-            WHERE base.project_name='%s' \
-            ORDER BY pmlayer.layerorder"%(projectNo))
+
+    # 此处采用right join，为了防止部分地层地质时代为空
+    sql_str = ("SELECT pmlayer.layerno, pmlayer.layername, geologic_age.geologic_age \
+                FROM geologic_age \
+                RIGHT JOIN (pmlayer INNER JOIN base ON \
+                pmlayer.project_count = base.project_count) \
+                ON geologic_age.anumber = pmlayer.anumber \
+                WHERE base.project_name='%s' \
+                ORDER BY pmlayer.layerorder" % (projectNo))
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
     layers=[]
     count=0
-    for (layerNo,layerName,layerAge,) in sqlList:
+    for (layerNo, layerName, layerAge) in sqlList:
     	count+=1
     	xLayer=Layer()
     	xLayer.layerOrder=count
@@ -341,27 +367,27 @@ def FindLayers(projectNo):
     	xLayer.layerName=layerName.encode('latin-1').decode('gbk')
     	xLayer.layerAge=layerAge
     	layers.append(xLayer)
-    #print("本工程地基土可划分为%d个工程地质层。"%(count))
+    # print("本工程地基土可划分为%d个工程地质层。"%(count))
     return layers
 
-def ExportLayers_Stat(projectNo,mode=1):
-    keytuple=(
-            ["PS1","比贯入阻力","Ps","MPa",1,2],
-            ["DENSITY","重度","&gamma;","kN/m<sup>3</sup>",1,1],
-            ["CON_C","固结快剪","C","kPa",2,0],
-            ["CON_F","固结快剪","&phi;","&deg;",0,1],
-            ["QUICK_C","快剪","C<sub>q</sub>","kPa",2,0],
-            ["QUICK_F","快剪","&phi;<sub>q</sub>","&deg;",0,1],
-            ["SLOW_C","慢剪","C","kPa",2,0],
-            ["SLOW_F","慢剪","&phi;","&deg;",0,1],
-            ["CCU","CU","C<sub>cu</sub>","kPa",2,0],
-            ["FCU","CU","&phi;<sub>cu</sub>","&deg;",0,1],
-            ["CUU","UU","C<sub>uu</sub>","kPa",2,0],
-            ["FUU","UU","&phi;<sub>uu</sub>","&deg;",0,1],
-            ["KH","渗透系数","K<sub>H</sub>","cm/s10<sup>-6</sup>",2,1],
-            ["KV","渗透系数","K<sub>V</sub>","cm/s<sup>-6</sup>",0,1],
-            ["K0","静止侧压力","K0","-",1,2]
-           );
+
+def ExportLayers_Stat(projectNo, mode=1):
+    keytuple = (["PS1", "比贯入阻力", "Ps", "MPa", 1, 2],
+                ["DENSITY", "重度", "&gamma;", "kN/m<sup>3</sup>", 1, 1],
+                ["CON_C","固结快剪","C","kPa",2,0],
+                ["CON_F","固结快剪","&phi;","&deg;",0,1],
+                ["QUICK_C","快剪","C<sub>q</sub>","kPa",2,0],
+                ["QUICK_F","快剪","&phi;<sub>q</sub>","&deg;",0,1],
+                ["SLOW_C","慢剪","C","kPa",2,0],
+                ["SLOW_F","慢剪","&phi;","&deg;",0,1],
+                ["CCU","CU","C<sub>cu</sub>","kPa",2,0],
+                ["FCU","CU","&phi;<sub>cu</sub>","&deg;",0,1],
+                ["CUU","UU","C<sub>uu</sub>","kPa",2,0],
+                ["FUU","UU","&phi;<sub>uu</sub>","&deg;",0,1],
+                ["KH","渗透系数","K<sub>H</sub>","cm/s10<sup>-6</sup>",2,1],
+                ["KV","渗透系数","K<sub>V</sub>","cm/s<sup>-6</sup>",0,1],
+                ["K0","静止侧压力","K0","-",1,2]
+               )
     sql_str="SELECT pmlayer.layerno, pmlayer.layername"
     for item in keytuple:
         sql_str=sql_str+", '"+item[0]+"'=Sum(Case titemdata.itemCode when '"+item[0]+"' THEN titemdata.iavg ELSE 0 END)"
@@ -369,17 +395,17 @@ def ExportLayers_Stat(projectNo,mode=1):
                     titemdata.anumber = pmlayer.anumber) INNER JOIN base \
                     ON titemdata.project_count = base.project_count \
                     WHERE (base.project_name)='%s' \
-                    GROUP BY pmlayer.layerorder, pmlayer.layerno, pmlayer.layername"%(projectNo)
-    #print(sql_str)
+                    GROUP BY pmlayer.layerorder, pmlayer.layerno, pmlayer.layername" % (projectNo)
+    # print(sql_str)
 
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
-    layers=[]    
+    layers = []
     for item in sqlList:
         xLayer=Layer_Stats()
         xLayer.layerNo=item[0].encode('latin-1').decode('gbk')
         xLayer.layerName=item[1].encode('latin-1').decode('gbk') 
-        myrange=[]       
+        myrange=[]
         if mode==1:
             myrange=range(0,4)
         elif mode==2:
@@ -420,9 +446,6 @@ def ExportLayers_Stat(projectNo,mode=1):
     #         GROUP BY pmlayer.layerorder, pmlayer.layerno, pmlayer.layername"%(projectNo)
 
 
-
-
-
 def FindSiltLayers(layers):
     siltLayers=[]
     for xLayer in layers:
@@ -432,6 +455,7 @@ def FindSiltLayers(layers):
         elif (xLayer.layerAge.startswith('Q4') and ('砂' in xLayer.layerName.split('夹')[0])):
             siltLayers.append(xLayer)
     return siltLayers
+
 
 def FindSiltLayers2(projectNo):
     siltLayers=[]
@@ -445,15 +469,18 @@ def FindSiltLayers2(projectNo):
             #print('本工程的砂土层或砂质粉土层为：%s\t%s\t'%(xLayer.layerNo,xLayer.layerName))
     return siltLayers
 
+
 def CalcWi(midDep):
-    if midDep<=5:
+    if midDep <= 5:
         return 10
-    elif midDep==20:
+    elif midDep == 20:
         return 0
     else:
-        return-2/3*midDep+40/3
+        return -2 / 3 * midDep + 40 / 3
+
+
 def FindCPT(projectNo):
-    sql_str=("SELECT pholeatt.holeno, tpfs.qc_fs \
+    sql_str = ("SELECT pholeatt.holeno, tpfs.qc_fs \
             FROM (tpfs INNER JOIN base \
             ON tpfs.project_count = base.project_count) \
             INNER JOIN pholeatt \
@@ -479,9 +506,11 @@ def FindCPT(projectNo):
             xHole.AddPoint(xPoint)
         holeList.append(xHole)
     return holeList
-#====================================================#
+# ====================================================#
+
+
 def ExportPs(projectNo):
-    sql_str=("SELECT pholeatt.holeno, tpfs.qc_fs \
+    sql_str = ("SELECT pholeatt.holeno, tpfs.qc_fs \
             FROM (tpfs INNER JOIN base \
             ON tpfs.project_count = base.project_count) \
             INNER JOIN pholeatt \
@@ -510,58 +539,61 @@ def ExportPs(projectNo):
         print(str1,file=f)
         f.close()
 
+
 def workloads_soiltest(projectNo):
-    mydict={}    
-    sql_str=("SELECT Count(cu),Count(ccu),Count(qu),Count(k0) \
+    mydict = {}
+    sql_str = ("SELECT Count(cu),Count(ccu),Count(qu),Count(k0) \
             FROM trial INNER JOIN base ON trial.project_count = base.project_count \
             WHERE (base.project_name='%s')"%(projectNo))
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
 
-    mydict["UU"]=(604,sqlList[0][0])
-    mydict["CU"]=(605,sqlList[0][1])
-    mydict["qu"]=(603,sqlList[0][2])
-    mydict["k0"]=(602,sqlList[0][3])
-    sql_str=("SELECT Count(p0),Count(wl),Count(c),Count(a01_02),Count(kv) \
+    mydict["UU"] = (604, sqlList[0][0])
+    mydict["CU"] = (605, sqlList[0][1])
+    mydict["qu"] = (603, sqlList[0][2])
+    mydict["k0"] = (602, sqlList[0][3])
+    sql_str = ("SELECT Count(p0),Count(wl),Count(c),Count(a01_02),Count(kv) \
             FROM rules INNER JOIN base ON rules.project_count = base.project_count \
             WHERE (base.project_name='%s')"%(projectNo))
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
-    mydict["含水量、密度"]=(501,sqlList[0][0])
+    mydict["含水量、密度"] = (501,sqlList[0][0])
     mydict["液、塑限"]=(502,sqlList[0][1])
     mydict["固结快剪"]=(504,sqlList[0][2])
     mydict["固结压缩"]=(505,sqlList[0][3])
     mydict["渗透系数"]=(601,sqlList[0][4])
 
-    #(k_2,k2_05,k05_025,k025_0074,k0074_005,k005_001,k001_0005,k_0002)
+    # (k_2,k2_05,k05_025,k025_0074,k0074_005,k005_001,k001_0005,k_0002)
     sql_str=("SELECT Count(grain.project_count) \
             FROM grain INNER JOIN base ON grain.project_count = base.project_count \
             WHERE (base.project_name='%s')"%(projectNo))
     ms = MSSQL(DATABASE)
-    sqlList = ms.ExecQuery(sql_str)    
+    sqlList = ms.ExecQuery(sql_str)
     mydict["颗粒分析"]=(503,sqlList[0][0])
 
     sql_str=("SELECT Count(*) \
             FROM pmbg INNER JOIN base ON pmbg.project_count = base.project_count \
             WHERE (base.project_name='%s')"%(projectNo))
     ms = MSSQL(DATABASE)
-    sqlList = ms.ExecQuery(sql_str)    
+    sqlList = ms.ExecQuery(sql_str)
     mydict["标贯试验"]=(801,sqlList[0][0])
     return mydict
 
-## 转置分列
+# 转置分列
 '默认每张水位表最大可容纳8列'
 '  1,2,3,.......................1factor'
 '  .............................2factor'
 '  ....................................'
 '  ....................................'
 '  (rank-1)factor+1,..........rank*factor'
-def GroupTotal(total,factor=8):
-    rank=math.floor(total/factor)
-    remainder=total%factor
-    if remainder==0:
-        rank=rank
+
+
+def GroupTotal(total, factor=8):
+    rank = math.floor(total / factor)
+    remainder = total % factor
+    if remainder == 0:
+        rank = rank
     else:
-        rank=rank+1
-        factor=math.ceil(total/rank)
-    return (factor,rank)
+        rank = rank + 1
+        factor = math.ceil(total / rank)
+    return (factor, rank)

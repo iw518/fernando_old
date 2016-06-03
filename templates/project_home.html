@@ -7,22 +7,20 @@
         <ul id="nav">
             <li><a href="#">计算书</a>
                 <ul>
-                    <li><a href="{{url_for('water',projectNo=projectNo,_external=True)}}">水位表</a></li>
-                    <li><a href="{{url_for('liquefaction',projectNo=projectNo,_external=True)}}">液化判别</a></li>
-                    <li><a href="{{url_for('natural_foundation',projectNo=projectNo,_external=True)}}">天然地基</a></li>
-                    <li><a href="{{url_for('pile',projectNo=projectNo,_external=True)}}">桩基</a></li>
+                    <li><a href="{{url_for('calculation.water',projectNo=projectNo,_external=True)}}">水位表</a></li>
+                    <li><a href="{{url_for('calculation.liquefaction',projectNo=projectNo,_external=True)}}">液化判别</a></li>
+                    <li><a href="{{url_for('calculation.natural_foundation',projectNo=projectNo,_external=True)}}">天然地基</a></li>
+                    <li><a href="{{url_for('calculation.pile',projectNo=projectNo,_external=True)}}">桩基</a></li>
                 </ul>
             </li>
             <li><a href="#">成果图表</a>
                 <ul>
                     <li><a href="{{url_for('CPT',projectNo=projectNo,_external=True)}}">静力触探曲线图表</a></li>
                     <li><a href="{{url_for('ZZT',projectNo=projectNo,_external=True)}}">钻孔柱状图</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 2-3</a></li>
                 </ul>
             </li>
             <li><a href="#">指标分析</a>
                 <ul>
-                    <li><a href="/{{projectNo}}/#">层位分析</a></li>
                     <li><a href="{{url_for('index_analysis',projectNo=projectNo,_external=True)}}">指标分析</a></li>
                     <li><a href="/{{projectNo}}/#">Submenu 3-3</a></li>
                 </ul>
@@ -30,7 +28,6 @@
             <li><a href="#">统计汇总</a>
                 <ul>
                     <li><a href="{{url_for('statistics.workloads',projectNo=projectNo,_external=True)}}">工作量统计</a></li>
-                    <li><a href="/{{projectNo}}/#">土层特性表</a></li>
                     <li><a href="{{url_for('statistics.excavation',projectNo=projectNo,_external=True)}}">基坑参数统计</a></li>
                 </ul>
             </li>

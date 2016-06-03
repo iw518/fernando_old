@@ -40,7 +40,7 @@
     <div class="tbl_notation">
         <p>计算条件及依据:</p>
         <ol class="col-sm-12">
-            <li>γ为天然重度,地下水位以下应取浮重度。</li>
+            <li>&gamma;为天然重度,地下水位以下应取浮重度。</li>
             <li>剪切指标标准值取直剪固快峰值强度平均值，静力触探指标标准值取统计最小平均值。</li>
             <li>采用抗剪强度指标计算承载力时，依据为上海市工程建设规范《地基基础设计规范》(DGJ08-11-2010)第5.2.3条。</li>
             <li>采用静力触探指标计算承载力时，依据为上海市工程建设规范《岩土工程勘察规范》(DGJ08-37-2012)第14.4.4条。</li>
@@ -69,13 +69,7 @@
                 <tr>
                     <td>{{xLayer.layerNo}}</td>
                     <td>{{xLayer.layerName}}</td>
-                    <td>
-                        {% if xLayer.AVG_Ps>0 %}
-                            {{xLayer.AVG_Ps}}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+                    <td>{{xLayer.AVG_Ps}}</td>
                     <td>{{xLayer.CON_C_toStr}}</td>
                     <td>{{xLayer.CON_F_toStr}}</td>
                     <td></td>
@@ -96,8 +90,8 @@
 <script>
 $(function(){
     $('#calculate').click(function(){
-        var myurl="/{{projectNo}}/natural_foundation";
-        var mydata={"depth":$("input[name=depth]").val(),"water_depth":$("input[name=water_depth]").val()}
+        var myurl="{{url_for('calculation.natural_foundation',projectNo=projectNo)}}";
+         var mydata={"depth":$("input[name=depth]").val(),"water_depth":$("input[name=water_depth]").val()};       
         var callback_function=function(dict){
                                 console.log(dict['result']);
                                 $("#result_table tbody>tr").each(function(index,item){

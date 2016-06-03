@@ -1,5 +1,5 @@
-#-*-coding:utf-8-*-
-#-------------------------------------------------------------------------------
+# -*-coding:utf-8-*-
+# -------------------------------------------------------------------------------
 # Name:        GPoint
 # Purpose:
 #
@@ -8,8 +8,9 @@
 # Created:     17-06-2015
 # Copyright:   (c) Administrator 2015
 # Licence:     <GPLV3>
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 import math
+
 
 class TESTPOINT():
     def __init__(self):
@@ -20,12 +21,16 @@ class TESTPOINT():
         self.soilType=""
         self.clayContent=-1.0
 
+
 class PSPOINT(TESTPOINT):
     def __init__(self):
         TESTPOINT.__init__(self)
 
+
 class BGPOINT(TESTPOINT):
+
     '注意类变量和对象变量的区别'
+
     def __init__(self):
         TESTPOINT.__init__(self)
         # startDep=0
@@ -36,6 +41,7 @@ class BGPOINT(TESTPOINT):
         self.Wi=-1.0
         self.Di=-1.0
         self.inf=''
+
     @property
     def Ncr(self):
         N0=7
@@ -53,6 +59,7 @@ class BGPOINT(TESTPOINT):
         else:
             Ncr=N0*BETA*(math.log(0.6*ds+1.5)-0.1*DW)*math.sqrt(3/cc)
             return round(Ncr,2)
+
     @property
     def FLei(self):
         if self.Ncr=='-':
@@ -61,17 +68,19 @@ class BGPOINT(TESTPOINT):
             return '-'
         elif self.Ncr>self.N:
             return round(self.N/self.Ncr,2)
+
     @property
     def ILei(self):
-        if self.FLei=='-':
+        if self.FLei == '-':
             return '-'
         else:
-            return round((1-self.FLei)*self.Di*self.Wi,2)
+            return round((1 - self.FLei)*self.Di*self.Wi,2)
+
     @property
     def LiqueFlag(self):
-        if self.Ncr=='-':
+        if self.Ncr == '-':
             return '否'
-        elif self.Ncr<=self.N:
+        elif self.Ncr <= self.N:
             return '否'
-        elif self.Ncr>self.N:
+        elif self.Ncr > self.N:
             return '是'
