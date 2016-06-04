@@ -370,7 +370,6 @@ def FindLayers(projectNo):
     # print("本工程地基土可划分为%d个工程地质层。"%(count))
     return layers
 
-
 def ExportLayers_Stat(projectNo, mode=1):
     keytuple = (["PS1", "比贯入阻力", "Ps", "MPa", 1, 2],
                 ["DENSITY", "重度", "&gamma;", "kN/m<sup>3</sup>", 1, 1],
@@ -554,7 +553,7 @@ def workloads_soiltest(projectNo):
     mydict["k0"] = (602, sqlList[0][3])
     sql_str = ("SELECT Count(p0),Count(wl),Count(c),Count(a01_02),Count(kv) \
             FROM rules INNER JOIN base ON rules.project_count = base.project_count \
-            WHERE (base.project_name='%s')"%(projectNo))
+            WHERE (base.project_name='%s')  and (rules.CQ_flag!=32) "%(projectNo))
     ms = MSSQL(DATABASE)
     sqlList = ms.ExecQuery(sql_str)
     mydict["含水量、密度"] = (501,sqlList[0][0])
@@ -562,6 +561,14 @@ def workloads_soiltest(projectNo):
     mydict["固结快剪"]=(504,sqlList[0][2])
     mydict["固结压缩"]=(505,sqlList[0][3])
     mydict["渗透系数"]=(601,sqlList[0][4])
+
+    sql_str = ("SELECT Count(c) \
+            FROM rules INNER JOIN base ON rules.project_count = base.project_count \
+            WHERE (base.project_name='%s') and (rules.CQ_flag=32)"%(projectNo))
+    ms = MSSQL(DATABASE)
+
+    sqlList = ms.ExecQuery(sql_str)
+    mydict["快剪"]=(606,sqlList[0][0])
 
     # (k_2,k2_05,k05_025,k025_0074,k0074_005,k005_001,k001_0005,k_0002)
     sql_str=("SELECT Count(grain.project_count) \

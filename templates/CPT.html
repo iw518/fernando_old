@@ -90,15 +90,32 @@
                         <td></td>
                         <td style>
                             <svg width="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" onmousemove="showPs_label(event)" onmouseout="removePs_label(event)">
+                            <defs>
+  <filter id="dropShadow">
+    <!-- Blur the source alpha to make a nice shadow. -->
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"/>
+    <!-- Move the shadow over a bit. -->
+    <feOffset in="blur" dx="2" dy="2" result="offsetBlur"/>
+    <!-- Put everything together. Blur then graphic. -->
+    <feMerge>
+      <feMergeNode in="offsetBlur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
                                 <polyline id="cptCurve" style="fill:none;stroke:#000000;stroke-width:1"></polyline>
-                                <g transform="translate(0.5 0.5)">
-                                    <line id="myline" style="stroke:red;"></line>
+                                <g id="notation" transform="translate(0,-60)">
+                                    <title>notation</title>
+                                    <line x1="0" y1="0" x2="400" y2="0" stroke="#000" fill="none" transform="translate(0.5,0.5)"></line>
+                                    <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+                                    <path opacity="0.80" d="m203.952487,49.717243l0,0c0,3.620366 -9.131525,6.555253 -20.39583,6.555253l-9.270837,0l0,0l-44.500003,0l-83.437483,0c-5.409324,0 -10.59708,-0.690639 -14.422049,-1.919989c-3.824945,-1.229349 -5.973793,-2.896704 -5.973793,-4.635264l0,-16.388134l0,0l0,-9.832878l0,0c0,-3.620368 9.131519,-6.555253 20.395836,-6.555253l83.437483,0l58.133763,-16.668485l-13.63376,16.668485l9.270837,0c11.264305,0 20.39583,2.934885 20.39583,6.555253l0,0l0,9.832878l0,0l0.000006,16.388134z" fill="#7f7f76" filter="url(#dropShadow)"/>
+                                    <text text-anchor="start" font-size="14" y="40" x="30" fill="blue">-</text> 
                                 </g>
                             </svg>
                         </td>
                     </tr>
                 </tbody>
-            </table>
+            </table>            
         </div>
     </div>
 </div>
@@ -205,26 +222,22 @@ function showPs_label(event){
     var scale=200;
     var scaleY=10/2.54*DPI/scale;
     var i=parseInt((event.offsetY)/scaleY);
-
-    if ($("#Ps_label").length==0){
-        var labelXY=document.createElement("DIV");
-        $("#ps_curve").append(labelXY);
-        $(labelXY).attr("id","Ps_label");
+    var Ps_label=document.getElementById("notation");
+    Ps_label.setAttribute("transform","translate(0,"+event.offsetY+")");
+    var text=Ps_label.getElementsByTagName("text")[0];
+    text.firstChild.data="Ps值"+data[i]+"MPa，"+"深度"+i/10+"m";
+    var ellipse=Ps_label.getElementsByTagName("path")[0];
+    if (event.offsetY>100){
+         ellipse.setAttribute("transform","scale(1,-1)");
+         text.setAttribute("transform","translate(0,-70)");
     }
-    $("#Ps_label").css("position","absolute");
-    $("#Ps_label").css("left",event.offsetX);
-    $("#Ps_label").css("top",event.offsetY+20);
-    $("#Ps_label").attr("class","tip-bubble tip-bubble-top");
-    $("#Ps_label").text("Ps值"+data[i]+"MPa"+"深度"+i/10+"m");
-
-    myline = document.getElementById("myline");
-    myline.setAttribute("x1",0);
-    myline.setAttribute("y1",event.offsetY);
-    myline.setAttribute("x2",400);
-    myline.setAttribute("y2",event.offsetY);
+    else{ellipse.setAttribute("transform","scale(1,1)");
+         text.setAttribute("transform","translate(0,0)");
+    }
 }
 function removePs_label(event){
-    $("#Ps_label").remove();
+    var Ps_label=document.getElementById("notation");
+    Ps_label.setAttribute("transform","translate(0,0)");
 }
 </script>
 {%endblock%}

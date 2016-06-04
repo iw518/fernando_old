@@ -17,6 +17,7 @@
         <div class="btn-group">
             <button type="button" class="btn btn-primary" id='setting_btn'><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;设置</button>
             <button type="button" class="btn btn-primary" id='loadfsfp_btn' disabled="disabled"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;加载数据</button>
+            <a id="gen_txt"><button type="button" class="btn btn-primary" id='gen_btn'><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;生成数据</button></a>            
         </div>
     </div>
     <div>
@@ -146,5 +147,23 @@ function shrink(evt){
         txt.firstChild.data="";        
     }
 }
+
+$(function(){
+    $('#gen_btn').click(function(){
+        var myurl="{{url_for('index_analysis',projectNo=projectNo)}}";
+        var mydata={"depth":"true"};  
+        var callback_function=function(dict){$("#gen_txt").attr("href",dict['result']);
+                                             $("#gen_txt").get(0).click();
+                                            }
+        $.ajax({
+            url:myurl,
+            data:mydata,
+            type:"POST",
+            dataType:"json",
+            success:callback_function
+        });
+    });
+});
+
 </script>
 {%endblock%}

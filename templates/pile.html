@@ -66,9 +66,9 @@
     </div><!-- /.modal -->
 </div>
 
-<div class="col-sm-10">
+<div class="col-sm-12">
     <div style="position:relative;">
-        <div id="setting_div" class="bg-primary col-sm-10" style="position:absolute;">
+        <div id="setting_div" class="col-sm-10" style="position:absolute;background-color:#7f7f76;opacity:0.95;box-shadow: 0px 3px 3px #111111;">
             <div class="radio-group">
                 <div class="radio">
                     <label>
@@ -228,9 +228,9 @@ $(function(){
     var expanded = true;
     $('#setting_btn').click(function(){
     	if (expanded) {
-    		$('#setting_div').animate({left:'0'},1000);
+    		$('#setting_div').animate({left:'8%'},1200);
     	}else {
-    		$('#setting_div').animate({left:'-100%'},1000);
+    		$('#setting_div').animate({left:'-100%'},1200);
     	}
     	expanded = !expanded;
     });

@@ -194,8 +194,8 @@ class Layer_Stats(Layer):
 
     def Fak(self, d=1.0, wd=0.5):
         fak = 0
-        a = FilterZero(self.Ps_Fak(d, wd))
-        b = FilterZero(self.Soil_Fak(d, wd))
+        a = self.Ps_Fak(d, wd)  # type of self.Ps_Fak(d, wd) and self.Soil_Fak(d, wd) are str
+        b = self.Soil_Fak(d, wd)
         if a != '-' and b != '-':
             if ('粉土' in self.layerName.split('夹')[0]) or ('砂' in self.layerName.split('夹')[0]):
                 a = float(a)

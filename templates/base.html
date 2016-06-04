@@ -7,9 +7,8 @@
         {% block css %}
         <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
         <link href="http://cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.css" rel="stylesheet">
-        <link href="{{url_for('static',filename='css/table.css',_external=True)}} " rel="stylesheet" type="text/css" />
-        <link href="{{url_for('static',filename='css/layout.css',_external=True)}}" rel="stylesheet" type="text/css" />
-        <link href="{{url_for('static',filename='css/bubble.css',_external=True)}}" rel="stylesheet" type="text/css" />
+        <link href="{{url_for('static',filename='css/table.css')}} " rel="stylesheet" type="text/css" />
+        <link href="{{url_for('static',filename='css/layout.css')}}" rel="stylesheet" type="text/css" />
         <!--<link href="{{url_for('static',filename='font-awesome/css/font-awesome.min.css',_external=True)}}" rel="stylesheet" type="text/css" />-->
         {% endblock %}
     </head>
@@ -31,7 +30,6 @@
     </body>
 </html>
 {% block script %}
-<!-- <script type=text/javascript src="{{url_for('static', filename='js/jquery-1.11.3.js')}}"></script>-->
 <script src="http://cdn.bootcss.com/jquery/2.2.1/jquery.js"></script>
 <script src="http://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <script type=text/javascript src="{{url_for('static', filename='js/jquery.PrintArea.js')}}"></script>
