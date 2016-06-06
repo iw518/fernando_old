@@ -1,0 +1,199 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<div class="col-sm-10 col-sm-offset-1">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" id='print'><span class="glyphicon glyphicon-print"></span>&nbsp;&nbsp;打印</button>
+            <button type="button" class="btn btn-primary" id='calculate'><span class="fa fa-calculator"></span>&nbsp;&nbsp;生成</button>
+            <button type="button" class="btn btn-primary" id='check'><span class="fa fa-calculator"></span>&nbsp;&nbsp;钻孔深度校核</button>
+        </div>
+    </div>
+</div>
+
+<div id="printArea" class="col-sm-10 col-sm-offset-1">
+    <div>
+        <h4 style="text-align: center;"><strong>工作量统计表</strong></h4>
+        <p>工程编号：{{projectNo}}</p>
+        <hr/>
+    </div>
+    <div>
+        <div class=" col-sm-8">
+            <div class="row">
+                <div>            
+                    <div id="otheritem1" class="col-sm-3 col-sm-offset-1">
+                        {% for item in ['挖机开孔','租船','青苗补偿'] %}
+                        <label class="checkbox"><input type="checkbox" name="{{item}}">{{item}}</label>
+                        {% endfor %}
+                    </div>          
+                    <div id="otheritem2" class="col-sm-3">
+                        {% for item in ['取水样'] %}
+                        <label class="checkbox"><input type="checkbox" name="{{item}}">{{item}}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="gen_workloads_tbl" class="col-sm-11"></div>
+            </div>
+        </div>
+        <div id="gen_holedep_tbl"></div>
+    </div>
+{% include "sign.html" %}
+</div>
+{% endblock %}
+{% block script%}
+    {{super()}}
+<script>
+var filltable=function(){ 
+$("#gen_workloads_tbl table").remove();
+$("#gen_workloads_tbl").append("<table id='workloads_tbl' class='hor-calculate'><thead><td colspan='4' align='center'>野外作业</td><td colspan='3'>室内实验</td></thead><tbody></tbody><tfoot></tfoot></table>");
+
+    var n1=0;
+    {% for k,v in dict_workloads.items() %}
+        {% if v[0]<200 and v[1]>0 %}
+            n1=n1+1;
+            $("#workloads_tbl>tbody:first").append("<tr><td>"+"{{k}}"+"</td><td style='text-align:right;'>{{v[1]}}孔</td><td style='text-align:right;'>{{'%.2f'%(v[2])}}m</td></tr>");
+        {% endif %}
+    {% endfor %}
+    if (n1>0){
+        $("#workloads_tbl>tbody:first>tr:first>td:first").before("<td>钻探</td>");
+        $("#workloads_tbl>tbody:first>tr:first>td:first").attr("rowspan",n1);
+    }
+
+    var n2=n1;
+    {% for k,v in dict_workloads.items() %}    
+        {% if v[0]>200 and v[1]>0 %}
+            n2=n2+1;
+            $("#workloads_tbl>tbody:first").append("<tr><td>"+"{{k}}"+"</td><td  style='text-align:right;'>{{v[1]}}孔</td><td style='text-align:right;'>{{'%.2f'%(v[2])}}m</td></tr>");
+        {% endif %}
+    {% endfor %}
+
+    {% if dict_soilloads["标贯试验"][1]>0 %}
+    $("#workloads_tbl>tbody:first").append("<tr><td>标贯试验</td><td colspan='2'>{{dict_soilloads["标贯试验"][1]}}次</td></tr>");
+    n2=n2+1;
+    {% endif %}
+    
+    if (n2-n1>0){
+        $("#workloads_tbl>tbody:first>tr:eq("+n1+")>td:first").before("<td>原位测试</td>");
+        $("#workloads_tbl>tbody:first>tr:eq("+n1+")>td:first").attr("rowspan",(n2-n1));  
+    }
+
+
+    var n3=n2;
+    {% if dict_soilloads["含水量、密度"][1]>0 %}
+    $("#workloads_tbl>tbody:first").append("<tr><td>不扰动样</td><td colspan='2'>{{dict_soilloads["含水量、密度"][1]}}个</td></tr>");
+    n3=n3+1;
+    {% endif %}
+
+    {% if dict_soilloads["标贯试验"][1]>0 %}
+    $("#workloads_tbl>tbody:first").append("<tr><td>扰动样</td><td colspan='2'>{{dict_soilloads["标贯试验"][1]}}个</td></tr>");
+    n3=n3+1;
+    {% endif %}
+    if($("#otheritem2").find("input:checkbox[name='取水样']").get(0).checked){
+        $("#workloads_tbl>tbody:first").append("<tr><td>取水样</td><td colspan='2'>3个</td></tr>");
+        n3=n3+1;
+    }
+    $("#workloads_tbl>tbody:first>tr:eq("+n2+")>td:first").before("<td rowspan="+(n3-n2)+">取样</td>");
+
+    var n4=n3;
+    $("#workloads_tbl>tbody:first").append("<tr><td>测量定位</td><td colspan='2'>2台班</td></tr>");
+    n4=n4+1;
+    $("#otheritem1").find("input").each(function() {       
+        if($(this)[0].checked){$("#workloads_tbl>tbody:first").append("<tr><td>"+$(this)[0].attributes[1].value+"</td><td colspan='2'>3台班</td></tr>");
+        n4=n4+1;}        
+    });
+    console.log($("#otheritem1").find("input:checkbox").eq(0).attr("name"));
+    //jquery中eq和get区别详见http://www.cnblogs.com/eoiioe/archive/2008/11/16/1334572.html
+    //console.log($("#otheritem1").find("input:checkbox").get(0).attributes["name"].value);
+    //console.log($("#otheritem1").find("input:checkbox").get(0).attributes);
+    
+
+
+    $("#workloads_tbl>tbody:first>tr:eq("+n3+")>td:first").before("<td rowspan="+(n4-n3)+">其他措施</td>");
+    var n5=n4;
+
+    var n6=0;
+    {% for k,v in dict_soilloads.items() %}
+        {% if v[0]<600 and v[1]>0 %}
+            if(n6<$("#workloads_tbl>tbody:first>tr").length){        
+            $("#workloads_tbl>tbody:first>tr:eq("+n6+")").append("<td>{{k}}</td><td style='text-align:right;'>{{v[1]}}组</td>");
+            }
+            else{
+            $("#workloads_tbl>tbody:first").append("<tr><td></td><td></td><td></td><td></td><td>{{k}}</td><td style='text-align:right;'>{{v[1]}}组</td></tr>");
+            }
+            n6=n6+1;    
+        {% endif %}
+    {% endfor %}
+    if (n6>0){
+        $("#workloads_tbl>tbody:first>tr:first>td:eq(-3)").after("<td>常规试验</td>");
+        $("#workloads_tbl>tbody:first>tr:first>td:eq(-3)").attr("rowspan",n6);
+    }
+
+
+    var n7=n6;
+    {% for k,v in dict_soilloads.items() %}
+        {% if v[0]>600 and v[1]>0 and v[0]<800 %}
+            if(n7<$("#workloads_tbl>tbody:first>tr").length){        
+            $("#workloads_tbl>tbody:first>tr:eq("+n7+")").append("<td>{{k}}</td><td style='text-align:right;'>{{v[1]}}组</td>");
+            n7=n7+1;
+            
+            }
+            else{
+                $("#workloads_tbl>tbody:first").append("<tr><td></td><td></td><td></td><td></td><td>{{k}}</td><td style='text-align:right;'>{{v[1]}}组</td></tr>");
+                n7=n7+1;
+            }
+        {% endif %} 
+    {% endfor %}
+
+    if(n7<$("#workloads_tbl>tbody:first>tr").length){
+        $.each($("#workloads_tbl").find("td"),function(index,item){
+                if($(item).text()=="取水样"){
+                        $("#workloads_tbl>tbody:first>tr:eq("+n7+")").append("<td>水质分析</td><td style='text-align:right;'>3组</td>");
+                        n7=n7+1;
+                        return false;
+                    }
+                });
+    }
+    else{
+         $.each($("#workloads_tbl").find("td"),function(index,item){
+            if($(item).text()=="取水样"){
+                $("#workloads_tbl>tbody:first").append("<tr><td></td><td></td><td></td><td></td><td>水质分析</td><td style='text-align:right;'>3组</td></tr>");
+                 n7=n7+1;
+                return false;
+                }
+            }); 
+    }
+    if (n7-n6>0){
+        $("#workloads_tbl>tbody:first>tr:eq("+n6+")>td:eq(-3)").after("<td>特殊试验</td>");
+        $("#workloads_tbl>tbody:first>tr:eq("+n6+")>td:eq(-3)").attr("rowspan",(n7-n6));
+    }
+
+    for (var i=n7;i<$("#workloads_tbl>tbody:first>tr").length;i++){      
+        $("#workloads_tbl>tbody:first>tr:eq("+i+")").append("<td>-</td><td>-</td><td>-</td>");
+        }
+
+}
+
+$("#calculate").bind('click',function(){filltable();});
+$("#check").bind('click',function(){
+$("#gen_holedep_tbl table").remove();
+$("#gen_holedep_tbl").append("<table id='holedep_tbl' class='hor-calculate'><thead><td>序号</td><td>钻孔孔号</td><td>输入孔深</td><td>土试孔深</td><td>数据一致</td></thead><tbody></tbody><tfoot></tfoot></table>");
+{% for xHole in list1 %}
+    $("#holedep_tbl>tbody:first").append("<tr><td>{{loop.index}}</td><td>{{xHole.holeName}}</td><td>{{'%.2f'%xHole.Dep}}</td></tr>")
+    {% if xHole.holeName == list2[loop.index-1].holeName %}
+        $("#holedep_tbl>tbody:first>tr:last").append("<td>{{'%.2f'% list2[loop.index-1].Dep}}</td>")
+        {% if xHole.Dep== list2[loop.index-1].Dep %}
+            $("#holedep_tbl>tbody:first>tr:last").append("<td>&#10004;</td>")
+        {% else %}
+            $("#holedep_tbl>tbody:first>tr:last").append("<td>&#10006;</td>")
+        {% endif %}
+    {% endif %}
+{% endfor %}
+    ;});
+</script>
+{% endblock %}

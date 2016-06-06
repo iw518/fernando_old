@@ -1,0 +1,235 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<div class="col-sm-10 col-sm-offset-1">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" id='print'><span class="glyphicon glyphicon-print"></span>&nbsp;&nbsp;打印</button>
+            <!-- 按钮触发模态框 -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="modal_btn"><span class="fa fa-trash-o fa-lg"></span>&nbsp;&nbsp;删除</button>
+            <!-- 模态框（Modal） -->
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" id='setting_btn'><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;设置</button>
+            <button type="button" class="btn btn-primary" id='loadfsfp_btn' disabled="disabled"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;加载数据</button>
+        </div>
+    </div>
+</div>
+<div id="printArea" class="col-sm-10 col-sm-offset-1">
+    <div>
+        <h4 style="text-align: center;"><strong>静力触探</strong></h4>
+        <p>工程编号：{{projectNo}}</p>
+        <hr/>
+    </div>
+    <div class="row">
+        <div class="col-sm-5">
+            <form class="form-horizontal" name='myform' role="form" method="POST">
+                    <div class="form-group">
+                        <label for="holeName" class="control-label col-sm-4">测试孔号：</label>
+                        <div class="col-sm-5">
+                            <select name="holeName" id="cptSelection" class="form-control col-sm-2" onClick="showCurve(this)">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="probeNo" class="control-label col-sm-4">探头编号：</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="probeNo" id="probeNo" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="probeArea" class="control-label col-sm-4">锥头面积：</label>
+                        <div class="col-sm-5">
+                            <input type="number" name="probeArea"  class="form-control" placeholder="15" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fixedRatio" class="control-label col-sm-4">标定系数：</label>
+                        <div class="col-sm-5">
+                            <input type=text name="fixedRatio" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="testDate" class="control-label col-sm-4">测试日期：</label>
+                        <div class="col-sm-5">
+                            <input type="date" name="testDate" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <input class="btn btn-primary" type=submit name="print_btn" value="打印所有静力触探"/></div>
+                        <div class="col-sm-5">
+                            <input class="btn btn-primary" type=submit name="print_btn" value="打印单个静力触探"/>
+                        </div>
+                    </div>
+            </form>
+        </div>
+        <div class="col-sm-7" style="position:relative;" id="ps_curve">
+            <table class="hor-calculate table-hover">
+                <thead>
+                    <tr>
+                        <th>层号</th>
+                        <th>层名</th>
+                        <th>层底深度(m)</th>
+                        <th>层底标高(m)</th>
+                        <th>厚度(m)</th>
+                        <th>Ps曲线</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td style>
+                            <svg width="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" onmousemove="showPs_label(event)" onmouseout="removePs_label(event)">
+                                <polyline id="cptCurve" style="fill:none;stroke:#000000;stroke-width:1"></polyline>
+                                <g transform="translate(0.5 0.5)">
+                                    <line id="myline" style="stroke:red;"></line>
+                                </g>
+                                <g>
+                                    <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+                                    <title>Layer 1</title>
+                                    <path opacity="0.34" id="svg_1" d="m44.75,0.75001c-24.85296,0 -45,12.08873 -45,27.00046c0,5.09577 2.3818,9.8562 6.48022,13.92108l-6.48022,11.36585l18.04169,-3.70589c7.51819,3.387 16.83329,5.41849 26.95831,5.41849c24.85299,0 45.00002,-12.08874 45.00002,-26.99953c0,-14.91173 -20.14703,-27.00046 -45.00002,-27.00046l0,0z" stroke-width="1.5" stroke="#ffaa56" fill="#0fffff"/>
+                                </g>
+                            </svg>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>            
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script%}
+    {{super()}}
+<script>
+//javascript中可以直接使用jinjia2中的字符变量{{Variant}}
+//myform.testDate.value=((new Date()).toLocaleDateString()).replace('年','-').replace('月','-').replace('日','');
+function showCurve(obj){
+    if (obj.options.length==0){
+        var hole_option;
+        {% for xHole in holelist %}
+            //alert("{{holelist[Index]}}")holelist索引无法用外部变量，只能用数字或key
+            //注意loop.index从1开始计数，loop.index0从0开始计数，除了上述坑外，还需注意是loop.index0，而不是loop.indexo
+            hole_option=new Option("{{xHole.holeName}}","{{loop.index0}}");//new Option("text","value")
+            obj.options.add(hole_option);
+        {% endfor %}
+    }
+    cptCurve = document.getElementById("cptCurve");
+    var data=genData();
+    cptCurve.setAttribute("points",ps2pxy(data));
+
+    var holeName=$("#cptSelection").find("option:selected").text();
+
+    $("#ps_curve>table:first>tbody:first>tr:gt(0)").remove();
+
+    {% for xHole in holelist2 %}
+        if ("{{xHole.holeName}}"==holeName){
+                {% for xlayer in xHole.layers %}
+                    var layerThickness=parseFloat("{{xlayer.endDep}}")-parseFloat("{{xlayer.startDep}}");
+                    var layerLevel=parseFloat("{{xHole.elevation}}")-parseFloat("{{xlayer.endDep}}");
+                    if(layerThickness>0){
+                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(0)").text("{{xlayer.layerNo}}");
+                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(1)").text("{{xlayer.layerName}}");
+                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(2)").text(parseFloat("{{xlayer.endDep}}").toFixed(2));
+                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(3)").text(layerLevel.toFixed(2));
+                        $("#ps_curve>table:first>tbody:first>tr:last>td:eq(4)").text(layerThickness.toFixed(2));
+                        $("#ps_curve>table:first>tbody:first>tr:last").attr("height",depth2px(layerThickness));
+                        $("#ps_curve>table:first>tbody:first").append("<tr><td></td><td></td><td></td><td></td><td></td></tr>");
+                    }
+                {% endfor %}
+                $("#ps_curve>table:first>tbody:first>tr:last").remove();
+                $("#ps_curve>table:first>tbody:first>tr:first>td:last").attr("rowspan",$("#ps_curve>table:first>tbody:first>tr").length);
+                $("#ps_curve>table:first>tbody:first>tr:first>td:last>svg:first").attr("height",depth2px({{xHole.Dep}}));
+
+
+            }
+    {% endfor %}
+}
+function genData(){
+    //obj.opions[obj.selectedIndex].text获取某个选项的纯文本值
+    //obj.opions[obj.selectedIndex].value获取被送往服务器的值
+    //obj.selectedIndex获取options的索引值
+    //var myval=Number($("#cptSelection").val());获取被送往服务器的值
+    //var mytxt=$("#cptSelection").find("option:selected").text();获取某个选项的纯文本值
+    //var myindex=$("#cptSelection").get(0).selectedIndex
+    var index=Number($("#cptSelection").val());
+    var data=new Array();
+    {% for xHole in holelist %}
+        if ({{loop.index0}}==index){
+                {% for xPoint in xHole.testPoints %}
+                    data.push("{{xPoint.testValue}}");
+                {% endfor %}
+            }
+    {% endfor %}
+    return data;
+}
+function depth2px(depth){
+    var DPI=96;//the default value of windows DPIis 96
+    //1in=2.54cm,the default value of windows DPIis 96
+    var scale=200;//default print vertical scale is 1:200(but 1m contain 10 data considered),and horizontal scale is 1:2.
+    var scaleX=100/2.54*DPI/scale;
+    var scaleY=10/2.54*DPI/scale;
+    var pY=scaleY*depth*10;
+    console.log(pY)
+    return parseInt(pY);
+}
+
+function ps2pxy(data){
+    var DPI=96;//the default value of windows DPIis 96
+    //1in=2.54cm,the default value of windows DPIis 96
+    var scale=200;//default print vertical scale is 1:200(but 1m contain 10 data considered),and horizontal scale is 1:2.
+    var scaleX=100/2.54*DPI/scale;
+    var scaleY=10/2.54*DPI/scale;
+    var maxDep=400;//unit cm
+    var maxPs=32;//unit MPa
+    ////绘制曲线
+    points="";
+    for(var i=0;i<data.length;i++){
+        var pX=scaleX*data[i];
+        var pY=scaleY*i;
+        points=points+" "+pX+","+pY;
+    }
+    return points;
+}
+
+function showPs_label(event){
+    if(!($("#cptSelection").get(0).selectedIndex>=0)){
+        return;
+    }
+    var data=genData();
+    var DPI=96;
+    var scale=200;
+    var scaleY=10/2.54*DPI/scale;
+    var i=parseInt((event.offsetY)/scaleY);
+
+    if ($("#Ps_label").length==0){
+        var labelXY=document.createElement("DIV");
+        $("#ps_curve").append(labelXY);
+        $(labelXY).attr("id","Ps_label");
+    }
+    $("#Ps_label").css("position","absolute");
+    $("#Ps_label").css("left",event.offsetX);
+    $("#Ps_label").css("top",event.offsetY+20);
+    $("#Ps_label").attr("class","tip-bubble tip-bubble-top");
+    $("#Ps_label").text("Ps值"+data[i]+"MPa"+"深度"+i/10+"m");
+
+    myline = document.getElementById("myline");
+    myline.setAttribute("x1",0);
+    myline.setAttribute("y1",event.offsetY);
+    myline.setAttribute("x2",400);
+    myline.setAttribute("y2",event.offsetY);
+}
+function removePs_label(event){
+    $("#Ps_label").remove();
+}
+</script>
+{%endblock%}
