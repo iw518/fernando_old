@@ -384,7 +384,7 @@ def ExportLayers_Stat(projectNo, mode=1):
                 ["CUU","UU","C<sub>uu</sub>","kPa",2,0],
                 ["FUU","UU","&phi;<sub>uu</sub>","&deg;",0,1],
                 ["KH","渗透系数","K<sub>H</sub>","cm/s10<sup>-6</sup>",2,1],
-                ["KV","渗透系数","K<sub>V</sub>","cm/s<sup>-6</sup>",0,1],
+                ["KV","渗透系数","K<sub>V</sub>","cm/s10<sup>-6</sup>",0,1],
                 ["K0","静止侧压力","K0","-",1,2]
                )
     sql_str="SELECT pmlayer.layerno, pmlayer.layername"
