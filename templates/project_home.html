@@ -21,8 +21,8 @@
             </li>
             <li><a href="#">指标分析</a>
                 <ul>
-                    <li><a href="{{url_for('index_analysis',projectNo=projectNo,_external=True)}}">指标分析</a></li>
-                    <li><a href="/{{projectNo}}/#">Submenu 3-3</a></li>
+                    <li><a href="{{url_for('analysis.cptAnalysis',projectNo=projectNo, _external=True)}}">静力触探指标分析</a></li>
+                    <li><a href="/{{projectNo}}/#">层位埋深指标分析</a></li>
                 </ul>
             </li>
             <li><a href="#">统计汇总</a>

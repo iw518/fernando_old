@@ -10,7 +10,7 @@
 # Licence:     <GPLV3>
 #-------------------------------------------------------------------------------
 import math
-from GPoint import TESTPOINT #方便27行isinstance(xPoint,TESTPOINT)引用
+from GPoint import TESTPOINT, Points #方便27行isinstance(xPoint,TESTPOINT)引用
 DICT_HoleType={
                 "取土孔":(1,101),
                 "静探孔":(2,201),
@@ -53,45 +53,48 @@ class Hole:
         self.testPoints=[]
         self.projectNo=''
         self.testDate=0
+        self.__points = Points()
+
     @property
     def Dep(self):
         return self.__Dep
+
     @Dep.setter
-    def Dep(self,value):
-        self.__Dep=value
+    def Dep(self, value):
+        self.__Dep = value
+
+    @property
+    def points(self):
+        return self.__points
+
+    @points.setter
+    def points(self, value):
+        self.__points = value
+
     @property
     def waterElevation(self):
         if float(self.elevation) and float(self.waterLevel):
-            return round(self.elevation-self.waterLevel,2)
-    def AddPoint(self,xPoint):
+            return round(self.elevation - self.waterLevel, 2)
+
+    def AddPoint(self, xPoint):
         '判断子类对象是否属于父类用isinstance,'
-        if isinstance(xPoint,TESTPOINT):
-            self.testPoints.append(xPoint)
+        if isinstance(xPoint, TESTPOINT):
+            self.points.append(xPoint)
+
 
 class BoreHole(Hole):
     def __init__(self):
-        Hole.__init__(self,1)
-        self.soilPoints=[]
-        self.bgPoints=[]
-    def AddPoint(self,xPoint):
-        if type(xPoint) is SoilPoint:
-            self.soilPoints.append(xPoint)
-        elif type(xPoint) is BgPoint:
-            self.bgPoints.append(xPoint)
+        Hole.__init__(self, 1)
 
-class BGHOLE(Hole):
-    '注意类变量和对象变量的区别'
-    def __init__(self):
-        Hole.__init__(self,1)
-        self.bgPoints=[]
-    def AddPoint(self,bgPoint):
-        self.bgPoints.append(bgPoint)
+
 class CPTHole(Hole):
     def __init__(self):
-        Hole.__init__(self,2)
+        Hole.__init__(self, 2)
+
     @property
     def pss(self):
-        return ','.join('%.2f'%(xPoint.testValue) for xPoint in self.testPoints)
+        return ','.join('%.2f' % (xPoint.testValue) for xPoint in self.testPoints)
+
     @property
     def Dep(self):
-        return len(self.testPoints)/10
+        return len(self.testPoints) / 10

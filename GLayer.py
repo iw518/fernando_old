@@ -11,6 +11,7 @@
 # -------------------------------------------------------------------------------
 import math
 from GFunction import *
+from GPoint import Points
 DICT_FK_PS={'粘土':(68,0.135,1.5,1.1,0),
             '淤泥质':(58,0.125,0.8,1.0,0),
             '粉土':(72,0.090,2.5,1.3,0.3),
@@ -48,20 +49,27 @@ FD_FACTOR=[(0,(0.00,2.00,5.14)),
        (25,(6.76,2.72,20.72))
 ]
 
+
 class Layer:
     def __init__(self):
-        self.layerNo=''
-        self.layerName=''
-        self.layerOrder=-1
-        self.startDep=-1.0
-        self.endDep=-1.0
-        self.holeName=''
-        self.BgPoints=[]
-        self.SoilPoints=[]
-    def AddBgPoint(self,xPoint):
-        self.BgPoints.append(xPoint)
-    def AddSoilPoint(self,xPoint):
-        self.SoilPoints.append(xPoint)
+        self.layerNo = ''
+        self.layerName = ''
+        self.layerOrder = -1
+        self.startDep = -1.0
+        self.endDep = -1.0
+        self.holeName = ''
+        self.BgPoints = []
+        self.SoilPoints = []
+        self.__points = Points()
+
+    @property
+    def thickness(self):
+        return self.endDep - self.startDep
+
+    @property
+    def points(self):
+        return self.__points
+
 
 class Layer_Stats(Layer):
     def __init__(self):

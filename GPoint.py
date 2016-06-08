@@ -84,3 +84,14 @@ class BGPOINT(TESTPOINT):
             return '否'
         elif self.Ncr > self.N:
             return '是'
+
+class Points(list):
+    def __init__(self):
+        list.__init__(self)
+
+    def filter(self, pointType):
+        xList=[]
+        for xPoint in self:
+            if isinstance(xPoint,pointType):
+                xList.append(xPoint)
+        return xList
