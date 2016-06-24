@@ -14,12 +14,12 @@ import math
 
 class TESTPOINT():
     def __init__(self):
-        self.pointID=0
-        self.testDep=0.0
-        self.testValue=0.0
-        self.holeName=""
-        self.soilType=""
-        self.clayContent=-1.0
+        self.pointID = 0
+        self.testDep = 0.0
+        self.testValue = 0.0
+        self.holeName = ""
+        self.soilType = ""
+        self.clayContent = -1.0
 
 
 class PSPOINT(TESTPOINT):
@@ -36,45 +36,44 @@ class BGPOINT(TESTPOINT):
         # startDep=0
         # endDep=0
         # midDep=(startDep+endDep)/2
-        self.N=-1.0
-        self.testValue=self.N
-        self.Wi=-1.0
-        self.Di=-1.0
-        self.inf=''
+        self.N = -1.0
+        self.testValue = self.N
+        self.Wi = -1.0
+        self.Di = -1.0
+        self.inf = ''
 
     @property
     def Ncr(self):
-        N0=7
-        BETA=0.80
-        DW=0.50
-        Ncr=-1.0
-        ds=self.testDep
-        cc=self.clayContent
-        soilType=self.soilType
-        if cc>=10:
+        N0 = 7
+        BETA = 0.80
+        DW = 0.50
+        Ncr = -1.0
+        ds = self.testDep
+        cc = self.clayContent
+        if cc >= 10:
             return '-'
-        elif cc<=3:
-            Ncr=N0*BETA*(math.log(0.6*ds+1.5)-0.1*DW)
-            return round(Ncr,2)
+        elif cc <= 3:
+            Ncr = N0*BETA*(math.log(0.6*ds+1.5)-0.1*DW)
+            return round(Ncr, 2)
         else:
-            Ncr=N0*BETA*(math.log(0.6*ds+1.5)-0.1*DW)*math.sqrt(3/cc)
-            return round(Ncr,2)
+            Ncr = N0*BETA*(math.log(0.6*ds+1.5)-0.1*DW)*math.sqrt(3/cc)
+            return round(Ncr, 2)
 
     @property
     def FLei(self):
-        if self.Ncr=='-':
+        if self.Ncr == '-':
             return '-'
-        elif self.Ncr<=self.N:
+        elif self.Ncr <= self.N:
             return '-'
-        elif self.Ncr>self.N:
-            return round(self.N/self.Ncr,2)
+        elif self.Ncr > self.N:
+            return round(self.N / self.Ncr, 2)
 
     @property
     def ILei(self):
         if self.FLei == '-':
             return '-'
         else:
-            return round((1 - self.FLei)*self.Di*self.Wi,2)
+            return round((1 - self.FLei) * self.Di * self.Wi, 2)
 
     @property
     def LiqueFlag(self):
@@ -85,13 +84,18 @@ class BGPOINT(TESTPOINT):
         elif self.Ncr > self.N:
             return '是'
 
+
 class Points(list):
     def __init__(self):
         list.__init__(self)
 
+    def append(self, item):
+        if isinstance(item, TESTPOINT):
+            list.append(self, item)
+
     def filter(self, pointType):
-        xList=[]
+        xList = []
         for xPoint in self:
-            if isinstance(xPoint,pointType):
+            if isinstance(xPoint, pointType):
                 xList.append(xPoint)
         return xList

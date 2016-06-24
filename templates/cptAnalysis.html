@@ -21,7 +21,7 @@
         </div>
     </div>
     <div>
-        <select name="layerNo" id="layerNo" onchange="showCurve()">
+        <select name="layerNo" id="layerNo">
         {% for item in layer_hole_ps_list %}
         <option>{{item[0]}}</option>
         {% endfor %}
@@ -35,153 +35,18 @@
         <p>工程编号：{{projectNo}}</p>
         <hr/>
     </div>
-    <div  class="col-sm-6">
-            <svg width="480" height="720" version="1.1" xmlns="http://www.w3.org/2000/svg" viewbox="-60 -1100 800 1200">
-                <g id="ps_diagram" transform="scale(1,-1)" style="stroke:black;">
-                    <g id="axis_line">
-                        <!--X轴-->
-                        <line x1="-10" y1="0" x2="700" y2="0" style="stroke-width:2;shape-rendering:crispEdges;"></line>
-                        <polyline points="690 3,700 0,690 -3"></polyline>
-                        <!--Y轴-->
-                        <line x1="0" y1="-10" x2="0" y2="1000" style="stroke-width:2;shape-rendering:crispEdges;"></line>
-                        <polyline points="-3 990,0 1000,3 990"></polyline>                    
-                        {% for i in range(1,20) %}
-                        <text x="-30" y="{{i*50+7}}" transform="translate(0,{{i*50*2}}) scale(1,-1)">{{i*50/100}}</text>
-                        <line x1="0" y1="{{i*50}}" x2="10" y2="{{i*50}}"></line>
-                        {% endfor %}
-                        <text x="-40" y="300" transform="rotate(-90,-40,300) scale(-1,1)">Ps值(MPa)</text>
-                    </g>
-                    <g id="ps_circle">
-                    <text style="stroke:none;fill:blue;"></text> 
-                    </g>
-                </g>            
-            </svg>
-    </div>
-    <div class="col-sm-6" id="notation">
-
-    </div>
+    <div  class="col-sm-6" id="diagramDiv"></div>
 </div>
 {% endblock %}
 {% block script%}
     {{super()}}
+<script type="text/javascript" src="{{url_for('static',filename='js/analysis.js')}}"></script>
 <script type="text/javascript">
-function showCurve(){
-    var ps_circle=document.getElementById("ps_circle");
-    var svgDoc=ps_circle.ownerDocument;
-    var rings=ps_circle.getElementsByTagName("circle");    
-    var circle;
-    for (i=rings.length-1;i>=0;i--){
-    ps_circle.removeChild(rings[i]);
-    }    
-    
-    {% for item in layer_hole_ps_list %}
-    if ($("#layerNo").find("option:selected").text()=="{{item[0]}}")
-    {
-        var n=0;
-        {% for childitem in item[1]%}
-        if({{childitem[1]}}>0){
-            n=n+1;}
-        {% endfor %}
-        var max=0;
-        var min=100000;
-        var maxobj;
-        var minobj;
-        var nn={{item[1]|length}}-n;
-        var s1="<div>层号"+"{{item[0]}}"+"包含勘探孔"+n+"个,不包含"+nn+"个为0的数据点</div>";
-        s1=s1+"<div>最大值为</div><div>最小值为</div><div>变异系数为</div>";
-        $("div #notation").empty();
-        $("div #notation").append(s1);
-        {% for childitem in item[1] %}
-            circle=svgDoc.createElementNS("http://www.w3.org/2000/svg","circle")
-            //var svgDoc=ps_circle.ownerDocument;svgDoc是xml方法，可直接用js中的document
-            if ({{childitem[1]}}*100>0){
-                circle.setAttribute("name","{{childitem[0]}}");
-                circle.setAttribute("id","{{childitem[0]}}");
-                circle.setAttribute("cx",{{loop.index}}*500/{{item[1]|length}});
-                //http://docs.jinkan.org/docs/jinja2/templates.html#expressions 有关length用法
-                circle.setAttribute("cy",{{childitem[1]}}*100);
-                circle.setAttribute("r",4);           
-                circle.style.setProperty("fill-opacity",0.5);
-                circle.addEventListener("dblclick",grow);
-                circle.addEventListener("mouseout",shrink);
-                var animate=svgDoc.createElementNS("http://www.w3.org/2000/svg","animate");
-                animate.setAttribute("begin","{{childitem[0]}}.dblclick");
-                animate.setAttribute("dur","1s");
-                animate.setAttribute("fill","freeze");
-                circle.appendChild(animate);
-                if(max<circle.getAttribute("cy")){
-                    max=circle.getAttribute("cy");
-                    maxobj=circle;
-                }
-                if(min>circle.getAttribute("cy")){
-                    min=circle.getAttribute("cy");
-                    minobj=circle;               
-                }   
-            }        
-            ps_circle.appendChild(circle);       
-        {% endfor %}
-        limitAnimation(maxobj,"red");
-        limitAnimation(minobj,"blue");       
-    }
-    {% endfor %}
-}
-function limitAnimation(obj,stroke_color){
-    var ps_circle=document.getElementById("ps_circle");
-    var svgDoc=ps_circle.ownerDocument; 
-    var circle=svgDoc.createElementNS("http://www.w3.org/2000/svg","circle")
-    circle.setAttribute("cx",obj.getAttribute("cx"));
-    circle.setAttribute("cy",obj.getAttribute("cy"));
-    circle.style.setProperty("r","8");
-    circle.style.setProperty("stroke-width","4");
-    circle.style.setProperty("stroke",stroke_color);
-    circle.style.setProperty("fill","none");                        
-    var animate=svgDoc.createElementNS("http://www.w3.org/2000/svg","animate");
-    animate.setAttribute("attributeName","stroke-opacity");
-    animate.setAttribute("values","1.0;0;1");
-    animate.setAttribute("begin","0s");
-    animate.setAttribute("dur","4s");
-    animate.setAttribute("repeatCount","indefinite");
-    circle.appendChild(animate);    
-    ps_circle.appendChild(circle); 
-}
-
-function grow(evt){
-    var obj=evt.target;
-    var ps_circle=document.getElementById("ps_circle");
-    var svgDoc=ps_circle.ownerDocument;
-    var txt=ps_circle.getElementsByTagName("text")[0];
-    console.log(txt.firstChild);
-    txt.style.setProperty("font-size","20px");
-    txt.setAttribute("x",obj.getAttribute("cx"));
-    txt.setAttribute("y",obj.getAttribute("cy"));
-    txt.setAttribute("transform","translate(0,"+obj.getAttribute("cy")*2+") scale(1,-1)");
-    //txt.appendChild(document.createTextNode(obj.getAttribute("cy")/100));
-    if(txt.childNodes.length==0){
-        txt.appendChild(document.createTextNode(obj.getAttribute("name")+"对应"+obj.getAttribute("cy")/100+"MPa"));                
-    }
-    else{
-        txt.firstChild.data=obj.getAttribute("name")+"对应"+obj.getAttribute("cy")/100+"MPa";
-    }
-    var animate=obj.childNodes[0];
-    obj.style.setProperty("fill","red");
-    animate.setAttribute("attributeName","r");
-    animate.setAttribute("from","obj.getAttribute('r')");
-    animate.setAttribute("to","20");
-}
-function shrink(evt){
-    var obj=evt.target;
-    var ps_circle=document.getElementById("ps_circle");
-    var animate=obj.childNodes[0];
-    obj.style.setProperty("fill","black");
-    animate.setAttribute("attributeName","r");
-    animate.setAttribute("from","obj.getAttribute('r')");
-    animate.setAttribute("to","4");
-    var txt=ps_circle.getElementsByTagName("text")[0];
-        if(txt.childNodes.length>0){
-        txt.firstChild.data="";        
-    }
-}
-
+    var svg=new SvgContainer("diagramDiv");
+    svg.creatAxis("Ps(MPa)");
+    $('#layerNo').change(function(){
+        svg.show({{layer_hole_ps_list|safe}},'MPa',600,300);
+    });
 $(function(){
     $('#gen_btn').click(function(){
         var myurl="{{url_for('analysis.cptAnalysis',projectNo=projectNo)}}";

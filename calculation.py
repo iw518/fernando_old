@@ -21,14 +21,14 @@ calculation = Blueprint('calculation', __name__)
 @calculation.route('/water')
 def water():
     projectNo = request.args.get('projectNo')
-    original_holelist = ReceiveHoleBasicInf(projectNo, 1)
+    holeDict = ReceiveHoleBasicInf(projectNo, 1)
     # holelist=list(filter(lambda xHole: type(xHole.waterLevel) is float, holelist))
     # lambda example:    lambda x: boolfun(x), sequen
     # oldway:   filter(lambda xHole: type(xHole.waterLevel) is float, holelist)
     # newway:    list(filter(...))
 
     holelist = []
-    for xHole in original_holelist:
+    for holeName, xHole in holeDict.items():
         if FilterZero(xHole.waterLevel) != '-':
             holelist.append(xHole)
     cnt = len(holelist)
@@ -74,8 +74,12 @@ def natural_foundation():
 @calculation.route('/pile')
 def pile():
     projectNo = request.args.get('projectNo')
-    holelist = ReceiveHoleLayer(projectNo, 1)
-    holelist.extend(ReceiveHoleLayer(projectNo, 2))
+    holeDict = ReceiveHoleLayer(projectNo, 1)
+    holeDict.update(ReceiveHoleLayer(projectNo, 2))
+    print(holeDict)
+    holelist=[]
+    for holeName, xHole in holeDict.items():
+        holelist.append(xHole)
     layerlist = ExportLayers_Stat(projectNo)
     return render_template('pile.html',
                            projectNo=projectNo,

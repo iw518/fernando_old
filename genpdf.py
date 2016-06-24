@@ -23,11 +23,10 @@ pdfmetrics.registerFont(TTFont('SIMSUN', 'SIMSUN.ttc'))
 pdfmetrics.registerFont(TTFont('SIMHEI', 'SIMHEI.ttf'))
 
 
-def PrintPdf(probeInf, holelist, index=None):
+def PrintPdf(projectNo,probeInf, holelist, index=None):
     import os
-    projectNo = holelist[0].projectNo
     basedir = os.path.abspath(os.path.dirname(__file__))
-    # cptPath='e:/Pythonweb/py344/project_code/fernando/static/download/'+projectNo+'/'
+    # cptPath='e:/Pythonweb/py344/project_code/fernando/static/download/'
     cptPath = os.path.join(basedir, 'static', 'download')
 
     if not os.path.exists(cptPath):
@@ -61,7 +60,7 @@ def PrintPdf(probeInf, holelist, index=None):
 
 
 def Cpt2Pdf(xHole, probeInf):
-    pointsList = xHole.testPoints
+    pointsList = xHole.points
     L = len(pointsList)
     if L % 250 == 0:
         pageNums = L // 250
@@ -88,7 +87,7 @@ def Cpt2Pdf(xHole, probeInf):
 def TemplateofCPTPDF(data, xHole, probeInf):
     projectNo = xHole.projectNo
     holeName = xHole.holeName
-    holeDep = (len(xHole.testPoints)) / 10
+    holeDep = (len(xHole.points)) / 10
     probeNo = probeInf['probeNo']
     probeArea = probeInf['probeArea']
     fixedRatio = probeInf['fixedRatio']

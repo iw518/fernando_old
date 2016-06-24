@@ -71,6 +71,21 @@ class Layer:
         return self.__points
 
 
+class Layers(list):
+    def __init__(self):
+        list.__init__(self)
+
+    def append(self, item):
+        if isinstance(item, Layer):
+            list.append(self, item)
+
+    def find(self, layerNo):
+        for item in self:
+            if item.layerNo == layerNo:
+                return item
+            else:
+                continue
+
 class Layer_Stats(Layer):
     def __init__(self):
         Layer.__init__(self)

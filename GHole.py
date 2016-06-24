@@ -1,16 +1,16 @@
-#-*-coding:utf-8-*-
-#-------------------------------------------------------------------------------
+# -*-coding:utf-8-*-
+# -------------------------------------------------------------------------------
 # Name:        GHole
-# Purpose:
+# Purpose:     hole class
 #
 # Author:      Robot of Fernando
 #
 # Created:     17-06-2015
 # Copyright:   (c) Administrator 2015
 # Licence:     <GPLV3>
-#-------------------------------------------------------------------------------
-import math
-from GPoint import TESTPOINT, Points #方便27行isinstance(xPoint,TESTPOINT)引用
+# -------------------------------------------------------------------------------
+from GLayer import Layers
+from GPoint import Points #方便27行isinstance(xPoint,TESTPOINT)引用
 DICT_HoleType={
                 "取土孔":(1,101),
                 "静探孔":(2,201),
@@ -27,7 +27,7 @@ DICT_HoleType={
                 "波速孔":(13,210),
                 "重力触探":(14,211)
                 }
-DICT_SoilTestType={
+DICT_SoilTestType = {
                 "含水量、密度":(1,501),
                 "液、塑限":(2,502),
                 "颗粒分析":(3,503),
@@ -40,20 +40,22 @@ DICT_SoilTestType={
                 "CU":(10,605),
                 "标贯试验":(21,801)
                 }
+
+
 class Hole:
-    def __init__(self,holeType=-1):
+    def __init__(self, holeType=-1):
         '注意类变量和对象变量的区别'
-        self.holeName=''
-        self.holeID=0
-        self.holeType=holeType
-        self.elevation=-1.00
-        self.waterLevel=-1
-        self.__Dep=-1.00
-        self.layers=[]
-        self.testPoints=[]
-        self.projectNo=''
-        self.testDate=0
-        self.__points = Points()
+        self.holeName = ''
+        self.holeID = 0
+        self.holeType = holeType
+        self.elevation = -1.00
+        self.waterLevel = -1
+        self.__Dep = -1.00
+        self._layers = Layers()
+        self.testPoints = []
+        self.projectNo = ''
+        self.testDate = 0
+        self._points = Points()
 
     @property
     def Dep(self):
@@ -65,7 +67,7 @@ class Hole:
 
     @property
     def points(self):
-        return self.__points
+        return self._points
 
     @points.setter
     def points(self, value):
@@ -76,10 +78,9 @@ class Hole:
         if float(self.elevation) and float(self.waterLevel):
             return round(self.elevation - self.waterLevel, 2)
 
-    def AddPoint(self, xPoint):
-        '判断子类对象是否属于父类用isinstance,'
-        if isinstance(xPoint, TESTPOINT):
-            self.points.append(xPoint)
+    @property
+    def layers(self):
+        return self._layers
 
 
 class BoreHole(Hole):
@@ -93,8 +94,8 @@ class CPTHole(Hole):
 
     @property
     def pss(self):
-        return ','.join('%.2f' % (xPoint.testValue) for xPoint in self.testPoints)
+        return ','.join('%.2f' % (xPoint.testValue) for xPoint in self.points)
 
     @property
     def Dep(self):
-        return len(self.testPoints) / 10
+        return len(self.points) / 10

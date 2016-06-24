@@ -143,10 +143,10 @@ function showCurve(obj){
 
     $("#ps_curve>table:first>tbody:first>tr:gt(0)").remove();
 
-    {% for xHole in holelist2 %}
-        if ("{{xHole.holeName}}"==holeName){
+    {% for holeName, xHole in holeDict.items() %}
+        if ("{{holeName}}"==holeName){
                 {% for xlayer in xHole.layers %}
-                    var layerThickness=parseFloat("{{xlayer.endDep}}")-parseFloat("{{xlayer.startDep}}");
+                    var layerThickness=parseFloat("{{xlayer.thickness}}");
                     var layerLevel=parseFloat("{{xHole.elevation}}")-parseFloat("{{xlayer.endDep}}");
                     if(layerThickness>0){
                         $("#ps_curve>table:first>tbody:first>tr:last>td:eq(0)").text("{{xlayer.layerNo}}");
@@ -177,7 +177,7 @@ function genData(){
     var data=new Array();
     {% for xHole in holelist %}
         if ({{loop.index0}}==index){
-                {% for xPoint in xHole.testPoints %}
+                {% for xPoint in xHole.points %}
                     data.push("{{xPoint.testValue}}");
                 {% endfor %}
             }

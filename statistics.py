@@ -20,20 +20,25 @@ statistics = Blueprint('statistics', __name__)
 @statistics.route('/workloads')
 def workloads():
     projectNo = request.args.get('projectNo')
-    holelist = ReceiveHoleBasicInf(projectNo)
+    holeDict = ReceiveHoleBasicInf(projectNo)
     dict_workloads = {}
     dict_soilloads = workloads_soiltest(projectNo)
     for key in DICT_HoleType.keys():
         sumN = 0
         sumDep = 0
-        for xHole in holelist:
+        for holeName, xHole in holeDict.items():
             if xHole.holeType == DICT_HoleType[key][0]:
                 sumDep = sumDep + xHole.Dep
                 sumN = sumN + 1
         dict_workloads[key] = (DICT_HoleType[key][1], sumN, sumDep)
-
-    list1=ReceiveHoleBasicInf(projectNo, 1)
-    list2=FindHoleAndDep(projectNo)
+    list1=[]
+    list2=[]
+    holeDict=ReceiveHoleBasicInf(projectNo, 1)
+    for holeName, xHole in holeDict.items():
+        list1.append(xHole)
+    holeDict=FindHoleAndDep(projectNo)
+    for holeName, xHole in holeDict.items():
+        list2.append(xHole)
 
     return render_template('workloads.html', projectNo=projectNo, dict_workloads=dict_workloads, dict_soilloads=dict_soilloads, manager=FindManager(projectNo),list1=list1,list2=list2)
 

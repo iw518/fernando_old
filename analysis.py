@@ -19,8 +19,14 @@ analysis = Blueprint('analysis', __name__)
 @analysis.route('/cptAnalysis', methods=['POST', 'GET'])
 def cptAnalysis():
     projectNo = request.args.get('projectNo')
-    holelist = FindCPT(projectNo)
-    holelist2 = ReceiveHoleLayer(projectNo, 2)
+    holeDict = FindCPT(projectNo)
+    holelist=[]
+    holelist2=[]
+    for holeName, xHole in holeDict.items():
+        holelist.append(xHole)
+    holeDict = ReceiveHoleLayer(projectNo, 2)
+    for holeName, xHole in holeDict.items():
+        holelist2.append(xHole)
     if request.method == 'GET':
         layer_hole_ps_list = []
         for i in range(0, len(FindLayers(projectNo))):
@@ -33,18 +39,18 @@ def cptAnalysis():
                             hole_ps_list.append((xHole.holeName, 0))
                         else:
                             xLayer = xHole.layers[i]
-                            for testPoint in yHole.testPoints:
+                            for testPoint in yHole.points:
                                 if testPoint.testDep > round(xLayer.startDep, 2) and testPoint.testDep <= round(xLayer.endDep, 2):  # 注意小数位数不等也可能导致不相等，情况允许时，应该调整layer函数的位数
                                     SumPs = SumPs + testPoint.testValue
                             if xLayer.endDep - xLayer.startDep == 0:
-                                hole_ps_list.append((xHole.holeName, 0))
+                                hole_ps_list.append([xHole.holeName, 0])
                             else:
-                                hole_ps_list.append((xHole.holeName,
+                                hole_ps_list.append([xHole.holeName,
                                                      round(SumPs / (xLayer.endDep - xLayer.startDep) / 10, 2)
-                                                     )
+                                                     ]
                                                     )
-            layer_hole_ps_list.append((FindLayers(projectNo)[i].layerNo,
-                                       hole_ps_list))
+            layer_hole_ps_list.append([FindLayers(projectNo)[i].layerNo,
+                                       hole_ps_list])
         return render_template('cptAnalysis.html',
                                projectNo=projectNo,
                                layer_hole_ps_list=layer_hole_ps_list
@@ -66,7 +72,7 @@ def cptAnalysis():
                             str0 = str0 + "%s\t" % ('')
                         else:
                             xLayer = xHole.layers[i]
-                            for testPoint in yHole.testPoints:
+                            for testPoint in yHole.points:
                                 # 注意小数位数不等也可能导致不相等，情况允许时，应该调整layer函数的位数
                                 if (testPoint.testDep > round(xLayer.startDep, 2) and
                                    testPoint.testDep <= round(xLayer.endDep, 2)):

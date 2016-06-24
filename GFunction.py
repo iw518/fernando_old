@@ -1,7 +1,7 @@
 # -*-coding:utf-8-*-
 # -------------------------------------------------------------------------------
 # Name:        GFunction
-# Purpose:
+# Purpose:     general function
 #
 # Author:      Robot of Fernando
 #
@@ -43,11 +43,12 @@ def Convert2dict(objs):
 
     obj_arr = []
     for o in objs:
-        # 把Object对象转换成Dict对象
         dict = {}
-        # for item in dir(o):
-        # dict[item] = o.item  #错误o没有‘item’
-        # dict.update(o.__dict__)
+        '''
+        for item in dir(o):
+            dict[item] = o.item  #错误o没有‘item’
+            dict.update(o.__dict__)
+        '''
         for item in dir(o):
             dict[item] = getattr(o, item, 0)
         # print(dir(o))
@@ -56,14 +57,17 @@ def Convert2dict(objs):
     return obj_arr
 
 
-def FilterZero(x):
+def FilterZero(x, convert=False):
     try:
         print(float(x))
     except:
         return '-'
     else:
         if x > 0:
-            return x
+            if convert is True:
+                return "%.2f" % x
+            else:
+                return x
         else:
             return '-'
 

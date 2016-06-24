@@ -88,8 +88,7 @@
 function showCurve(obj){
     if (obj.options.length==0){
         var hole_option;
-        {% for xHole in holelist %}
-            //alert("{{holelist[Index]}}")holelist索引无法用外部变量，只能用数字或key
+        {% for holeName, xHole in holeDict.items() %}            
             //注意loop.index从1开始计数，loop.index0从0开始计数，除了上述坑外，还需注意是loop.index0，而不是loop.indexo
             hole_option=new Option("{{xHole.holeName}}","{{loop.index0}}");//new Option("text","value")
             obj.options.add(hole_option);
@@ -108,8 +107,8 @@ function showCurve(obj){
     var rect;
     var myurl;   
 
-    {% for xHole in holelist %}
-    if("{{xHole.holeName}}"==holeName){
+    {% for holeName, xHole in holeDict.items() %}
+    if("{{holeName}}"== holeName){
         {% for xlayer in xHole.layers %}
             var layerThickness=parseFloat("{{xlayer.endDep}}")-parseFloat("{{xlayer.startDep}}");
             console.log("{{loop.index}}"+"厚度转换为像素"+depth2px(layerThickness));
