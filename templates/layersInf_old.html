@@ -1,0 +1,122 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+<link href="{{url_for('static',filename='css/awesomplete.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+<style type="text/css">
+table td{
+    background-color: #cccccc;
+    border:1px solid black;
+    padding: 5px 5px;
+}
+table input{
+    border-width: 0px;
+    width:100%;
+    height: 100%;
+}
+</style>
+{% endblock %}
+{% block nav %}
+{{super()}}
+{% endblock %}
+{% block main %}
+<div id="printArea" class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 style="text-align: center;"><strong>地层基本信息</strong></h4>
+            <p>工程编号：{{projectNo}}</p>
+            <hr/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+            <table id="tbl_layerInf">
+                <tr class="parent">
+                    <td  nowrap="nowrap"><i class="fa fa-plus-square-o"></i>土层名称与编号</td>
+                    <td>标准层序与土层定名</td>
+                </tr>
+                <tr class="children">
+                    <td>顺序号</td>
+                    <td><input></td>
+                </tr>
+                <tr class="children">
+                    <td>标准层序</td>
+                    <td><input></td>                                              
+                </tr>
+                <tr class="children">
+                    <td>土层定名</td>
+                    <td><input></td>                                              
+                </tr>
+                <tr class="parent">
+                    <td><i class="fa fa-plus-square-o"></i>时代成因</td>
+                    <td>地质年代与第四系成因类型</td>
+                </tr>
+                <tr class="children">
+                    <td>地质时代</td>
+                    <td><input class="awesomplete" data-list="Q43, Q42, Q41, Q32,Q31"></td>                                               
+                </tr>
+                <tr class="children">
+                    <td>成因类型</td>
+                    <td><input class="awesomplete" data-list="人工形成, 滨海~河口, 滨海~浅海, 沼泽, 溺谷"></td>                                              
+                </tr>
+                <tr class="parent">
+                    <td><i class="fa fa-plus-square-o"></i>状态</td>
+                    <td>颜色、湿度、密实度、压缩性</td>
+                </tr>
+                <tr class="children">
+                    <td>颜色</td>
+                    <td><input class="awesomplete" data-list="杂色, 褐黄色, 灰黄色, 灰色,草黄色,灰黄色,暗绿色,灰绿色"></td>                                              
+                </tr>
+                <tr class="children">
+                    <td>湿度</td>
+                    <td><input class="awesomplete" data-list="饱和, 流塑, 软塑, 硬塑, 坚硬"></td>                                              
+                </tr>
+                <tr class="children">
+                    <td>密实度</td>
+                    <td><input class="awesomplete" data-list="松散, 稍密, 中密, 密实,松散~稍密,稍密~中密,中密~密实"></td>                                              
+                </tr>
+                <tr class="children">
+                    <td>压缩性</td>
+                    <td><input class="awesomplete" data-list="高, 中, 低"></td>                                             
+                </tr>                                                                         
+            </table>
+        </div>    
+    </div>
+    <div class="row">{% include "sign.html" %}</div>
+</div>
+{% endblock %}
+{% block script%}
+    {{super()}}
+<script type=text/javascript src="{{url_for('static', filename='js/awesomplete.js')}}"  async></script>
+<script>
+$(function() {
+    var n0=12;
+    $("#tbl_layerInf .parent").each(function() {
+        var n1=$(this).children().length;
+        if(n1<n0){
+            $(this).children().last().attr("colspan",n0-n1+1);
+            $(this).nextUntil(".parent").each(function(index, item) {
+                var n2=$(item).children().length;
+                for (var i = n0 - n2; i > 0; i--) {
+                    $(item).append('<td><input></td>');
+                }                
+                
+            });
+        }
+    });
+    //首先设置input的width及height均为100%
+    $("#tbl_layerInf input").parent("td").css("padding","0px");
+    
+    $(".children").hide();
+    $('.parent')
+        .css("cursor","pointer")
+        .click(function(){
+            var $currIcon=$(this).find("i");            
+            $currIcon.toggleClass('fa-plus-square-o fa-minus-square-o');
+            $(this).nextUntil('.parent').toggle();
+        });
+});
+
+
+</script>
+{% endblock %}
