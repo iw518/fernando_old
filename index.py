@@ -10,7 +10,7 @@
 # Licence:     The MIT License
 # -------------------------------------------------------------------------------
 
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for,jsonify
 from maingui import *
 from genpdf import *
 from auth import *
@@ -21,7 +21,6 @@ from GHole import *
 from GLayer import *
 from GPoint import *
 from GFunction import *
-import json
 
 app = Flask(__name__)
 app.register_blueprint(calculation, url_prefix='/calculation')
@@ -169,15 +168,22 @@ def layerAnalysis():
                            manager=FindManager(projectNo)
                            )
 
+
 @app.route("/layersInf")
 def layersInf():
     projectNo = request.args.get('projectNo')
-    return render_template("layersInf.html", projectNo=projectNo, manager=FindManager(projectNo))
-@app.route("/layersConfig")
+    layerConfigDict = importXml()
+    return render_template("layersInf.html", projectNo=projectNo, manager=FindManager(projectNo), layerConfigDict=layerConfigDict)
+
+
+@app.route("/layersConfig", methods=['POST', 'GET'])
 def layersConfig():
     projectNo = request.args.get('projectNo')
-    layerConfigDict=importXml()
-    return render_template("layersConfig.html", projectNo=projectNo, manager=FindManager(projectNo), layerConfigDict=layerConfigDict)    
+    layerConfigDict = importXml()
+    if request.method == 'POST':
+        return jsonify(result=layerConfigDict)
+    else:
+        return render_template("layersConfig.html", projectNo=projectNo, manager=FindManager(projectNo), layerConfigDict=layerConfigDict)    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)
