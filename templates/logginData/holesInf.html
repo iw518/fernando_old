@@ -1,0 +1,72 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link rel="stylesheet" href="https://cdn.rawgit.com/LeaVerou/awesomplete/gh-pages/awesomplete.css">
+<style type="text/css">
+#tbl_layerInf{
+    background-color: #cccccc;
+    border:1px solid black;
+    padding: 5px 5px;
+}
+
+#tbl_layerInf th,td{
+    border:1px solid black;
+    font-size: 12px;
+    text-align: center;
+}
+
+#tbl_layerInf input{
+    border-width: 0px;
+    width:100%;
+    height: 100%;
+    text-align: center;
+}
+</style>
+{% endblock %}
+{% block main %}
+<div id="printArea" class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 style="text-align: center;"><strong>勘探孔基本信息</strong></h4>
+            <p>工程编号：{{projectNo}}</p>
+            <hr/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="tbl_layerInf">
+                <thead>
+                    <tr>
+                        <th width="4%"><br></th>
+                        <th width="4%">自定义序号</th>
+                        <th width="4%">孔号</th>
+                        <th width="5%">标高</th>
+                        <th width="5%">孔深</th>
+                        <th width="5%">水位</th>
+                        <th width="5%">孔类型</th>
+                        <th width="5%">X坐标</th>
+                        <th width="5%">Y坐标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td><input class="holeNo"></td>
+                        <td><input class="holeName"></td>
+                        <td><input class="holeElevation"></td>
+                        <td><input class="holeDepth"></td>
+                        <td><input class="waterLevel"></td>
+                        <td><input class="holeType"></td>
+                        <td><input class="x"></td>
+                        <td><input class="y"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>    
+    </div>
+    <div class="row">{% include "sign.html" %}</div>
+</div>
+{% endblock %}
+{% block script%}
+    {{super()}}
+{% endblock %}

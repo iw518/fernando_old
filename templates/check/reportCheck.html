@@ -1,0 +1,91 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+<link rel="stylesheet" href="https://cdn.rawgit.com/LeaVerou/awesomplete/gh-pages/awesomplete.css">
+<style type="text/css">
+#tbl_layerInf{
+    background-color: #cccccc;
+    border:1px solid black;
+    padding: 5px 5px;
+}
+
+#tbl_layerInf th,td{
+    border:1px solid black;
+    font-size: 12px;
+    text-align: center;
+}
+
+#tbl_layerInf input{
+    border-width: 0px;
+    width:100%;
+    height: 100%;
+    text-align: center;
+}
+#text-content {
+    height: 300px;
+}
+.text-container {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+</style>
+{% endblock %}
+{% block main %}
+<div id="printArea" class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 style="text-align: center;"><strong>报告审核意见</strong></h4>
+            <p>工程编号：{{projectNo}}</p>
+            <hr/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10">
+        </div>
+    </div>
+    <div class="row">{% include "sign.html" %}</div>
+</div>
+{% endblock %}
+{% block modal %}
+<!-- 使用bootstrap提供的modal功能时，必须将modal放在body内的最外层，否则modal的z-index并非预期的1050,mmenu默认将body内最外层的div添加到一个新生成的div内,其z-index为0,以防止modal的z-index被mmenu.js污染,可通过将modal添加到section标签来解决 -->
+<section>
+    <div id="myModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <p>bootstrap modal 测试 top</p>    
+                <div class="text-container">
+                    <div id="text-content">
+                        <p>请输入内容...</p>
+                    </div>
+                </div>
+                <p>bootstrap modal 测试 bottom</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock%}
+{% block script%}
+    {{super()}}
+<script type="text/javascript">
+    var editor = new wangEditor('text-content');
+     // 仅仅想移除某几个菜单，例如想移除『插入代码』和『全屏』菜单：
+     // 其中的 wangEditor.config.menus 可获取默认情况下的菜单配置
+     editor.config.menus = $.map(wangEditor.config.menus, function(item, key) {
+         if (item === 'insertcode') {
+             return null;
+         }
+         if (item === 'fullscreen') {
+             return null;
+         }
+         if (item === 'img') {
+             return null;
+         }
+         if (item === 'video') {
+             return null;
+         }                  
+         return item;
+     }); 
+    editor.create();
+</script>
+{% endblock %}

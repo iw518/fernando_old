@@ -1,42 +1,55 @@
-﻿<!DOCTYPE html>
-<html lang="zh-cn" >
-    <head>
-    <meta name="renderer" content="webkit">
-        <meta charset="utf-8">
-        <title>Investigation Auxiliary System (v1.0) | SHMGED</title>
-        {% block css %}
-        <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-        <link href="http://cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.css" rel="stylesheet">
-        <link href="{{url_for('static',filename='css/table.css')}} " rel="stylesheet" type="text/css" />
-        <link href="{{url_for('static',filename='css/layout.css')}}" rel="stylesheet" type="text/css" />
-        <!--<link href="{{url_for('static',filename='font-awesome/css/font-awesome.min.css',_external=True)}}" rel="stylesheet" type="text/css" />-->
-        {% endblock %}
-    </head>
-    <body style="background-color:#CCCCCC;">
-        <header>
-            <h2>Investigation Auxiliary System</h2>
-            <a href="/" class="stuts">Back to Index Page on <span>IAS</span></a>
-        </header>
-        {% block nav %}
-        {% endblock %}
-        {% block content %}
-            <div class="container">
-                <div class="row">
-                {% block main %}
-                {% endblock %}
-                </div>
-            </div>
-        {% endblock %}
-    </body>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="GIPS" />
+<meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes" />
+<title>工程勘察数据处理系统</title>
+{% block css %}
+<!-- for the fixed header -->
+<style type="text/css">
+	.header,.footer
+	{
+		box-sizing: border-box;
+		width: 100%;
+		position: fixed;
+	}
+	.header
+	{
+		top: 0;
+	}
+	.footer
+	{
+		bottom: 0;
+	}
+</style>
+{% include "css.html" %}
+{% endblock %}
+</head>
+<body>
+	<div id="page">
+		<div class="header Fixed">
+			<a href="#menu"></a>
+		</div>		
+		<div class="footer Fixed">
+		</div>
+		<div class="content" id="content">
+			{% block toolbar %}
+				{% include "toolbar.html" %}
+			{% endblock %}
+			{% block main %}
+			{% endblock %}
+		</div>
+		{% block nav %}
+			<nav id="menu">
+				{% include "nav.html" %}
+			</nav>
+		{% endblock %}
+	</div>
+	{% block modal%}
+	{% endblock %}
+</body>
 </html>
 {% block script %}
-<script src="http://cdn.bootcss.com/jquery/2.2.1/jquery.js"></script>
-<script src="http://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<script type=text/javascript src="{{url_for('static', filename='js/jquery.PrintArea.js')}}"></script>
-<script>
-//打印计算结果
-$('#print').bind('click', function() {
-    $("#printArea").printArea({mode:"iframe"});
-});
-</script>
+{% include "js.html" %}
 {% endblock %}
