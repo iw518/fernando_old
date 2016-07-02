@@ -1,53 +1,51 @@
 {% extends "project_home.html" %}
+
 {% block css %}
 {{super()}}
 {% endblock %}
-{% block main %}
-<div class="col-sm-10 col-sm-offset-1">
-    <div class="btn-toolbar" role="toolbar">
-        <div class="btn-group">
-            <button type="button" class="btn btn-primary" id='print'><span class="glyphicon glyphicon-print"></span>&nbsp;&nbsp;打印</button>
-            <button type="button" class="btn btn-primary" id='calculate'><span class="fa fa-calculator"></span>&nbsp;&nbsp;生成</button>
-            <button type="button" class="btn btn-primary" id='check'><span class="fa fa-calculator"></span>&nbsp;&nbsp;钻孔深度校核</button>
-        </div>
-    </div>
-</div>
 
-<div id="printArea" class="col-sm-10 col-sm-offset-1">
-    <div>
-        <h4 style="text-align: center;"><strong>工作量统计表</strong></h4>
-        <p>工程编号：{{projectNo}}</p>
-        <hr/>
-    </div>
-    <div>
-        <div class=" col-sm-8">
-            <div class="row">
-                <div>            
-                    <div id="otheritem1" class="col-sm-3 col-sm-offset-1">
-                        {% for item in ['挖机开孔','租船','青苗补偿'] %}
-                        <label class="checkbox"><input type="checkbox" name="{{item}}">{{item}}</label>
-                        {% endfor %}
-                    </div>          
-                    <div id="otheritem2" class="col-sm-3">
-                        {% for item in ['取水样'] %}
-                        <label class="checkbox"><input type="checkbox" name="{{item}}">{{item}}</label>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div id="gen_workloads_tbl" class="col-sm-11"></div>
+{% block main %}
+    <div class="row">
+        <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group">            
+                <button type="button" class="btn btn-primary" id='check'><span class="fa fa-calculator"></span>&nbsp;&nbsp;钻孔深度校核</button>
             </div>
         </div>
-        <div id="gen_holedep_tbl"></div>
     </div>
-{% include "sign.html" %}
-</div>
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <h4 style="text-align: center;"><strong>工作量统计表</strong></h4>
+                <p>工程编号：{{projectNo}}</p>
+                <hr/>
+            </div>
+        </div>        
+        <div class="row">
+            <div id="gen_workloads_tbl" class="col-sm-6 col-sm-offset-1"></div>
+            <div id="otheritem1" class="col-sm-2 col-sm-offset-1">
+                {% for item in ['挖机开孔','租船','青苗补偿'] %}
+                <label class="checkbox"><input type="checkbox" name="{{item}}">{{item}}</label>
+                {% endfor %}
+            </div>
+            <div id="otheritem2" class="col-sm-2">
+                {% for item in ['取水样'] %}
+                <label class="checkbox"><input type="checkbox" name="{{item}}">{{item}}</label>
+                {% endfor %}
+            </div>                    
+        </div>
+    </div>
+    <div class="row">
+        <div id="gen_holedep_tbl" class="col-sm-6 col-sm-offset-1">
+        </div>
+    </div>
 {% endblock %}
+
 {% block script%}
     {{super()}}
-<script>
-var filltable=function(){ 
-$("#gen_workloads_tbl table").remove();
-$("#gen_workloads_tbl").append("<table id='workloads_tbl' class='hor-calculate'><thead><td colspan='4' align='center'>野外作业</td><td colspan='3'>室内实验</td></thead><tbody></tbody><tfoot></tfoot></table>");
+    <script>
+    var filltable=function(){ 
+    $("#gen_workloads_tbl table").remove();
+    $("#gen_workloads_tbl").append("<table id='workloads_tbl' class='hor-calculate'><thead><td colspan='4' align='center'>野外作业</td><td colspan='3'>室内实验</td></thead><tbody></tbody><tfoot></tfoot></table>");
 
     var n1=0;
     {% for k,v in dict_workloads.items() %}
@@ -73,7 +71,7 @@ $("#gen_workloads_tbl").append("<table id='workloads_tbl' class='hor-calculate'>
     $("#workloads_tbl>tbody:first").append("<tr><td>标贯试验</td><td colspan='2'>{{dict_soilloads["标贯试验"][1]}}次</td></tr>");
     n2=n2+1;
     {% endif %}
-    
+
     if (n2-n1>0){
         $("#workloads_tbl>tbody:first>tr:eq("+n1+")>td:first").before("<td>原位测试</td>");
         $("#workloads_tbl>tbody:first>tr:eq("+n1+")>td:first").attr("rowspan",(n2-n1));  
@@ -107,7 +105,7 @@ $("#gen_workloads_tbl").append("<table id='workloads_tbl' class='hor-calculate'>
     //jquery中eq和get区别详见http://www.cnblogs.com/eoiioe/archive/2008/11/16/1334572.html
     //console.log($("#otheritem1").find("input:checkbox").get(0).attributes["name"].value);
     //console.log($("#otheritem1").find("input:checkbox").get(0).attributes);
-    
+
 
 
     $("#workloads_tbl>tbody:first>tr:eq("+n3+")>td:first").before("<td rowspan="+(n4-n3)+">其他措施</td>");
@@ -173,13 +171,13 @@ $("#gen_workloads_tbl").append("<table id='workloads_tbl' class='hor-calculate'>
         $("#workloads_tbl>tbody:first>tr:eq("+i+")").append("<td>-</td><td>-</td><td>-</td>");
         }
 
-}
+    }
 
-$("#calculate").bind('click',function(){filltable();});
-$("#check").bind('click',function(){
-$("#gen_holedep_tbl table").remove();
-$("#gen_holedep_tbl").append("<table id='holedep_tbl' class='hor-calculate'><thead><td>序号</td><td>钻孔孔号</td><td>输入孔深</td><td>土试孔深</td><td>数据一致</td></thead><tbody></tbody><tfoot></tfoot></table>");
-{% for xHole in list1 %}
+    $("#calculate").bind('click',function(){filltable();});
+    $("#check").bind('click',function(){
+    $("#gen_holedep_tbl table").remove();
+    $("#gen_holedep_tbl").append("<table id='holedep_tbl' class='hor-calculate'><thead><td>序号</td><td>钻孔孔号</td><td>输入孔深</td><td>土试孔深</td><td>数据一致</td></thead><tbody></tbody><tfoot></tfoot></table>");
+    {% for xHole in list1 %}
     $("#holedep_tbl>tbody:first").append("<tr><td>{{loop.index}}</td><td>{{xHole.holeName}}</td><td>{{'%.2f'%xHole.Dep}}</td></tr>")
     {% if xHole.holeName == list2[loop.index-1].holeName %}
         $("#holedep_tbl>tbody:first>tr:last").append("<td>{{'%.2f'% list2[loop.index-1].Dep}}</td>")
@@ -189,7 +187,7 @@ $("#gen_holedep_tbl").append("<table id='holedep_tbl' class='hor-calculate'><the
             $("#holedep_tbl>tbody:first>tr:last").append("<td>&#10006;</td>")
         {% endif %}
     {% endif %}
-{% endfor %}
+    {% endfor %}
     ;});
-</script>
+    </script>
 {% endblock %}

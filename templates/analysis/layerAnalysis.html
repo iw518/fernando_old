@@ -1,0 +1,77 @@
+{% extends "project_home.html" %}
+{% block css %}
+{{super()}}
+{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+            <div>
+                <select id="layerNo">
+                {% for item in layer_hole_elevation_list %}
+                <option>{{item[0]}}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <h4 style="text-align: center;"><strong>层位统计</strong></h4>
+                <p>工程编号：{{projectNo}}</p>
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-1">
+                <table id="result_table" class="hor-minimalist-a table-hover">
+                    <thead>
+                        <tr><th>层号</th>
+                            <th>层名</th>
+                            <th>厚度</th>
+                            <th>层顶标高</th>
+                            <th>层底标高</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                    </tfoot>
+                    <tbody>
+                    {% for layerNo, xLayer in layerDict.items() %}
+                    {% if layerDict.items()|length != loop.index %}
+                        <tr>
+                            <td>{{layerNo}}</td>
+                            <td>{{xLayer.layerName}}</td>
+                            <td>{{xLayer.minThickness}} ~ {{xLayer.maxThickness}}</td>
+                            <td>{{xLayer.maxTopElevation}} ~ {{xLayer.minTopElevation}}</td>
+                            <td>{{xLayer.maxBottomElevation}} ~ {{xLayer.minBottomElevation}}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td>{{layerNo}}</td>
+                            <td>{{xLayer.layerName}}</td>
+                            <td>未钻穿</td>
+                            <td>{{xLayer.maxTopElevation}} ~ {{xLayer.minTopElevation}}</td>
+                            <td>未钻穿</td>
+                        </tr>            
+                    {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>        
+            <div  class="col-sm-4 col-sm-offset-1" id="diagramDiv">     
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script%}
+    {{super()}}
+    <script type="text/javascript" src="{{url_for('static', filename='js/analysis.js')}}"></script>
+    <script type="text/javascript">
+        //注意不加safe时，双引号会转义成&#39;&#39;；形式
+        var svg=new SvgContainer("diagramDiv");
+        svg.creatAxis("厚度(m)");
+        $('#layerNo').change(function(){
+            svg.show({{layer_hole_elevation_list|safe}},'m',600,300);
+        });
+    </script>
+{% endblock %}

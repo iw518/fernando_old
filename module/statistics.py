@@ -40,11 +40,11 @@ def workloads():
     for holeName, xHole in holeDict.items():
         list2.append(xHole)
 
-    return render_template('workloads.html', projectNo=projectNo, dict_workloads=dict_workloads, dict_soilloads=dict_soilloads, manager=FindManager(projectNo),list1=list1,list2=list2)
+    return render_template('statistics/workloads.html', projectNo=projectNo, dict_workloads=dict_workloads, dict_soilloads=dict_soilloads, manager=FindManager(projectNo),list1=list1,list2=list2)
 
 
 @statistics.route('/excavation')
 def excavation():
     projectNo = request.args.get('projectNo')
     layers = ExportLayers_Stat(projectNo, 2)
-    return render_template('excavation.html', projectNo=projectNo, manager=FindManager(projectNo), layers=layers)
+    return render_template('statistics/excavation.html', projectNo=projectNo, manager=FindManager(projectNo), layers=layers)

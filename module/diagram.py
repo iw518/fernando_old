@@ -17,8 +17,8 @@ from auth import *
 diagram = Blueprint('diagram', __name__)
 
 
-@diagram.route('/CPT', methods=['POST', 'GET'])
-def CPT():
+@diagram.route('/cpt', methods=['POST', 'GET'])
+def cpt():
     projectNo = request.args.get('projectNo')
     holeDict = FindCPT(projectNo)
     holelist = []
@@ -51,7 +51,7 @@ def CPT():
         print(pdfUrl)
         return render_template('pdf.html', url=pdfUrl)
     return render_template(
-        'CPT.html',
+        'diagram/cpt.html',
         projectNo=projectNo,
         holelist=holelist,
         manager=FindManager(projectNo),
@@ -59,12 +59,12 @@ def CPT():
     )
 
 
-@diagram.route('/ZZT')
-def ZZT():
+@diagram.route('/zzt')
+def zzt():
     projectNo = request.args.get('projectNo')
     holeDict = ReceiveHoleLayer(projectNo, 1)
     return render_template(
-        'ZZT.html',
+        'diagram/zzt.html',
         projectNo=projectNo,
         holeDict=holeDict,
         manager=FindManager(projectNo)

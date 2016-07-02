@@ -1,0 +1,150 @@
+{% extends "project_home.html" %}
+
+{% block css %}
+{{super()}}
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+            <div class="checkbox">
+                {% for xLayer in layers %}
+                {% if loop.index<(layers|length)*0.4 %}
+                <label class="checkbox-inline">
+                <input type="checkbox" checked="checked" value="{{loop.index}}">{{xLayer.layerNo}}
+                </label>
+                {% endif %}
+                {% endfor %}
+                </div>
+                <div class="checkbox">
+                {% for xLayer in layers %}
+                {% if loop.index>=(layers|length)*0.4 %}
+                <label class="checkbox-inline">
+                <input type="checkbox" value="{{loop.index}}">{{xLayer.layerNo}}
+                </label>
+                {% endif %}
+                {% endfor %}
+            </div>  
+        </div>
+   </div>
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <h4 style="text-align: center;"><strong>基坑工程岩土参数表</strong></h4>
+                <p>工程编号：{{projectNo}}</p>
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <p>计算条件及依据:</p>
+                <ol>
+                    <li>γ为天然重度,地下水位以下应取浮重度。</li>
+                    <li>剪切指标标准值取直剪固快峰值强度平均值。</li>
+                </ol>
+            </div>
+        </div>
+        <div class="row">
+            <div id="gen_result_table" class="col-sm-10 col-sm-offset-1">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script%}
+    {{super()}}
+    <script>
+        var paraLst=[            
+                    ["DENSITY","重度","&gamma;","kN/m<sup>3</sup>",1,1],
+                    ["CON_C","固结快剪","C","kPa",2,0],
+                    ["CON_F","固结快剪","&phi;","&deg;",0,1],
+                    ["QUICK_C","快剪","C<sub>q</sub>","kPa",2,0],
+                    ["QUICK_F","快剪","&phi;<sub>q</sub>","&deg;",0,1],
+                    ["SLOW_C","慢剪","C","kPa",2,0],
+                    ["SLOW_F","慢剪","&phi;","&deg;",0,1],
+                    ["CCU","CU","C<sub>cu</sub>","kPa",2,0],
+                    ["FCU","CU","&phi;<sub>cu</sub>","&deg;",0,1],
+                    ["CU","UU","C<sub>uu</sub>","kPa",2,0],
+                    ["FU","UU","&phi;<sub>uu</sub>","&deg;",0,1],
+                    ["KH","渗透系数","K<sub>H</sub>","cm/s&times;10<sup>-6</sup>",2,1],
+                    ["KV","渗透系数","K<sub>V</sub>","cm/s&times;10<sup>-6</sup>",0,1],
+                    ["K0","静止侧压力","K0","-",1,2]
+                   ];
+        // js中最好不要用for in 语句遍历数组，会造成bug,而应该用for var 形式
+        var filltable=function(){ 
+            $("#gen_result_table table").remove();    
+            var selectrange=[];
+            $("input[type='checkbox']").each(function(){
+                if ($(this).prop('checked') ==true) {
+                        selectrange.push($(this).prop("value"));
+                    }
+            });
+            console.log(selectrange);
+             
+            $("#gen_result_table").append("<table id='result_table' class='hor-minimalist-a table-hover'><thead></thead><tfoot></tfoot><tbody></tbody></table>");
+
+            var str1="<td colspan=2>层号</td>";
+            {% for xLayer in layers %}
+                for(var i=0;i<selectrange.length;i++){
+                    if ({{loop.index}}==selectrange[i]){
+                        str1=str1+"<td>{{xLayer.layerNo}}</td>";
+                    }
+                }
+            {%endfor%}    
+            str1="<tr>"+str1+"</tr>";
+            $("#result_table>thead:first").append(str1);
+           
+            for (var i =0; i<paraLst.length; i++) {
+                var item=paraLst[i];
+                if (item[4]==1){str1="<td>"+item[1]+"</td><td>"+item[2]+"("+item[3]+")</td>";}
+                else if(item[4]>1 ){str1="<td rowspan="+item[4]+">"+item[1]+"</td><td>"+item[2]+"("+item[3]+")</td>";}
+                else {str1="<td>"+item[2]+"("+item[3]+")</td>";}
+
+                {% for xLayer in layers %}
+                    for(var j=0;j<selectrange.length;j++){
+                        if ({{loop.index}}==selectrange[j]){
+                            {% for k in xLayer.__dict__.keys() %}
+                                if("{{k}}"==item[0]){str1=str1+"<td>{{xLayer.__dict__[k]}}</td>";}
+                            {% endfor %}
+                        }
+                    }
+                {% endfor %}
+                str1="<tr>"+str1+"</tr>";
+                $("#result_table>tbody:first").append(str1);    
+            }
+
+            //删除为0项目
+            for (var i=paraLst.length-1; i>=0; i--) {
+                var sum=0;
+                if(paraLst[i][4]>1){
+                    for (var j = paraLst[i][4]-1; j >= 0; j--) {
+                        if(j>0){
+                            $("#result_table>tbody:first>tr").eq(i+j).find("td:gt(1)").each(function(){
+                                sum=sum+parseFloat($(this).text());
+                            });
+                        }
+                        else{
+                             $("#result_table>tbody:first>tr").eq(i+j).find("td:gt(2)").each(function(){
+                                sum=sum+parseFloat($(this).text());                                         
+                            });
+                        }
+                    }
+                    if(sum==0){console.log(sum);
+                        for (var j = paraLst[i][4] - 1; j >= 0; j--) {
+                            $("#result_table>tbody:first>tr").eq(i+j).remove();
+                        } 
+                    }            
+                }
+                else if(paraLst[i][4]==1){
+                    $("#result_table>tbody:first>tr").eq(i).find("td:gt(2)").each(function(){
+                        sum=sum+parseFloat($(this).text());                
+                    });
+                    if(sum==0){
+                        $("#result_table>tbody:first>tr").eq(i).remove();
+                    }
+                }
+            }    
+        }
+        $("#calculate").bind('click',function(){filltable();});
+    </script>
+{% endblock %}

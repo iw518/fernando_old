@@ -16,23 +16,12 @@ header {
     color:#fff;
     display:block;
     height:70px;
-    margin:0px;
-    padding:0px;
     position:relative;
     width:100%;
     display: inline-block
     z-index:100;
 }
-header h2{
-    font-size:22px;
-    font-weight:normal;
-    left:50%;
-    margin-top:0px;
-    margin-left:-400px;
-    padding:0px 0px;
-    position:absolute;
-    width:540px;
-}
+
 header a.stuts,a.stuts:visited{
     border:none;
     text-decoration:none;
@@ -56,3 +45,4 @@ img {
     background: #fff;
     box-shadow: 3px 3px 10px #111111;
 }
+

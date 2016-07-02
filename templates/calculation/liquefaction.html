@@ -1,23 +1,24 @@
 {% extends "project_home.html" %}
+
 {% block css %}
-{{super()}}
-<link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
+    {{super()}}
+    <link href="{{url_for('static',filename='css/table.css',_external=True)}} "  rel="stylesheet" type="text/css" />
 {% endblock %}
-{% block nav %}
-{{super()}}
-{% endblock %}
+
 {% block main %}
-<div id="printArea" class="container">
-    <div class="row">
-        <div class="col-sm-10 col-sm-offset-1">
-            <div>
+    {{super()}}
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
                 <h4 style="text-align: center;"><strong>液化判别计算书</strong></h4>
                 <p>工程编号：{{projectNo}}</p>
                 <hr/>
             </div>
-            <div class="col-sm-10 col-sm-offset-1 tbl_notation">
+        </div>
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
                 <p>计算条件及依据:</p>
-                <ol class="col-sm-12">
+                <ol>
                     <li>计算依据：按照上海市《建筑抗震设计规程》(DGJ08-9-2013)第4.2.2~4.2.3条计算</li>
                     <li>地震参数：抗震设防烈度取7度，设计基本地震加速度取值0.10g,设计地震第一组取0.80</li>
                     <li>粘粒含量百分率小于3时，取3</li>
@@ -26,41 +27,42 @@
                     <li>需进行液化判别的钻孔为：{{liqueHolesStr}}</li>
                 </ol>
             </div>
+        </div>
+        <div class="row">        
             <div  class="col-sm-10 col-sm-offset-1">
-            <table class="hor-minimalist-a table-hover">
-                <thead>
-                    <tr>
-                        <th>孔号</th>
-                        <th>层号</th>
-                        <th>深度</th>
-                        <th>粘量</th>
-                        <th>N</th>
-                        <th>Ncr</th>
-                        <th>液化</th>
-                        <th>FLei</th>
-                        <th>Di</th>
-                        <th>Wi</th>
-                        <th>Ilei</th>
-                        <th>备注</th>
-                    </tr>
-                </thead>
-                <tfoot>
-                </tfoot>
-                <tbody>
-                    {% for pointX in liqueList %}
-                    <tr>
-                        {% for item in pointX %}
-                        <td>{{item}}</td>
+                <table class="hor-minimalist-a table-hover">
+                    <thead>
+                        <tr>
+                            <th>孔号</th>
+                            <th>层号</th>
+                            <th>深度</th>
+                            <th>粘量</th>
+                            <th>N</th>
+                            <th>Ncr</th>
+                            <th>液化</th>
+                            <th>FLei</th>
+                            <th>Di</th>
+                            <th>Wi</th>
+                            <th>Ilei</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                    </tfoot>
+                    <tbody>
+                        {% for pointX in liqueList %}
+                        <tr>
+                            {% for item in pointX %}
+                            <td>{{item}}</td>
+                            {% endfor %}
+                        </tr>
                         {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
             </div>
         </div>
+        <div class="row">
+            {% include "sign.html" %}
+        </div>
     </div>
-    <div class="row">
-        {% include "sign.html" %}
-    </div>
-</div>
 {% endblock %}

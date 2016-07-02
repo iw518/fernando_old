@@ -4,6 +4,7 @@ html, body
 	margin: 0;
 	background-color: #cccccc;
 }
+
 body
 {
 	background-color: #fff;
@@ -14,6 +15,7 @@ body
 	position: relative;
 	-webkit-text-size-adjust: none;
 }
+
 body *
 {
 	text-shadow: none;
@@ -47,26 +49,34 @@ nav:not(.mm-menu)
 	display: none;
 }
 
-.header,
-.footer
+/*for the fixed header*/
+.header
 {
-	text-align: center;
+	top: 0;
+	position: fixed;
 }
+.footer
+{
+	bottom: 0;
+	position: fixed;
+}
+
 .header,
 .footer
 {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;	
+		
+	width: 100%;
+	height: 40px;
+	padding: 0 50px;
+
 	background: #777;
+	text-align: center;
 	font-size: 16px;
 	font-weight: bold;
 	color: #fff;
 	line-height: 40px;
-
-
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;	
-	width: 100%;
-	height: 40px;
-	padding: 0 50px;
 }
 
 .header a
@@ -83,10 +93,6 @@ nav:not(.mm-menu)
 }
 .content
 {
-	padding: 150px 50px 50px 50px;
+	padding: 100px 0px 50px 0px;
 	background-color: #cccccc;
-}
-#printArea{
-    background: #fff;
-    box-shadow: 3px 3px 10px #111111;
 }

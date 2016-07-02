@@ -36,14 +36,14 @@ app.register_blueprint(analysis, url_prefix="/analysis")
 def index():
     if request.method == 'POST':
         projectNo = request.form['projectNo']        
-        return render_template('project_home.html', projectNo=projectNo)
+        return render_template('project.html', projectNo=projectNo)
     else:
         return render_template('index.html')
 
 
 @app.route('/<projectNo>')
 def projecthome(projectNo):
-    return render_template('project_home.html', projectNo=projectNo)
+    return render_template('project.html', projectNo=projectNo)
 
 
 @app.route("/layersConfig", methods=['POST', 'GET'])

@@ -51,7 +51,7 @@ def cptAnalysis():
                                                     )
             layer_hole_ps_list.append([FindLayers(projectNo)[i].layerNo,
                                        hole_ps_list])
-        return render_template('cptAnalysis.html',
+        return render_template('analysis/cptAnalysis.html',
                                projectNo=projectNo,
                                layer_hole_ps_list=layer_hole_ps_list
                                )
@@ -169,7 +169,7 @@ def layerAnalysis():
                     }
         '''
 
-    return render_template('layerAnalysis.html',
+    return render_template('analysis/layerAnalysis.html',
                            projectNo=projectNo,
                            layerDict=layerDict,
                            layer_hole_elevation_list=layer_hole_elevation_list,
