@@ -1,0 +1,66 @@
+{% extends "project_home.html" %}
+
+{% block css %}
+    {{super()}}
+    <style type="text/css">
+    #gallery *{
+        border-width: 0;
+    }    
+    #gallery .thumbnail{
+        float:center;
+        margin:1px;
+    }
+    #gallery .thumbnail img{
+        width:100%;
+        height: width;
+    }
+    #gallery .thumbnail input[type=text] {
+        border-width: 0px 0px 1px 0px;
+        border-color: blue;
+        text-align: center;
+    }    
+    #gallery .thumbnail input[type=checkbox] {
+        transform: scale(1.5);
+        vertical-align: middle;
+        margin: auto;
+    }
+
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <h4 style="text-align: center;"><strong>现场照片上传</strong></h4>
+                <p>工程编号：{{projectNo}}</p>
+                <hr/>
+            </div>
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <input type="file" name="file[]" id="selectInput" accept="image/*" multiple="multiple" action="{{url_for('fieldWork.sitePhoto',projectNo=projectNo)}}"/>
+                </div>                        
+            </div>
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <div id="gallery"></div>
+                </div>                        
+            </div>
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <input id="submitBtn" type="button" value="批量上传">
+                </div>                                  
+            </div>
+        </form>    
+    </div>
+{% endblock %}
+
+{% block script%}
+    {{super()}}
+    <script type="text/javascript" src="{{url_for('static',filename='js/gallery.js')}}"></script>
+    <script type="text/javascript">
+        uploadFiles("uploadForm","selectInput","gallery","submitBtn");
+    </script>
+{% endblock %}

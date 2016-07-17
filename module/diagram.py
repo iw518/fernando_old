@@ -10,9 +10,11 @@
 # Licence:     The MIT License
 # -------------------------------------------------------------------------------
 
-from flask import render_template, request, Blueprint
+from flask import render_template, request, Blueprint, url_for
+
+from auth2 import *
+from genpdf import *
 from maingui import *
-from auth import *
 
 diagram = Blueprint('diagram', __name__)
 

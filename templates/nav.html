@@ -36,7 +36,13 @@
             <li><a href="#">方案审核</a></li>        
             <li><a href="{{url_for('reportCheck',projectNo=projectNo,_external=True)}}">报告审核</a></li>
         </ul>            
-    </li> 
+    </li>
+    <li><a href="#"><i class="fa fa-camera"></i>&nbsp;&nbsp;野外记录</a>
+        <ul>
+            <li><a href="{{url_for('fieldWork.sitePhoto', projectNo=projectNo, _external=True)}}">踏勘实景</a></li>
+            <li><a href="{{url_for('fieldWork.siteMap', projectNo=projectNo, _external=True)}}">全景地图</a></li>
+        </ul>
+    </li>    
     <li><a href="#"><i class="fa fa-gears"></i>&nbsp;&nbsp;工程管理</a>
         <ul>
             <li><a href="{{url_for('layersConfig', projectNo=projectNo, _external=True)}}">土层模版</a></li>

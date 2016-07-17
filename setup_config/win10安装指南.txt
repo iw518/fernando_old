@@ -13,6 +13,8 @@ pymssql==2.1.1
 reportlab==3.3.0
 Werkzeug==0.11.9
 
+
+
 2、注意事项
 本次开发采用了pymsql，由于当前最新版pymssql version 2.1.2 默认不打包freetds(openssl安全原因)，故只能安装2.1.2以下版本的pymssql,本次采用了2.1.1版本。
 该版本有python3.4版本的whl版本，而python3.5版本无whl版，如果在python3.5条件下直接pip安装，需自己编译，由于缺少vc++编译环境，会出错，自己配置编译环境难度非常之大。
@@ -25,6 +27,7 @@ msiexec /package c:\python3.4.msi
 4、创建虚拟环境
 python3.3之后自带虚拟环境，故可不安装virtualenv，
 直接用python -m venv e:\pythonweb\py344创建虚拟环境。
+pip install -r requirements
 
 5、pip升级
 必须采用python -m pip install --upgrade pip方式升级

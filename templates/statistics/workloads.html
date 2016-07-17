@@ -179,6 +179,7 @@
     $("#gen_holedep_tbl").append("<table id='holedep_tbl' class='hor-calculate'><thead><td>序号</td><td>钻孔孔号</td><td>输入孔深</td><td>土试孔深</td><td>数据一致</td></thead><tbody></tbody><tfoot></tfoot></table>");
     {% for xHole in list1 %}
     $("#holedep_tbl>tbody:first").append("<tr><td>{{loop.index}}</td><td>{{xHole.holeName}}</td><td>{{'%.2f'%xHole.Dep}}</td></tr>")
+    {% if list2|length==list1|length %}
     {% if xHole.holeName == list2[loop.index-1].holeName %}
         $("#holedep_tbl>tbody:first>tr:last").append("<td>{{'%.2f'% list2[loop.index-1].Dep}}</td>")
         {% if xHole.Dep== list2[loop.index-1].Dep %}
@@ -186,6 +187,7 @@
         {% else %}
             $("#holedep_tbl>tbody:first>tr:last").append("<td>&#10006;</td>")
         {% endif %}
+    {% endif %}
     {% endif %}
     {% endfor %}
     ;});

@@ -11,8 +11,9 @@
 # -------------------------------------------------------------------------
 
 from flask import Blueprint, render_template, request
+
+from auth2 import *
 from maingui import *
-from auth import *
 
 statistics = Blueprint('statistics', __name__)
 

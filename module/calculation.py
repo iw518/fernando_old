@@ -11,10 +11,11 @@
 # -------------------------------------------------------------------------------
 
 from flask import render_template, request, jsonify, Blueprint
-from maingui import *
-from genpdf import *
-from auth import *
+
 from GFunction import *
+from auth2 import *
+from maingui import *
+
 calculation = Blueprint('calculation', __name__)
 
 

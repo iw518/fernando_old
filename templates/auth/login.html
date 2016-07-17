@@ -1,0 +1,114 @@
+{% extends "project_home.html" %}
+
+{% block css %}
+    {{super()}}
+    <style type="text/css">
+    #tbl_layerInf{
+        background-color: #cccccc;
+        border:1px solid black;
+        padding: 5px 5px;
+    }
+
+    #tbl_layerInf th,td{
+        border:1px solid black;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    #tbl_layerInf input{
+        border-width: 0px;
+        width:100%;
+        height: 100%;
+        text-align: center;
+    }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <h4 style="text-align: center;"><strong>地层基本信息</strong></h4>
+                <p>工程编号：{{projectNo}}</p>
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <table id="tbl_layerInf">
+                    <thead>
+                        <tr>
+                            <th width="4%">层序</th>
+                            <th width="4%">层号</th>
+                            <th width="8%">层名</th>
+                            <th width="5%">颜色</th>
+                            <th width="5%">RGB索引</th>
+                            <th width="5%">地质时代</th>
+                            <th width="5%">成因类型</th>
+                            <th width="5%">湿度</th>
+                            <th width="5%">状态</th>
+                            <th width="5%">密实度</th>
+                            <th width="5%">压缩性</th>
+                            <th width="42%">土层描述</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="No"></td>
+                            <td><input class="layerNo"></td>
+                            <td><input class="layerName"></td>
+                            <td><input class="layerColor"></td>
+                            <td><input class="layerRGB"></td>
+                            <td><input class="layerEra"></td>
+                            <td><input class="layerOrigin"></td>
+                            <td><input class="layerHumidity"></td>
+                            <td><input class="layerState"></td>
+                            <td><input class="layerDensity"></td>
+                            <td><input class="layerCompressibility"></td>
+                            <td><input class="layerDescription"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>    
+        </div>
+    </div>
+{% endblock %}
+
+{% block script%}
+    {{super()}}
+    <script>
+        for (var i = 10; i >= 0; i--) {
+            $("#tbl_layerInf tbody:first>tr:last").clone(true).appendTo("#tbl_layerInf tbody:first");
+        }
+        //jq过滤not 或filter
+        $("#tbl_layerInf input:not(.No):not(.layerRGB):not(.layerEra):not(.layerDescription)").each(function() {
+            autoajax(this);            
+            // if(this instanceof jQuery){
+            //     alert("这是一个jQuery对象");}
+            // else{alert("这是一个其它对象")} 
+        });
+        function autoajax(obj){
+            var awesomplete = new Awesomplete(obj, {
+                minChars: 0,
+                maxItems: 100,
+                sort:function(){return;},
+            });
+            var myurl="{{url_for('logginData.layersInf',projectNo=projectNo)}}";
+
+            var callback_function=function (data) {
+                var list=data["result"];
+                awesomplete.list = list;
+            }
+
+            $(obj).bind('keyup', function () {
+                $.ajax({
+                    data:{"templateName":$(obj).attr("class")},
+                    url: myurl,
+                    type: 'POST',
+                    dataType: 'json',
+                    success:callback_function
+                });
+            });
+        }
+    </script>
+{% endblock %}

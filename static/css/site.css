@@ -38,6 +38,9 @@ p
 {
 	margin: 0 0 10px 0;
 }
+input{
+	width:100%;
+}
 a, a:link, a:active, a:visited, a:hover
 {
 	color: inherit;

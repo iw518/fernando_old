@@ -10,9 +10,10 @@
 # Licence:     The MIT License
 # -------------------------------------------------------------------------------
 
-from flask import render_template, request, Blueprint
+from flask import render_template, request, Blueprint,jsonify
+
+from auth2 import *
 from maingui import *
-from auth import *
 
 logginData = Blueprint('logginData', __name__)
 
@@ -20,15 +21,20 @@ logginData = Blueprint('logginData', __name__)
 @logginData.route("/layersInf", methods=["GET", "POST"])
 def layersInf():
     projectNo = request.args.get('projectNo')
-    if request.method == "GET":
-        layerConfigDict = importXml()
+    layerConfigDict = importXml()
+    if request.method == "POST":
+        templateName = request.form["templateName"]
+        print("bug"+templateName)
+        print(layerConfigDict[templateName])
+        return jsonify(result=layerConfigDict[templateName])
+
+    else:
         return render_template(
             "logginData/layersInf.html",
             projectNo=projectNo,
             manager=FindManager(projectNo),
             layerConfigDict=layerConfigDict
         )
-
 
 @logginData.route("/holesInf", methods=["GET", "POST"])
 def holesInf():

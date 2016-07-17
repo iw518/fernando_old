@@ -1,0 +1,222 @@
+{% extends "project_home.html" %}
+{% block toolbar %}
+<div class="row">
+    <div class="btn-toolbar" role="toolbar">
+        <button type="button" class="btn btn-primary" id='addCamera_btn'>
+            <span class="fa fa-plus"></span>
+            &nbsp;&nbsp;添加摄像机
+        </button>
+        <button type="button" class="btn btn-primary" id='delCamera_btn'>
+            <span class="fa fa-remove"></span>
+            &nbsp;&nbsp;删除摄像机
+        </button>
+        <button type="button" class="btn btn-primary" id='dragCamera_btn'>
+            <span class="fa fa-arrows"></span>
+            &nbsp;&nbsp;移动摄像机
+        </button>
+        <button type="button" class="btn btn-primary" id='rotateCamera_btn'>
+            <span class="fa fa-repeat"></span>
+            &nbsp;&nbsp;旋转摄像机
+        </button>
+        <button type="button" class="btn btn-primary" id='addPhoto_btn'>
+            <span class="fa fa-photo"></span>
+            &nbsp;&nbsp;添加图片
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+    {{super()}}
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/sliderbox.css')}}" />
+<style type="text/css">
+    #gallery *{
+        border-width: 0;
+    }    
+    #gallery .thumbnail{
+        float:center;
+        margin:1px;
+    }
+    #gallery .thumbnail img{
+        width:100%;
+        height: width;
+    }
+    #gallery .thumbnail input[type=text] {
+        border-width: 0px 0px 1px 0px;
+        border-color: blue;
+        text-align: center;
+    }    
+    #gallery .thumbnail input[type=checkbox] {
+        transform: scale(1.5);
+        vertical-align: middle;
+        margin: auto;
+    }
+    </style>
+{% endblock %}
+
+{% block main %}
+<div id="printArea">
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+            <h4 style="text-align: center;"> <strong>现场地图</strong>
+            </h4>
+            <p>工程编号：{{projectNo}}</p>
+            <hr/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 800 600" preserveAspectRatio="xMinYMin meet">
+                <defs>
+                    <radialGradient id="opacity-stops" cx="0%" cy="0%" r="141%">
+                        <stop offset="0%" style="stop-color:blue;stop-opacity:0.7"></stop>
+                        <stop offset="100%" style="stop-color:blue;stop-opacity:0.01"></stop>
+                    </radialGradient>
+                    <filter id="drop-shadow">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"></feGaussianBlur>
+                        <feOffset in="blur" dx="2" dy="2" result="offsetBlur"></feOffset>
+                        <feMerge>
+                            <feMergeNode in="offsetBlur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                    <g id="cameraLense">
+                        <path d="M 141, 0 A141, 141 0 0,1 100,100
+                        L 0 0 Z" style="fill: url(#opacity-stops);stroke-opacity:0.4;"></path>
+                        <circle cx=0 cy=0 r=10 style="fill:white;stroke:blue;stroke-width:3"></circle>
+                    </g>
+                </defs>
+                <image id="map" x="0" y="0" width="100%" height="600"
+                xlink:href="{{url_for('static',filename='map.png')}}"></image>
+            </svg>
+        </div>     
+    </div>
+</div>
+{% endblock %}
+
+{% block modal %}
+    <section>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+           aria-labelledby="myModalLabel" aria-hidden="true">
+           <div class="modal-dialog">
+              <div class="modal-content">
+                <img width="100%" src=""/>
+              </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </section>
+    <section>
+        <div class="modal fade" id="picListModal" tabindex="-1" role="dialog" aria-hidden="true">
+           <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="col-sm-3 col-sm-offset-1">
+                    <img width="100%" src="{{url_for('static',filename='upload/photo1.JPG')}}" onclick="selectedfn(event)" />                                      
+                </div>
+                <div class="col-sm-3 col-sm-offset-1">
+                    <img width="100%" src="{{url_for('static',filename='upload/photo2.JPG')}}" onclick="selectedfn(event)"/>                                      
+                </div>
+                <div class="col-sm-3 col-sm-offset-1">
+                    <img width="100%" src="{{url_for('static',filename='upload/photo3.JPG')}}" onclick="selectedfn(event)"/>                                      
+                </div>                                
+              </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </section>    
+{% endblock %}
+
+{% block script %}
+    {{super()}}
+<script type="text/javascript" src="{{url_for('static',filename='js/camera.js')}}"></script>
+<script type="text/javascript">
+    var selectedPhoto;
+    // document.getElementsByTagName('svg')[0] is specific to SVG document
+    // e.target.ownerDocument is to any HTML Document
+    //var svgRoot = document.getElementsByTagName('svg')[0];
+    var modes={"#addCamera_btn":"addCamera","#dragCamera_btn":"dragCamera","#delCamera_btn":"delCamera","#rotateCamera_btn":"rotateCamera","#addPhoto_btn":"addPhoto"};
+    var svgRoot=document.querySelector("svg");
+    svgRoot.addEventListener("mouseup", function(){
+        flag=false;
+    });
+
+
+    //必须是同名handler，才可移除，匿名函数，不可移除
+    //obj.removeEventListener("click",handler);
+    //绑定函数中可以采用return 形式让handler失效
+    document.querySelector("#addCamera_btn").onclick=function(){
+        mode=modes["#addCamera_btn"];
+        svgRoot.addEventListener("click",addCamera,false);
+        cameraListener();
+        mode=modes["#addCamera_btn"];
+    };
+
+    document.querySelector("#delCamera_btn").onclick=function(){
+        mode=modes["#delCamera_btn"];
+        cameraListener();
+    };
+
+    document.querySelector("#rotateCamera_btn").onclick=function(){
+        mode=modes["#rotateCamera_btn"];
+        cameraListener();
+    };
+
+    document.querySelector("#dragCamera_btn").onclick=function(){
+        mode=modes["#dragCamera_btn"];
+        cameraListener();
+    };
+    document.querySelector("#addPhoto_btn").onclick=function(){
+        mode=modes["#addPhoto_btn"];
+        $("#picListModal").modal('show');
+        cameraListener();
+    };
+    function cameraListener(){        
+        var cameras=document.querySelectorAll(".camera");
+        for (var i = cameras.length - 1; i >= 0; i--) {
+            var camera=cameras[i];
+            camera.addEventListener("click",function(evt){removeCamera(evt,mode);});            
+            camera.addEventListener("mousedown", function(evt){mousedown(evt,mode);}, false);
+            camera.addEventListener("mousemove",  function(evt){drag(evt,mode)}, false);
+            camera.addEventListener("mousemove",  function(evt){rotate(evt,mode);}, false);
+            camera.addEventListener("mouseup", function(evt){mouseup(evt,mode);}, true);
+            for (var j = camera.childNodes.length - 1; j >= 0; j--) {
+                var obj=camera.childNodes[j];
+                if (obj.nodeName.toLowerCase()=="use") {
+                    obj.addEventListener("click", addPhoto, false);
+                }
+            }       
+         }
+    }
+
+    function addPhoto(evt) {
+        if (mode != "addPhoto") {
+            return false;
+        }
+        var obj=evt.target;
+        var objParent=obj.parentNode;
+        for (var i = objParent.childNodes.length - 1; i >= 0; i--) {
+            if (objParent.childNodes[i].nodeName.toLowerCase()=="image") {
+                return false;
+            }        
+        }
+        var img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        objParent.appendChild(img);
+        //如果仅仅用camera.setAttribute("xlink:href","#camera")不会起作用，因为未引入命名空间
+        img.setAttributeNS("http://www.w3.org/1999/xlink", "href", selectedPhoto);
+        img.setAttribute("filter", "url(#drop-shadow)");
+        img.setAttribute("width",100);
+        img.setAttribute("height",100);
+        img.initX=objParent.currentX;
+        img.initY=objParent.currentY;
+        img.currentX=img.initX;
+        img.currentY=img.initY;
+
+        img.addEventListener('dblclick', function() {
+            $("#myModal img").attr("src",img.getAttribute("href"));
+            $("#myModal").attr("src",img.getAttribute("href"));
+            $("#myModal").modal('show');
+        }); 
+    }
+
+    function selectedfn(event){selectedPhoto=event.target.getAttribute("src");
+    }
+</script>
+{% endblock %}

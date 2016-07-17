@@ -2,7 +2,6 @@
 
 {% block css %}
     {{super()}}
-    <link rel="stylesheet" href="https://cdn.rawgit.com/LeaVerou/awesomplete/gh-pages/awesomplete.css">
     <style type="text/css">
     #tbl_layerInf{
         background-color: #cccccc;
@@ -82,8 +81,8 @@
             $("#tbl_layerInf tbody:first>tr:last").clone(true).appendTo("#tbl_layerInf tbody:first");
         }
         //jq过滤not 或filter
-        $("#tbl_layerInf input:not(.layerDescription)").each(function() {
-            autoajax(this);
+        $("#tbl_layerInf input:not(.No):not(.layerRGB):not(.layerEra):not(.layerDescription)").each(function() {
+            autoajax(this);            
             // if(this instanceof jQuery){
             //     alert("这是一个jQuery对象");}
             // else{alert("这是一个其它对象")} 
@@ -94,16 +93,16 @@
                 maxItems: 100,
                 sort:function(){return;},
             });
-            var myurl="{{url_for('layersConfig',projectNo=projectNo)}}";
+            var myurl="{{url_for('logginData.layersInf',projectNo=projectNo)}}";
 
             var callback_function=function (data) {
-                var list = [];
-                list=data["result"][$(obj).attr("class")];
+                var list=data["result"];
                 awesomplete.list = list;
             }
 
-            $('input').on('keyup', function () {
+            $(obj).bind('keyup', function () {
                 $.ajax({
+                    data:{"templateName":$(obj).attr("class")},
                     url: myurl,
                     type: 'POST',
                     dataType: 'json',

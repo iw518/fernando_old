@@ -11,8 +11,9 @@
 # -------------------------------------------------------------------------
 
 from flask import Blueprint, render_template, request, url_for, jsonify
+
+from auth2 import *
 from maingui import *
-from auth import *
 
 analysis = Blueprint('analysis', __name__)
 

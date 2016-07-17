@@ -89,7 +89,7 @@
         $(function(){
             $('#calculate').click(function(){
                 var myurl="{{url_for('calculation.natural_foundation',projectNo=projectNo)}}";
-                 var mydata={"depth":$("input[name=depth]").val(),"water_depth":$("input[name=water_depth]").val()};       
+                var mydata={"depth":$("input[name=depth]").val(),"water_depth":$("input[name=water_depth]").val()};       
                 var callback_function=function(dict){
                                         console.log(dict['result']);
                                         $("#result_table tbody>tr").each(function(index,item){
