@@ -1,13 +1,9 @@
 from flask.ext.login import UserMixin
+from flask.ext.sqlalchemy import SQLAlchemy
 
-from . import login_manager
+from .index import app
 
-
-@login_manager.user_loader
-def loader_user(user_id):
-    return User.query.get(int(user_id))
-
-
+db=SQLAlchemy(app)
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Interger, primary_key=True)

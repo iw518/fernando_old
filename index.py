@@ -11,11 +11,13 @@
 # -------------------------------------------------------------------------------
 
 from flask import Flask, render_template, request, jsonify
+from flask.ext.bootstrap import Bootstrap
 
 from auth2 import *
 from maingui import *
 from module.analysis import analysis
 from module.auth import auth as auth_blueprint
+from module.auth.forms import LoginForm
 from module.calculation import calculation
 from module.diagram import diagram
 from module.fieldWork import fieldWork
@@ -24,6 +26,7 @@ from module.statistics import statistics
 from sql3 import Sql3
 
 app = Flask(__name__)
+bootstrap=Bootstrap(app)
 app.register_blueprint(logginData, url_prefix="/logginData")
 app.register_blueprint(calculation, url_prefix="/calculation")
 app.register_blueprint(diagram, url_prefix="/logginData")
@@ -31,7 +34,10 @@ app.register_blueprint(statistics, url_prefix="/statistics")
 app.register_blueprint(analysis, url_prefix="/analysis")
 app.register_blueprint(fieldWork, url_prefix="/fieldWork")
 app.register_blueprint(auth_blueprint, url_prefix='/auth')
-
+#configuration
+CSRF_ENABLED = True
+SECRET_KEY = 'you-will-never-guess'
+app.config.from_object(__name__)
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -104,6 +110,31 @@ def reportCheck():
             manager=FindManager(projectNo),
             opinions=opinions
         )
+
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    form = LoginForm()
+    if request.method == 'POST' and form.validate():
+        user = {}
+        user['userID'] = form.userID.data
+        user['password'] = form.password.data
+        print(user['userID'])
+        if user['userID']=='iw518' and user['password']=='800820' :
+            return render_template('index.html')
+    return render_template('auth/login.html',form=form)
+
+@app.route('/login2', methods=['GET','POST'])
+def login2():
+    form = LoginForm()
+    if request.method == 'POST' and form.validate():
+        user = {}
+        user['userID'] = form.userID.data
+        user['password'] = form.password.data
+        print(user['userID'])
+        if user['userID']=='iw518' and user['password']=='800820' :
+            return render_template('index.html')
+    return render_template('auth/login2.html',form=form)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)
