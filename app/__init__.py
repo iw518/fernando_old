@@ -33,7 +33,12 @@ def create_app(config_name):
     mail.init_app(app)
     moment.init_app(app)
     db.init_app(app)
-    db.create_all()
+
+    from .models import creat_database
+    with app.app_context():
+        # Extensions like Flask-SQLAlchemy now know what the "current" app
+        # is while within this block. Therefore, you can now run........
+        db.create_all()
 
     # attach routes and custom error pages here
     from .main import main as main_blueprint

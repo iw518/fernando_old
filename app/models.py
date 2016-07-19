@@ -11,7 +11,6 @@
 # --
 from app import db
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
@@ -25,16 +24,15 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
-db.create_all()
-admin = User('admin', 'admin@example.com')
-guest = User('guest', 'guest@example.com')
-db.session.add(admin)
-db.session.add(guest)
-db.session.commit()
-users = User.query.all()
-admin = User.query.filter_by(username='admin').first()
-print(users)
-print(admin)
+def creat_database():
+    admin = User('admin', 'admin@example.com')
+    guest = User('guest', 'guest@example.com')
+    db.session.add(admin)
+    db.session.add(guest)
+    db.session.commit()
+    users = User.query.all()
+    admin = User.query.filter_by(username='admin').first()
+    print(users)
+    print(admin)
 
 

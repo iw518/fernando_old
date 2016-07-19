@@ -37,18 +37,18 @@ class DevelopmentConfig(Config):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-                              'sqlite:///' + os.path.join(basedir, 'fernando-dev.db')
+                              'sqlite:///' + os.path.join(basedir,'database', 'fernando-dev.db')
 
 
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-                              'sqlite:///' + os.path.join(basedir, 'fernando-test.db')
+                              'sqlite:///' + os.path.join(basedir,'database', 'fernando-test.db')
 
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-                              'sqlite:///' + os.path.join(basedir, 'fernando.db')
+                              'sqlite:///' + os.path.join(basedir,'database', 'fernando.db')
 
 
 config = {
