@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block css %}
+    super()
+    <link href="{{ url_for('static',filename='css/404.css') }} " rel="stylesheet" type="text/css"/>
+{% endblock %}
+{% block toolbar %}
+{% endblock %}
+{% block main %}
+    <div id="da-error-wrapper">
+        <div id="da-error-pin"></div>
+        <div id="da-error-code">
+            error <span>404</span></div>
+        <h1 class="da-error-heading">哎哟喂！页面让狗狗叼走了！</h1>
+        <p><a href="/">大家可以到狗狗没有叼过的地方看看！</a></p>
+    </div>
+{% endblock %}
+
+{% block script %}
+    {{ super() }}
+    <script language=javascript>
+        setTimeout('window.location="/"', 5000)
+    </script>
+{% endblock %}
