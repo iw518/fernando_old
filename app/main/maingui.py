@@ -16,7 +16,6 @@ import os
 import struct
 from collections import OrderedDict
 
-from .GFunction import *
 from .GHole import *
 from .GLayer import *
 from .GPoint import *
@@ -327,7 +326,7 @@ def FindLayers(projectNo):
     # print("本工程地基土可划分为%d个工程地质层。"%(count))
     return layers
 
-
+# 统计时需要考虑分期号
 def ExportLayers_Stat(projectNo, mode=1):
     keytuple = (["PS1", "比贯入阻力", "Ps", "MPa", 1, 2],
                 ["DENSITY", "重度", "&gamma;", "kN/m<sup>3</sup>", 1, 1],
@@ -351,7 +350,7 @@ def ExportLayers_Stat(projectNo, mode=1):
     sql_str = sql_str + "FROM (titemdata INNER JOIN pmlayer \
                 ON titemdata.anumber = pmlayer.anumber) INNER JOIN base \
                 ON titemdata.project_count = base.project_count \
-                WHERE (base.project_name)='%s' \
+                WHERE (base.project_name)='%s' and titemdata.age_no=0\
                 GROUP BY pmlayer.layerorder, pmlayer.layerno, \
                 pmlayer.layername" % (projectNo)
     # print(sql_str)
@@ -571,8 +570,8 @@ def GroupTotal(total, factor=8):
 
 def importXml():
     configDict={}
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    filename=os.path.join(basedir, 'config', 'template.xml')
+    basedir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+    filename=os.path.join(basedir, 'config',  'template.xml')
     dom=xmlDom.parse(filename)
     root=dom.documentElement
     nodes=root.childNodes
@@ -590,3 +589,17 @@ def importXml():
                     # print(item.firstChild.nodeValue)
             configDict[node.getAttribute("name")]=keylist
     return configDict
+
+def importMotto(filename):
+    basedir = os.path.abspath(os.getcwd())
+    dom=xmlDom.parse(filename)
+    root=dom.documentElement
+    nodes=root.childNodes
+    mottos = []
+    for node in nodes:
+        # 默认xml中换行符及空格也属于节点,即COMMENT_NODE
+        # 此外还有ATTRIBUTE_NODE以及ELEMENT_NODE
+        if node.nodeType==1:
+            motto=node.firstChild.nodeValue
+            mottos.append(motto)
+    return mottos

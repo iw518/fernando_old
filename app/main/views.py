@@ -83,28 +83,3 @@ def reportCheck():
             manager=FindManager(projectNo),
             opinions=opinions
         )
-
-
-@main.route('/login', methods=['GET','POST'])
-def login():
-    form = LoginForm()
-    if request.method == 'POST' and form.validate():
-        user = {}
-        user['userID'] = form.userID.data
-        user['password'] = form.password.data
-        print(user['userID'])
-        if user['userID']=='iw518' and user['password']=='800820' :
-            return render_template('index.html')
-    return render_template('auth/login.html', form=form)
-
-@main.route('/login2', methods=['GET','POST'])
-def login2():
-    form = LoginForm()
-    if request.method == 'POST' and form.validate():
-        user = {}
-        user['userID'] = form.userID.data
-        user['password'] = form.password.data
-        print(user['userID'])
-        if user['userID']=='iw518' and user['password']=='800820' :
-            return render_template('index.html')
-    return render_template('auth/login2.html', form=form)

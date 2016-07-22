@@ -215,6 +215,7 @@ class Layer_Stats(Layer):
             Nq = (Matchlist(CON_Fd, FD_FACTOR))[1]
             Nc = (Matchlist(CON_Fd, FD_FACTOR))[2]
             fd=0.5*f*Nr*Tr*r*b+f*Nc*Tc*CON_Cd+Nq*Tq*r0*d
+            print("d=%.2f,r=%.2f,CON_Ck=%.2f,fd=%.2f"%(d,r,CON_Ck,fd))
         return '%.2f' % fd
 
     def Fak(self, d=1.0, wd=0.5):
