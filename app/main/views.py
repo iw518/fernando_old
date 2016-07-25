@@ -21,7 +21,7 @@ from .sql3 import Sql3
 def index():
     if request.method == 'POST':
         projectNo = request.form['projectNo']
-        return render_template('project.html', projectNo=projectNo)
+        return render_template('register.html', projectNo=projectNo)
     else:
         return render_template('index.html')
 

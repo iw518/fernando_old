@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block toolbar %}
+{% endblock %}
+{% block main %}
+    <div class="col-sm-4">
+        {% for message in get_flashed_messages() %}
+                <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert" style="line-height:1.5">&times;</button>
+                    {{ message}}
+                </div>
+        {% endfor %}
+        {{ wtf.quick_form(form) }}
+    </div>
+{% endblock %}

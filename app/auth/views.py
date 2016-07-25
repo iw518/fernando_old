@@ -10,7 +10,7 @@
 # copyright:    copyright  2016 Xu, Aiwu
 # -------------------------------------------------------------------------------
 import os
-import  random
+import random
 from flask import render_template, redirect,request, url_for, flash
 from flask_login import login_user, logout_user, login_required
 
@@ -43,6 +43,7 @@ def logout():
     logout_user()
     flash('您已经退出系统')
     return redirect(url_for('main.index'))
+
 
 @auth.route('/register', methods=['POST','GET'])
 def register():
