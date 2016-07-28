@@ -1,0 +1,142 @@
+{% extends "project_home.html" %}
+{% block toolbar %}
+    <div class="row">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" id='print'>
+                <span class="glyphicon glyphicon-print"></span>
+                &nbsp;&nbsp;打印
+            </button>
+            <!-- 按钮触发模态框 -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="modal_btn">
+                <span class="fa fa-trash-o fa-lg"></span>
+                &nbsp;&nbsp;修改
+            </button>
+            <!-- 模态框（Modal） -->
+        </div>
+    </div>
+    <div class="row">
+        <div id="checkbox_group" class="col-sm-10">
+            {% for key in stages %}
+                <label class="checkbox-inline">
+                    <input type="checkbox" value="{{ stages[key] }}"/>
+                    {{ stages[key] }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block css %}
+    {{ super() }}
+    <style type="text/css">
+        .wangEditor-txt {
+            min-height: 300px;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div id="printArea">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <h4 style="text-align: center;"><strong>审核意见</strong></h4>
+                <p>工程编号：{{ projectNo }}</p>
+                <hr/>
+            </div>
+            <div id="showOpinions" class="col-sm-10 col-sm-offset-1">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modal %}
+    <!-- 使用bootstrap提供的modal功能时，必须将modal放在body内的最外层，否则modal的z-index并非预期的1050,mmenu默认将body内最外层的div添加到一个新生成的div内,其z-index为0,以防止modal的z-index被mmenu.js污染,可通过将modal添加到section标签来解决 -->
+    <section>
+        <div id="myModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+             aria-labelledby="myLargeModalLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="col-sm-12">
+                        <p>审核意见</p>
+                        <div id="editOpinions" onkeydown="countChar(this,'#counter')"
+                             onkeyup="countChar(this,'#counter')">
+                        </div>
+                        <p><span id="counter"></span></p>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default" id='save'>保存</button>
+                        <button type="button" class="btn btn-default" id='cancel'>取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript">
+        var stage;
+        var editor = new wangEditor('editOpinions');
+        // 仅仅想移除某几个菜单，例如想移除『插入代码』和『全屏』菜单：
+        // 其中的 wangEditor.config.menus 可获取默认情况下的菜单配置
+        editor.config.menus = $.map(wangEditor.config.menus, function (item, key) {
+            if (item === 'insertcode' || item === 'fullscreen' || item === 'img' || item === 'video') {
+                return null;
+            }
+            return item;
+        });
+        editor.create();
+        editor.clear();
+        editor.$txt.html('');
+
+        $(":checkbox").click(function () {
+            $(this).parent().siblings().find("input[type=checkbox]:first").attr("checked", false);
+            $(this).attr("checked", true);
+            stage = $(this).val();
+            $("#showOpinions").html('');
+            editor.$txt.html('');
+
+            {% for opinion in project.opinions %}
+                if (stage == "{{ opinion.stage }}") {
+                    $("#showOpinions").html('{{opinion.content|safe}}');
+                    editor.$txt.html('{{opinion.content|safe}}');
+                }
+                else {
+                    //次方法意味着跳出可以跳出循环了
+                }
+            {% endfor %}
+        });
+
+
+        //html中提交表单有两种方式，一种是严格form-input方式，
+        //一种是ajax-button-json方式，button提交的数据必须严格为json格式
+        //ajax可以部分混用form中的控件，但必须严格提交json个数数据
+        $('#save').click(function () {
+            var myUrl = "{{url_for('audit.reportCheck',projectNo=projectNo)}}";
+            var myData = {"stage": stage, "content": editor.$txt.html()};
+            var callback_function = function (data) {
+                return data["result"];
+            }
+            if (editor.$txt.text() != '' && stage != '') {
+                $.ajax({
+                    url: myUrl,
+                    data: myData,
+                    type: "POST",
+                    dataType: "json",
+                    success: callback_function
+                });
+            }
+        });
+        $('#cancel').click(function(){
+            $("#myModal").modal("hide");
+        });
+
+        function countChar(obj, target) {
+            var counter = $(obj).text().length;
+            var result="您正处于编辑模式，当前意见字数总计："+counter+"字。"
+            $(target).text(result);
+        }
+    </script>
+{% endblock %}

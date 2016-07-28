@@ -18,17 +18,16 @@ from reportlab.platypus import PageBreak
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfbase.ttfonts import TTFont
+
 pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
 pdfmetrics.registerFont(TTFont('SIMSUN', 'SIMSUN.ttc'))
 pdfmetrics.registerFont(TTFont('SIMHEI', 'SIMHEI.ttf'))
 
 
-def PrintPdf(projectNo,probeInf, holelist, index=None):
+def PrintPdf(projectNo, probeInf, holelist, index=None):
     import os
-    basedir = os.path.abspath(os.getcwd())
-    # basedir='e:/Pythonweb/py344/project_code/fernando/
+    from config import basedir
     cptPath = os.path.join(basedir, 'app', 'static', 'download')
-
 
     if not os.path.exists(cptPath):
         os.makedirs(cptPath)
@@ -54,6 +53,7 @@ def PrintPdf(projectNo,probeInf, holelist, index=None):
             # Attenion:where elments.extend must be used,but not elements.append
             elements.extend(Cpt2Pdf(holelist[i], probeInf))
     doc.filename = os.path.join(cptPath, filename)
+    print("dd" + doc.filename)
     doc.build(elements)
     # url='/'.join(['download',projectNo,filename])
     # os.path.join('download',projectNo,filename)将返回download\projectNo\filename，浏览器无法识别
@@ -126,43 +126,43 @@ def TemplateofCPTPDF(data, xHole, probeInf):
                     )
     # TODO: Get this line right instead of just copying it from the docs
     style = TableStyle([('FONT', (0, 0), (-1, 0), 'SIMHEI', 20),
-                      # ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),#内框
-                      ('SPAN',(0,0),(-1,0)),
-                      ('SPAN',(3,2),(5,2)),
-                      ('FONT',(0,1),(-1,4),'STSong-Light',9.5),
-                      ('FONT',(0,5),(-1,-2),'Times-Roman',9),
-                      ('FONT',(0,-1),(-1,-1),'STSong-Light',9.5),
-                      ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                      ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                      ('ALIGN',(0,0),(-1,-1),'CENTER'),
-                      ('ALIGN',(1,1),(1,1),'LEFT'),
-                      ('ALIGN',(3,1),(3,1),'LEFT'),
-                      ('ALIGN',(5,1),(5,1),'LEFT'),
-                      ('ALIGN',(7,1),(7,1),'LEFT'),
-                      ('ALIGN',(-1,1),(-1,1),'LEFT'),
-                      ('ALIGN',(1,2),(1,2),'LEFT'),
-                      ('ALIGN',(3,2),(5,2),'CENTER'),
-                      ('LINEBELOW',(1,1),(1,1),0.25,colors.black),
-                      ('LINEBELOW',(3,1),(3,1),0.25,colors.black),
-                      ('LINEBELOW',(5,1),(5,1),0.25,colors.black),
-                      ('LINEBELOW',(7,1),(7,1),0.25,colors.black),
-                      ('LINEBELOW',(-1,1),(-1,1),0.25,colors.black),
-                      ('LINEBELOW',(1,2),(1,2),0.25,colors.black),
-                      ('LINEBELOW',(3,2),(5,2),0.25,colors.black),
-                      ('LINEBELOW',(0,4),(-1,4),1.00,colors.black),
-                      ('LINEBELOW',(1,-1),(2,-1),0.25,colors.black),
-                      ('LINEBELOW',(4,-1),(5,-1),0.25,colors.black),
-                      ('LINEBEFORE',(1,4),(1,-2),0.25,colors.black),
-                      ('LINEBEFORE',(3,4),(3,-2),0.25,colors.black),
-                      ('LINEBEFORE',(5,4),(5,-2),0.25,colors.black),
-                      ('LINEBEFORE',(7,4),(7,-2),0.25,colors.black),
-                      ('LINEBEFORE',(-1,4),(-1,-2),0.25,colors.black),
-                      ('LINEAFTER',(1,4),(1,-2),1,colors.black),
-                      ('LINEAFTER',(3,4),(3,-2),1,colors.black),
-                      ('LINEAFTER',(5,4),(5,-2),1,colors.black),
-                      ('LINEAFTER',(7,4),(7,-2),1,colors.black),
-                      ('BOX', (0,4), (-1,-2), 1.5, colors.black),#外边框
-                      ])
+                        # ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),#内框
+                        ('SPAN', (0, 0), (-1, 0)),
+                        ('SPAN', (3, 2), (5, 2)),
+                        ('FONT', (0, 1), (-1, 4), 'STSong-Light', 9.5),
+                        ('FONT', (0, 5), (-1, -2), 'Times-Roman', 9),
+                        ('FONT', (0, -1), (-1, -1), 'STSong-Light', 9.5),
+                        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('ALIGN', (1, 1), (1, 1), 'LEFT'),
+                        ('ALIGN', (3, 1), (3, 1), 'LEFT'),
+                        ('ALIGN', (5, 1), (5, 1), 'LEFT'),
+                        ('ALIGN', (7, 1), (7, 1), 'LEFT'),
+                        ('ALIGN', (-1, 1), (-1, 1), 'LEFT'),
+                        ('ALIGN', (1, 2), (1, 2), 'LEFT'),
+                        ('ALIGN', (3, 2), (5, 2), 'CENTER'),
+                        ('LINEBELOW', (1, 1), (1, 1), 0.25, colors.black),
+                        ('LINEBELOW', (3, 1), (3, 1), 0.25, colors.black),
+                        ('LINEBELOW', (5, 1), (5, 1), 0.25, colors.black),
+                        ('LINEBELOW', (7, 1), (7, 1), 0.25, colors.black),
+                        ('LINEBELOW', (-1, 1), (-1, 1), 0.25, colors.black),
+                        ('LINEBELOW', (1, 2), (1, 2), 0.25, colors.black),
+                        ('LINEBELOW', (3, 2), (5, 2), 0.25, colors.black),
+                        ('LINEBELOW', (0, 4), (-1, 4), 1.00, colors.black),
+                        ('LINEBELOW', (1, -1), (2, -1), 0.25, colors.black),
+                        ('LINEBELOW', (4, -1), (5, -1), 0.25, colors.black),
+                        ('LINEBEFORE', (1, 4), (1, -2), 0.25, colors.black),
+                        ('LINEBEFORE', (3, 4), (3, -2), 0.25, colors.black),
+                        ('LINEBEFORE', (5, 4), (5, -2), 0.25, colors.black),
+                        ('LINEBEFORE', (7, 4), (7, -2), 0.25, colors.black),
+                        ('LINEBEFORE', (-1, 4), (-1, -2), 0.25, colors.black),
+                        ('LINEAFTER', (1, 4), (1, -2), 1, colors.black),
+                        ('LINEAFTER', (3, 4), (3, -2), 1, colors.black),
+                        ('LINEAFTER', (5, 4), (5, -2), 1, colors.black),
+                        ('LINEAFTER', (7, 4), (7, -2), 1, colors.black),
+                        ('BOX', (0, 4), (-1, -2), 1.5, colors.black),  # 外边框
+                        ])
     # Configure style and word wrap
     # t=Table(data,10*[1.75*cm],54*[0.5*cm])
     # colswidth,rowswidth can be list or tuple

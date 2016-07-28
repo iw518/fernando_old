@@ -25,13 +25,6 @@ class Permission:
     AUTHORIZED = 0x20
     USER_ENTRY = 0x40
 
-
-class Stage:
-    TENDER = 0x01
-    SCHEME = 0x02
-    REPORT = 0x04
-
-
 class Project(db.Model):
     __tablename__ = 'projects'
     id = db.Column(db.Integer, primary_key=True)
@@ -104,22 +97,23 @@ class Role(db.Model):
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=False)
     permissions = db.Column(db.Integer)
+    fullname = db.Column(db.String(64))
     users = db.relationship('Registration', backref='role', lazy='dynamic')
 
     @staticmethod
     def insert_roles():
         roles = {
-            'Guest': (Permission.View_ENTRY, True),
-            'TestManager': (Permission.TEST_ENTRY, False),
-            'TestAuditor': (Permission.TEST_ENTRY | Permission.View_ENTRY, False),
-            'Worker': (Permission.SITE_ENTRY, False),
-            'ProjectAssistant': (Permission.DATA_ENTRY | Permission.SITE_ENTRY | Permission.View_ENTRY, False),
+            'Guest': (Permission.View_ENTRY, True,'来宾'),
+            'TestManager': (Permission.TEST_ENTRY, False,'试验负责人'),
+            'TestAuditor': (Permission.TEST_ENTRY | Permission.View_ENTRY, False,'试验审核人'),
+            'Worker': (Permission.SITE_ENTRY, False,'作业人员'),
+            'ProjectAssistant': (Permission.DATA_ENTRY | Permission.SITE_ENTRY | Permission.View_ENTRY, False,'项目助理'),
             'ProjectManager': (
-            Permission.DATA_ENTRY | Permission.TEST_ENTRY | Permission.SITE_ENTRY | Permission.View_ENTRY, False),
-            'ProjectAuditor': (Permission.OPINION_ENTRY | Permission.View_ENTRY, False),
-            'AuthorizingPerson': (Permission.AUTHORIZED | Permission.OPINION_ENTRY | Permission.View_ENTRY, False),
-            'UserManager': (Permission.USER_ENTRY, False),
-            'Administrator': (0xff, False)
+            Permission.DATA_ENTRY | Permission.TEST_ENTRY | Permission.SITE_ENTRY | Permission.View_ENTRY, False,'项目经理'),
+            'ProjectAuditor': (Permission.OPINION_ENTRY | Permission.View_ENTRY, False,'项目审核人'),
+            'AuthorizingPerson': (Permission.AUTHORIZED | Permission.OPINION_ENTRY | Permission.View_ENTRY, False,'项目审定人'),
+            'UserManager': (Permission.USER_ENTRY, False,'用户管理员'),
+            'Administrator': (0xff, False,'管理员')
         }
         for r in roles:
             role = Role.query.filter_by(name=r).first()
@@ -127,6 +121,7 @@ class Role(db.Model):
                 role = Role(name=r)
             role.permissions = roles[r][0]
             role.default = roles[r][1]
+            role.fullname = roles[r][2]
             db.session.add(role)
         db.session.commit()
 
@@ -134,9 +129,10 @@ class Role(db.Model):
 class Profile(db.Model):
     __tablename__ = 'profiles'
     id = db.Column(db.Integer, primary_key=True)
-    phase = db.Column(db.String(64))
-    client = db.Column(db.String(160))
-    design = db.Column(db.String(160))
+    phase = db.Column(db.String(8))
+    client = db.Column(db.String(32))
+    design = db.Column(db.String(32))
+    size=db.Column(db.String(100))
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
 
@@ -163,7 +159,8 @@ class Opinion(db.Model):
     content = db.Column(db.Text())
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
 
-    def __init__(self, stage, content):
+    def __init__(self, project_id,stage, content):
+        self.project_id=project_id
         self.stage = stage
         self.content = content
 

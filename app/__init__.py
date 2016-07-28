@@ -50,23 +50,17 @@ def create_app(config_name):
     # attach routes and custom error pages here
     from .main import main as main_blueprint
     from .auth import auth as auth_blueprint
-    from .order import order as order_blueprint
-    from .module.analysis import analysis
-    from app.auth.forms import LoginForm
-    from .module.calculation import calculation
-    from .module.diagram import diagram
-    from .module.fieldWork import fieldWork
-    from .module.logginData import logginData
-    from .module.statistics import statistics
+    from .module import audit_blueprint, analysis_blueprint,calculation_blueprint,diagram_blueprint,fieldWork_blueprint,logginData_blueprint,order_blueprint,statistics_blueprint
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
-    app.register_blueprint(logginData, url_prefix="/logginData")
-    app.register_blueprint(calculation, url_prefix="/calculation")
-    app.register_blueprint(diagram, url_prefix="/logginData")
-    app.register_blueprint(statistics, url_prefix="/statistics")
-    app.register_blueprint(analysis, url_prefix="/analysis")
-    app.register_blueprint(fieldWork, url_prefix="/fieldWork")
+    app.register_blueprint(audit_blueprint, url_prefix='/audit')
+    app.register_blueprint(logginData_blueprint, url_prefix="/logginData")
+    app.register_blueprint(calculation_blueprint, url_prefix="/calculation")
+    app.register_blueprint(diagram_blueprint, url_prefix="/logginData")
+    app.register_blueprint(statistics_blueprint, url_prefix="/statistics")
+    app.register_blueprint(analysis_blueprint, url_prefix="/analysis")
+    app.register_blueprint(fieldWork_blueprint, url_prefix="/fieldWork")
     app.register_blueprint(order_blueprint, url_prefix="/order")
 
     return app

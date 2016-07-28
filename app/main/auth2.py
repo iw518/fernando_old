@@ -1,7 +1,7 @@
 # -*-coding:utf-8-*-
 # -------------------------------------------------------------------------------
 # Name:        auth
-# Purpose:     check userlogin and projectNO
+# Purpose:     audit userlogin and projectNO
 #
 # Author:      Robot of Fernando
 #
@@ -19,7 +19,7 @@ class Manager():
         self.id = id
         self.name = name
 
-    def find():
+    def find(self):
         return None
 
 
